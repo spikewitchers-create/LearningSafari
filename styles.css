@@ -504,20 +504,20 @@ input[type="text"]:focus {
 }
 
 .vraag {
-  font-size: 2.8rem;
+  font-size: 2.6rem;
   font-weight: bold;
   letter-spacing: 0.03em;
   color: var(--primair-dark);
   line-height: 1.2;
 }
 .vraag.vraag-middel {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   letter-spacing: 0;
-  line-height: 1.35;
+  line-height: 1.4;
   font-weight: 700;
 }
 .vraag.vraag-lang {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   letter-spacing: 0;
   line-height: 1.55;
   font-weight: 600;

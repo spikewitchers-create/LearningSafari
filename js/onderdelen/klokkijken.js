@@ -59,7 +59,7 @@ export function genereerItems() {
       const min = 30 + x;
       items.push({
         id: `klok-halfuur-${h}-${x}`,
-        vraag: `Hoeveel minuten wijst de klok?`,
+        vraag: `Hoeveel minuten wijst de grote wijzer?`,
         antwoord: min,
         leerdoel: `Klokkijken: minuten over het halfuur`,
         hints: hints5minOverHalf(h, x),
@@ -73,7 +73,7 @@ export function genereerItems() {
   for (let h = 1; h <= 12; h++) {
     items.push({
       id: `klok-kwartover-${h}`,
-      vraag: `Hoeveel minuten wijst de klok?`,
+      vraag: `Hoeveel minuten wijst de grote wijzer?`,
       antwoord: 15,
       leerdoel: `Klokkijken: kwart over`,
       hints: hintsKwartOver(h),
@@ -86,7 +86,7 @@ export function genereerItems() {
   for (let h = 2; h <= 12; h++) {
     items.push({
       id: `klok-half-${h}`,
-      vraag: `Hoeveel minuten wijst de klok?`,
+      vraag: `Hoeveel minuten wijst de grote wijzer?`,
       antwoord: 30,
       leerdoel: `Klokkijken: het halfuur`,
       hints: hintsHalf(h),
@@ -100,7 +100,7 @@ export function genereerItems() {
   for (let h = 1; h <= 12; h++) {
     items.push({
       id: `klok-kwartvoor-${h}`,
-      vraag: `Hoeveel minuten wijst de klok?`,
+      vraag: `Hoeveel minuten wijst de grote wijzer?`,
       antwoord: 45,
       leerdoel: `Klokkijken: kwart voor`,
       hints: hintsKwartVoor(h),
@@ -114,7 +114,7 @@ export function genereerItems() {
     for (const x of [5, 10, 20, 25]) {
       items.push({
         id: `klok-over-${h}-${x}`,
-        vraag: `Hoeveel minuten wijst de klok?`,
+        vraag: `Hoeveel minuten wijst de grote wijzer?`,
         antwoord: x,
         leerdoel: `Klokkijken: minuten over het uur`,
         hints: hintsOverUur(h, x),
@@ -131,7 +131,7 @@ export function genereerItems() {
       const min = 60 - x;
       items.push({
         id: `klok-voor-${h}-${x}`,
-        vraag: `Hoeveel minuten wijst de klok?`,
+        vraag: `Hoeveel minuten wijst de grote wijzer?`,
         antwoord: min,
         leerdoel: `Klokkijken: minuten voor het uur`,
         hints: hintsVoorUur(h, x),

@@ -443,8 +443,8 @@ function toonOpgave() {
   const vraagEl = document.getElementById('vraag');
   vraagEl.textContent = vraagTekst;
   const vraagLengte = vraagTekst.length;
-  vraagEl.classList.toggle('vraag-lang',   vraagLengte > 80);
-  vraagEl.classList.toggle('vraag-middel', vraagLengte > 30 && vraagLengte <= 80);
+  vraagEl.classList.toggle('vraag-lang',   vraagLengte > 55);
+  vraagEl.classList.toggle('vraag-middel', vraagLengte > 20 && vraagLengte <= 55);
   const isTekst = opgave.invoerType === 'tekst';
   const inp = document.getElementById('antwoord-input');
   inp.inputMode   = isTekst ? 'text'    : 'numeric';
@@ -453,6 +453,17 @@ function toonOpgave() {
   inp.value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
+  // ── Kladblok-knop (vóór resetHint zodat toonHintKnop ze kan zien) ─
+  const isGroteSom = KLADBLOK_PREFIXEN.some(p => opgave.id.startsWith(p));
+  document.getElementById('kladblok-knop').hidden = !isGroteSom;
+  document.getElementById('kladblok').hidden = true;
+  document.getElementById('kladblok').value = '';
+
+  // ── Trappenschema (lengtematen) ────────────────────────────────
+  const isTrap = opgave.id.startsWith(LENGTE_PREFIX);
+  document.getElementById('trap-knop').hidden = !isTrap;
+  document.getElementById('trap-schema').hidden = true;
+
   resetHint();
   beheersingsVerwerkt = false;
   document.getElementById('volgende-knop').hidden = true;
@@ -467,18 +478,6 @@ function toonOpgave() {
   } else {
     klokWrap.hidden = true;
   }
-
-  // ── Kladblok-knop ─────────────────────────────────────────────
-  const isGroteSom = KLADBLOK_PREFIXEN.some(p => opgave.id.startsWith(p));
-  const kladblokKnop = document.getElementById('kladblok-knop');
-  kladblokKnop.hidden = !isGroteSom;
-  document.getElementById('kladblok').hidden = true;
-  document.getElementById('kladblok').value = '';
-
-  // ── Trappenschema (lengtematen) ────────────────────────────────
-  const isTrap = opgave.id.startsWith(LENGTE_PREFIX);
-  document.getElementById('trap-knop').hidden = !isTrap;
-  document.getElementById('trap-schema').hidden = true;
 
   // ── Staal TTS / dictee-modus ───────────────────────────────────
   const isStaalDictee = !!opgave.spellingDictee;
@@ -514,8 +513,12 @@ function resetHint() {
 }
 
 function toonHintKnop() {
-  const hints = sessie[index]?.hints ?? [];
-  if (hints.length > 0) document.getElementById('hint-gebied').hidden = false;
+  const opgave = sessie[index];
+  const hints = opgave?.hints ?? [];
+  const heeftExtras = KLADBLOK_PREFIXEN.some(p => opgave?.id?.startsWith(p))
+                   || opgave?.id?.startsWith(LENGTE_PREFIX);
+  document.getElementById('hint-gebied').hidden = hints.length === 0 && !heeftExtras;
+  document.getElementById('hint-knop').hidden = hints.length === 0;
 }
 
 // lees-knop.onclick wordt per opgave ingesteld in toonOpgave()
