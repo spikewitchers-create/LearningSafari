@@ -20,49 +20,64 @@
       <p class="intro">Oefen de tafels en word een echte kampioentje!</p>
       <div class="formulier">
         <label for="naam-input">Hoe heet jij?</label>
-        <input id="naam-input" type="text" placeholder="Jouw naam" autocomplete="off" maxlength="30">
+        <input id="naam-input" type="text" placeholder="Jouw naam"
+               autocomplete="off" maxlength="30">
       </div>
-      <button id="start-knop" class="knop-groot">Start oefenen →</button>
+      <button id="start-knop" class="knop-groot">Verder →</button>
     </div>
   </section>
 
-  <!-- Keuze + voortgangscherm -->
-  <section id="scherm-keuze" class="scherm" hidden>
-    <header class="sessie-header">
+  <!-- Oefenscherm (keuze + sessie in één layout) -->
+  <section id="scherm-oefenen" class="scherm" hidden>
+
+    <header class="oefenen-header">
       <span class="logo-klein">🦁</span>
-      <div class="keuze-naam" id="keuze-naam"></div>
+      <span id="oefenen-naam" class="oefenen-naam"></span>
       <button id="wissel-naam-knop" class="knop-tekst">Naam wijzigen</button>
     </header>
-    <div class="kaart">
-      <p class="keuze-titel">Welke tafels wil je oefenen?</p>
-      <ul id="tafel-lijst" class="tafel-lijst"></ul>
-      <div class="keuze-acties">
-        <button id="alles-knop" class="knop-klein">Alles</button>
-        <button id="niets-knop" class="knop-klein">Niets</button>
-      </div>
-    </div>
-    <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
-  </section>
 
-  <!-- Sessiescherm -->
-  <section id="scherm-sessie" class="scherm" hidden>
-    <header class="sessie-header">
-      <span class="logo-klein">🦁</span>
-      <div class="voortgang-balk-wrap">
-        <div class="voortgang-balk"><div id="voortgang-balk-vul"></div></div>
-        <span id="voortgang" class="voortgang-label">1 / 10</span>
-      </div>
-    </header>
-    <div class="kaart vraag-kaart">
-      <p id="vraag" class="vraag"></p>
-    </div>
-    <div class="kaart antwoord-kaart">
-      <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
-      <input id="antwoord-input" type="number" inputmode="numeric"
-             placeholder="?" autocomplete="off">
-      <button id="controleer-knop" class="knop-groot">Controleer</button>
-    </div>
-    <p id="feedback" class="feedback"></p>
+    <div class="oefenen-layout">
+
+      <!-- Hoofdvlak: vraag + invoer -->
+      <div class="oefenvlak">
+
+        <!-- Rust-kaart vóór de sessie -->
+        <div id="wacht-kaart" class="kaart vraag-kaart wacht-kaart">
+          <p class="wacht-tekst">Kies je tafels<br>en klik <strong>Start</strong>!</p>
+        </div>
+
+        <!-- Actieve sessie -->
+        <div id="sessie-inhoud" hidden>
+          <div class="voortgang-balk-wrap">
+            <div class="voortgang-balk"><div id="voortgang-balk-vul"></div></div>
+            <span id="voortgang" class="voortgang-label">1 / 10</span>
+          </div>
+          <div class="kaart vraag-kaart">
+            <p id="vraag" class="vraag"></p>
+          </div>
+          <div class="kaart antwoord-kaart">
+            <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
+            <input id="antwoord-input" type="number" inputmode="numeric"
+                   placeholder="?" autocomplete="off">
+            <button id="controleer-knop" class="knop-groot">OK</button>
+          </div>
+          <p id="feedback" class="feedback"></p>
+        </div>
+
+      </div><!-- .oefenvlak -->
+
+      <!-- Zijbalk: tafelkeuze + beheersing -->
+      <aside class="zijbalk">
+        <p class="zijbalk-titel">Tafels</p>
+        <ul id="tafel-lijst" class="tafel-lijst"></ul>
+        <div class="keuze-acties">
+          <button id="alles-knop" class="knop-klein">Alles</button>
+          <button id="niets-knop" class="knop-klein">Niets</button>
+        </div>
+        <button id="keuze-start-knop" class="knop-groot">Start →</button>
+      </aside>
+
+    </div><!-- .oefenen-layout -->
   </section>
 
   <!-- Resultaatscherm -->
@@ -78,7 +93,7 @@
     <button id="opnieuw-knop" class="knop-groot">Terug naar keuze →</button>
   </section>
 
-</div><!-- .pagina -->
+</div>
 
 <script type="module" src="js/app.js"></script>
 </body>
