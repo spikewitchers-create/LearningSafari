@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LearningSafari</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Welkomstscherm -->
+  <section id="scherm-welkom" class="scherm" hidden>
+    <h1>LearningSafari 🦁</h1>
+    <p>Oefen de tafels en word een echte kampioentje!</p>
+    <div class="formulier">
+      <label for="naam-input">Hoe heet jij?</label>
+      <input id="naam-input" type="text" placeholder="Jouw naam" autocomplete="off" maxlength="30">
+    </div>
+    <button id="start-knop" class="knop-groot">Start oefenen</button>
+  </section>
+
+  <!-- Sessiescherm -->
+  <section id="scherm-sessie" class="scherm" hidden>
+    <p id="voortgang" class="voortgang">1 / 10</p>
+    <div class="vraag-kader">
+      <p id="vraag" class="vraag"></p>
+    </div>
+    <div class="formulier">
+      <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
+      <input id="antwoord-input" type="number" inputmode="numeric" placeholder="?" autocomplete="off">
+    </div>
+    <button id="controleer-knop" class="knop-groot">Controleer</button>
+    <p id="feedback" class="feedback"></p>
+  </section>
+
+  <!-- Resultaatscherm -->
+  <section id="scherm-resultaat" class="scherm" hidden>
+    <h2>Sessie klaar!</h2>
+    <p id="resultaat-tekst" class="groot"></p>
+    <p id="voortgang-tekst"></p>
+    <button id="opnieuw-knop" class="knop-groot">Nog een ronde</button>
+  </section>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

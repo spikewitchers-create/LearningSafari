@@ -1,0 +1,134 @@
+/* Rustige stijl: grote knoppen, dyslexievriendelijk lettertype, weinig visuele ruis */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --kleur-achtergrond: #fdf8f0;
+  --kleur-tekst:       #2c2c2c;
+  --kleur-primair:     #e07b39;
+  --kleur-goed:        #3a8c5c;
+  --kleur-fout:        #c0392b;
+  --kleur-kader:       #ffffff;
+  --kleur-rand:        #d9cdb8;
+  --lettertype: 'Verdana', 'Geneva', sans-serif; /* goed leesbaar, breed */
+  --straal: 12px;
+}
+
+body {
+  font-family: var(--lettertype);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  background: var(--kleur-achtergrond);
+  color: var(--kleur-tekst);
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+}
+
+.scherm {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+h1 { font-size: 2rem; text-align: center; }
+h2 { font-size: 1.6rem; text-align: center; }
+
+p { text-align: center; }
+
+/* Naamformulier en antwoordinvoer */
+.formulier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label { font-weight: bold; }
+
+input[type="text"],
+input[type="number"] {
+  font-family: var(--lettertype);
+  font-size: 1.4rem;
+  padding: 0.65rem 1rem;
+  border: 2px solid var(--kleur-rand);
+  border-radius: var(--straal);
+  background: var(--kleur-kader);
+  color: var(--kleur-tekst);
+  text-align: center;
+  width: 100%;
+  /* Verberg de spin-knoppen — kind typt gewoon het getal */
+  appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+input:focus {
+  outline: 3px solid var(--kleur-primair);
+  outline-offset: 2px;
+  border-color: var(--kleur-primair);
+}
+
+/* Vraagkader */
+.vraag-kader {
+  background: var(--kleur-kader);
+  border: 2px solid var(--kleur-rand);
+  border-radius: var(--straal);
+  padding: 2rem 1rem;
+}
+
+.vraag {
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* Voortgang */
+.voortgang {
+  font-size: 0.95rem;
+  color: #777;
+  text-align: right;
+}
+
+/* Grote knop */
+.knop-groot {
+  font-family: var(--lettertype);
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 0.85rem 1.5rem;
+  background: var(--kleur-primair);
+  color: #fff;
+  border: none;
+  border-radius: var(--straal);
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+.knop-groot:hover  { background: #c96a2a; }
+.knop-groot:active { background: #a8561f; }
+
+/* Feedback */
+.feedback {
+  min-height: 1.6rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+}
+.feedback.goed { color: var(--kleur-goed); }
+.feedback.fout { color: var(--kleur-fout); }
+
+/* Groot resultaat */
+.groot { font-size: 1.3rem; font-weight: bold; }
+
+/* Schermlezers */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
