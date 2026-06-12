@@ -1,13 +1,13 @@
 const LEERDOEL = 'rek-gr5-blok5-deelsom-keersom';
 
 function hints(a, b, c) {
-  // Rij stopt één stap vóór het deeltal — kind telt de laatste stap zelf
-  const rijZonderLaatste = Array.from({ length: c - 1 }, (_, i) => (i + 1) * b).join(' → ');
-  const voorlaatste = (c - 1) * b;
+  // Toon de eerste helft van de rij (min. 2, max. c-1) — kind telt zelf verder
+  const toonStappen = Math.min(Math.max(2, Math.floor(c / 2)), c - 1);
+  const deelRij = Array.from({ length: toonStappen }, (_, i) => (i + 1) * b).join(', ');
   return [
     `Zoek de keersom: ? × ${b} = ${a}.`,
     c > 1
-      ? `Tel de rij van ${b}: ${rijZonderLaatste} → ? (nog één stap van ${b} bij ${voorlaatste}).`
+      ? `Begin de rij van ${b} te tellen: ${deelRij}, ... Ga verder tot je ${a} bereikt.`
       : `${b} × 1 = ${b}, dus ${b} ÷ ${b} = 1.`,
     `Het antwoord is ${c}.`
   ];
