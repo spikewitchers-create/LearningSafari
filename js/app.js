@@ -20,7 +20,7 @@ import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
          haalMijlpalen, nieuweMijlpaal,
          berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
 import { toonDierentuin, initialiseerDierentuin } from './dierentuin.js';
-import { PUNTEN_PER_STER, WEEK_BONUS } from './dierentuin-items.js';
+import { PUNTEN_PER_STER, WEEK_BONUS, WEEK_DOEL } from './dierentuin-items.js';
 
 const TAFELS       = tafelsItems();
 const DEELSOMMEN   = deelsomItems();
@@ -255,7 +255,7 @@ function toonKeuzescherm() {
 function toonSuggestie() {
   const analyse = analyseerOnderdelen(ALLE_POOLS, data.beheersing);
   const zwak    = zwaksteOnderdelen(analyse, 3);
-  const weekVg  = berekenWeekVoortgang(data.oefenlog);
+  const weekVg  = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   const kaart   = document.getElementById('suggestie-kaart');
 
   const stippen = Array.from({ length: weekVg.doel }, (_, i) =>
@@ -284,22 +284,11 @@ function toonSuggestie() {
 
 document.getElementById('zwak-start-knop').addEventListener('click', () => {
   const keys = JSON.parse(document.getElementById('suggestie-kaart').dataset.zwakKeys ?? '[]');
-  // Zet alle onderdeel-checkboxes uit, zet de zwakste aan
-  const alleKeys = ALLE_POOLS.map(p => p.key);
-  alleKeys.forEach(k => {
-    const cb = document.getElementById(`cb-${k}`);
-    if (cb) cb.checked = keys.includes(k);
-  });
-  // Tafels apart: als tafels in zwakke lijst, zet tafels aan en selecteer alle
-  if (keys.includes('tafels')) {
-    document.getElementById('cb-tafels').checked = true;
-    zetTafelsSub(true);
-    document.querySelectorAll('#tafel-lijst input').forEach(cb => cb.checked = true);
-  } else {
-    document.getElementById('cb-tafels').checked = false;
-    zetTafelsSub(false);
-  }
-  document.getElementById('keuze-start-knop').click();
+  // Start sessie direct op zwakste pools — profiel blijft ongewijzigd
+  const pools = ALLE_POOLS.filter(p => keys.includes(p.key));
+  const items = pools.flatMap(p => p.pool);
+  if (items.length === 0) return;
+  startSessie(items, data.profiel.aantalSommen ?? 10);
 });
 
 function bouwTafelSub() {
@@ -449,7 +438,7 @@ function toonOpgave() {
   const pct = Math.round((index / sessie.length) * 100);
   document.getElementById('voortgang').textContent = `${index + 1} / ${sessie.length}`;
   document.getElementById('voortgang-balk-vul').style.width = `${pct}%`;
-  document.getElementById('sessie-punten').textContent = `⭐ ${data.dierentuin.punten}`;
+  document.getElementById('sessie-punten').textContent = `✓ ${score} / ${sessie.length}`;
   const vraagTekst = opgave.genereerVraag ? opgave.genereerVraag() : opgave.vraag;
   const vraagEl = document.getElementById('vraag');
   vraagEl.textContent = vraagTekst;
@@ -493,7 +482,14 @@ function toonOpgave() {
   // ── Staal TTS / dictee-modus ───────────────────────────────────
   const isStaalDictee = !!opgave.spellingDictee;
   const ttsOk = ttsWerkt();
-  document.getElementById('staal-tts-waarschuwing').hidden = !(isStaalDictee && !ttsOk);
+  const waarschuwEl = document.getElementById('staal-tts-waarschuwing');
+  if (isStaalDictee && !ttsOk) {
+    waarschuwEl.hidden = false;
+    waarschuwEl.innerHTML = `🔇 Geluid niet beschikbaar. Het woord is: <em>${opgave.spreekUit ?? ''}</em>`;
+  } else {
+    waarschuwEl.hidden = true;
+    waarschuwEl.innerHTML = '';
+  }
 
   const leesKnop = document.getElementById('lees-knop');
   if (isStaalDictee) {
@@ -599,10 +595,9 @@ function verwerkInvoer() {
       toonGoed();
       return;
     }
-    // Fout op eerste poging
+    // Fout op eerste poging — laat nog een keer proberen
     document.getElementById('feedback').textContent = `Niet helemaal — probeer nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
-    document.getElementById('volgende-knop').hidden = false;
     input.value = '';
     input.focus();
     return;
@@ -616,6 +611,7 @@ function verwerkInvoer() {
   } else {
     document.getElementById('feedback').textContent = `Nog niet goed — probeer het nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
+    document.getElementById('volgende-knop').hidden = false;
     input.value = '';
     input.focus();
   }
@@ -655,7 +651,7 @@ function eindSessie() {
   // Punten toekennen
   const verdiend = PUNTEN_PER_STER[sterren] ?? 10;
   data.dierentuin.punten += verdiend;
-  const weekVg = berekenWeekVoortgang(data.oefenlog);
+  const weekVg = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   let weekBonus = 0;
   if (weekVg.gedaan >= weekVg.doel) {
     const weekSleutel = huidigeWeekSleutel();
@@ -872,7 +868,7 @@ function toonVoortgang() {
   if (diplomaBadge) diplomaBadge.hidden = !data.profiel.tafeldiploma;
 
   // Weekdoel-chip naast mijlpalen-titel
-  const weekVg = berekenWeekVoortgang(data.oefenlog);
+  const weekVg = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   document.getElementById('vg-streak').textContent =
     weekVg.gedaan >= weekVg.doel
       ? `🎉 Weekdoel gehaald!`
@@ -899,4 +895,5 @@ if (data.profiel.naam) {
   toonKeuzescherm();
 } else {
   toonScherm('scherm-welkom');
+  document.getElementById('naam-input').focus();
 }

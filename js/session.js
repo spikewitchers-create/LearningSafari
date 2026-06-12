@@ -1,12 +1,9 @@
 // Pure functies — geen DOM, geen opslag. Invoer → uitvoer.
-// Een sessie = 10 opgaven, gekozen op basis van beheersing.
 
 const SESSIE_GROOTTE = 10;
+const DREMPEL_BEHEERST = 3;
+const RECENT_GROOTTE = 3; // vermijd herhaling binnen laatste N vragen
 
-// Drempels voor status-overgang
-const DREMPEL_BEHEERST = 3; // aaneengesloten goede antwoorden
-
-// Gewichten per status bij het trekken van opgaven
 const GEWICHT = { nieuw: 2, oefenen: 4, beheerst: 1 };
 
 function gewichtVan(id, beheersing) {
@@ -15,7 +12,8 @@ function gewichtVan(id, beheersing) {
   return GEWICHT[b.status] ?? GEWICHT.nieuw;
 }
 
-// Kiest `aantal` items gewogen op beheersing (met terugleggen als nodig).
+// Kiest `aantal` items gewogen op beheersing.
+// Vermijdt herhaling van de laatste RECENT_GROOTTE items.
 export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   if (items.length === 0) return [];
 
@@ -27,13 +25,14 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   const recent = new Set();
 
   for (let i = 0; i < aantal; i++) {
-    // Vermijd directe herhaling van hetzelfde item
     const kandidaten = gewogen.filter(it => !recent.has(it.id));
     const pool = kandidaten.length > 0 ? kandidaten : gewogen;
     const opgave = pool[Math.floor(Math.random() * pool.length)];
     gekozen.push(opgave);
-    recent.clear();
     recent.add(opgave.id);
+    if (recent.size > RECENT_GROOTTE) {
+      recent.delete(recent.values().next().value);
+    }
   }
 
   return gekozen;
@@ -41,15 +40,17 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
 
 // Verwerkt een antwoord.
 // hintsGebruikt: aantal hints dat de leerling heeft bekeken.
-//   0               → normaal; correct telt mee voor rij naar beheerst
-//   1..hints.length-1 → hulp gebruikt; correct bevriест rij (neutraal)
-//   >= hints.length → antwoord voorgezegd; telt altijd als fout
+//   0                → normaal; correct telt mee voor rij
+//   1..hints.length-1 → hulp gebruikt; correct bevriest rij (neutraal)
+//   >= hints.length  → antwoord voorgezegd
+//     - correct ingetypt na zien → neutraal (geen straf, geen vooruitgang)
+//     - fout ingetypt na zien    → rij reset
 export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt = 0) {
   const aantalHints = opgave.hints?.length ?? 0;
   const antwoordGezien = hintsGebruikt >= aantalHints && aantalHints > 0;
-  // Normaliseer voor vergelijking: trimmen, kleine letters, apostrof-varianten gelijkstellen
   const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
-  const correct = !antwoordGezien && norm(gegeven) === norm(opgave.antwoord);
+  const correctIngepykt = norm(gegeven) === norm(opgave.antwoord);
+  const correct  = !antwoordGezien && correctIngepykt;
   const metHulp  = !antwoordGezien && hintsGebruikt > 0;
   const vandaag  = new Date().toISOString().slice(0, 10);
 
@@ -59,7 +60,6 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
   let nieuwBeheerst = 0;
 
   if (correct && !metHulp) {
-    // Zelfstandig goed: normaal vooruitgaan
     b.goed += 1;
     b.rij  += 1;
     if (b.status !== 'beheerst' && b.rij >= DREMPEL_BEHEERST) {
@@ -72,12 +72,16 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
     // Goed mét hint: rij bevroren, geen achteruitgang
     b.goed += 1;
     if (b.status === 'nieuw') b.status = 'oefenen';
+  } else if (antwoordGezien && correctIngepykt) {
+    // Antwoord voorgezegd maar toch correct overgetypt: neutraal, geen straf
+    b.goed += 1;
+    if (b.status === 'nieuw') b.status = 'oefenen';
   } else {
-    // Fout of antwoord voorgezegd: rij reset
+    // Echt fout: rij reset
     b.fout += 1;
     b.rij   = 0;
     b.status = 'oefenen';
   }
 
-  return { correct, antwoordGezien, nieuwBeheerst, entry: b };
+  return { correct, antwoordGezien, correctIngepykt, nieuwBeheerst, entry: b };
 }

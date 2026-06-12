@@ -1,7 +1,7 @@
 // Dierentuin — rendering en logica
 // Importeer items-data apart zodat uitbreiden simpel is
 
-import { ITEMS, START_ITEMS } from './dierentuin-items.js';
+import { ITEMS, START_ITEMS, WEEK_DOEL } from './dierentuin-items.js';
 import { slaOp } from './storage.js';
 import { berekenWeekVoortgang } from './analyse.js';
 
@@ -27,6 +27,7 @@ export function initialiseerDierentuin() {
     const id = knop.dataset.koop;
     const item = ITEMS.find(i => i.id === id);
     if (!item || _data.dierentuin.punten < item.kosten) return;
+    if (_data.dierentuin.ontgrendeld.includes(id)) return;
     _data.dierentuin.punten -= item.kosten;
     _data.dierentuin.ontgrendeld.push(id);
     slaOp(_data);
@@ -44,7 +45,7 @@ export function toonDierentuin(data) {
 
 // ── Header: punten + weekdoel ─────────────────────────────────
 function renderHeader(data) {
-  const vg = berekenWeekVoortgang(data.oefenlog);
+  const vg = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   const el = document.getElementById('dzt-header');
 
   const stippen = Array.from({ length: vg.doel }, (_, i) =>

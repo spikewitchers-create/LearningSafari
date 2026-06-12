@@ -47,7 +47,6 @@ const EI_IJ_PLAAT = [
   ['bij',     'Vul in (ei of ij?): b__ → een insect dat honing maakt: ...',  'bij schrijf je met ij: b-i-j'],
   ['vrij',    'Vul in (ei of ij?): vr__ → morgen ben ik ...',                'vrij schrijf je met ij: v-r-i-j'],
   ['fijn',    'Vul in (ei of ij?): f__n → dat is heel ...',                  'fijn schrijf je met ij: f-i-j-n'],
-  ['feest',   'Vul in (ei of ee?): f__st → een vrolijk ...',                 'feest schrijf je met ee: f-ee-s-t'],
   ['sein',    'Vul in (ei of ij?): s__n → het stoplicht gaf een ... .',      'sein schrijf je met ei: s-e-i-n'],
   ['pijn',    'Vul in (ei of ij?): p__n → mijn knie doet ...',               'pijn schrijf je met ij: p-i-j-n'],
   ['wijs',    'Vul in (ei of ij?): w__s → de juf is heel ...',               'wijs schrijf je met ij: w-i-j-s'],
