@@ -2,10 +2,14 @@ const LEERDOEL = 'rek-gr5-doorlopend-tafels';
 
 function hints(a, b) {
   const uitkomst = a * b;
-  const rij = Array.from({ length: a }, (_, i) => (i + 1) * b).join(' → ');
+  // Rij tot en met de voorlaatste stap — laatste stap doet het kind zelf
+  const rijZonderLaatste = Array.from({ length: a - 1 }, (_, i) => (i + 1) * b).join(' → ');
+  const voorlaatste = (a - 1) * b;
   return [
-    `Strategie rijgen: tel ${a} stappen van ${b}.`,
-    `De rij van ${b}: ${rij}. De laatste stap is het antwoord.`,
+    `Gebruik rijgen: tel ${a} stappen van ${b}.`,
+    a > 1
+      ? `De rij van ${b}: ${rijZonderLaatste} → ? (tel nog één stap van ${b} bij ${voorlaatste} op).`
+      : `${b} × 1 = ${b}.`,
     `Het antwoord is ${uitkomst}.`
   ];
 }
