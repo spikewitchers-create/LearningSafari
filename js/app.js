@@ -10,6 +10,8 @@ import { genereerItems as deelRestItems } from './onderdelen/deelsommen-rest.js'
 import { genereerItems as deelSplitsenItems } from './onderdelen/deelsommen-splitsen.js';
 import { genereerItems as halverenItems } from './onderdelen/halveren-verdubbelen.js';
 import { genereerItems as geldItems } from './onderdelen/geld.js';
+import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
+         berekenStreak, haalMijlpalen, nieuweMijlpaal } from './analyse.js';
 
 const TAFELS       = tafelsItems();
 const DEELSOMMEN   = deelsomItems();
@@ -20,6 +22,18 @@ const DEEL_SPLITS  = deelSplitsenItems();
 const HALVERD      = halverenItems();
 const GELD         = geldItems();
 // VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
+
+// Alle vaste pools voor analyse (verhaal niet — dynamisch gegenereerd)
+const ALLE_POOLS = [
+  { key: 'tafels',      label: 'Tafels',                  pool: TAFELS      },
+  { key: 'deelsommen',  label: 'Deelsommen',               pool: DEELSOMMEN  },
+  { key: 'optaft',      label: 'Optellen & aftrekken',     pool: OPT_AFT     },
+  { key: 'vermenigv',   label: 'Vermenigvuldigen',         pool: VERMENIGV   },
+  { key: 'deelrest',    label: 'Deelsommen met rest',      pool: DEEL_REST   },
+  { key: 'deelsplits',  label: 'Deelsommen splitsen',      pool: DEEL_SPLITS },
+  { key: 'halverd',     label: 'Halveren & verdubbelen',   pool: HALVERD     },
+  { key: 'geld',        label: 'Geld',                     pool: GELD        },
+];
 
 let data = laadData();
 let sessie = [];
@@ -159,8 +173,53 @@ function toonKeuzescherm() {
   document.getElementById('cb-autolees').checked = data.profiel.autoLees;
   if (!ttsWerkt()) document.querySelector('.keuze-optie-extra').hidden = true;
 
+  // Slimme suggestie
+  toonSuggestie();
+
   toonScherm('scherm-keuze');
 }
+
+function toonSuggestie() {
+  const analyse = analyseerOnderdelen(ALLE_POOLS, data.beheersing);
+  const zwak    = zwaksteOnderdelen(analyse, 3);
+  const streak  = berekenStreak(data.oefenlog);
+  const kaart   = document.getElementById('suggestie-kaart');
+
+  if (zwak.length === 0) {
+    kaart.hidden = true;
+    return;
+  }
+
+  const labels = zwak.map(o => o.label).join(', ');
+  document.getElementById('suggestie-tekst').textContent =
+    `Tip: oefen extra aan ${labels}.`;
+  document.getElementById('streak-tekst').textContent =
+    streak > 1 ? `🔥 ${streak} dagen op rij!` : '';
+  kaart.hidden = false;
+
+  // Sla de zwakke selectie op voor de snelstart-knop
+  kaart.dataset.zwakKeys = JSON.stringify(zwak.map(o => o.key));
+}
+
+document.getElementById('zwak-start-knop').addEventListener('click', () => {
+  const keys = JSON.parse(document.getElementById('suggestie-kaart').dataset.zwakKeys ?? '[]');
+  // Zet alle onderdeel-checkboxes uit, zet de zwakste aan
+  const alleKeys = ALLE_POOLS.map(p => p.key);
+  alleKeys.forEach(k => {
+    const cb = document.getElementById(`cb-${k}`);
+    if (cb) cb.checked = keys.includes(k);
+  });
+  // Tafels apart: als tafels in zwakke lijst, zet tafels aan en selecteer alle
+  if (keys.includes('tafels')) {
+    document.getElementById('cb-tafels').checked = true;
+    zetTafelsSub(true);
+    document.querySelectorAll('#tafel-lijst input').forEach(cb => cb.checked = true);
+  } else {
+    document.getElementById('cb-tafels').checked = false;
+    zetTafelsSub(false);
+  }
+  document.getElementById('keuze-start-knop').click();
+});
 
 function bouwTafelSub() {
   const selectie = new Set(data.profiel.tafelselectie);
@@ -391,7 +450,10 @@ function eindSessie() {
   schrijfOefenlog(data, nieuwBeheerst);
   slaOp(data);
 
-  const pct = Math.round((score / sessie.length) * 100);
+  const pct     = Math.round((score / sessie.length) * 100);
+  const sterren = berekenSterren(score, sessie.length);
+  const streak  = berekenStreak(data.oefenlog);
+  const mijlpaal = nieuweMijlpaal(data.beheersing, nieuwBeheerst);
 
   // Icoon + boodschap op basis van score
   let icoon, titel, boodschap;
@@ -409,6 +471,23 @@ function eindSessie() {
   document.getElementById('resultaat-icoon').textContent = icoon;
   document.getElementById('resultaat-titel').textContent = titel;
   document.getElementById('resultaat-boodschap').textContent = boodschap;
+
+  // Sterren
+  document.getElementById('resultaat-sterren').textContent = '⭐'.repeat(sterren) + '☆'.repeat(3 - sterren);
+
+  // Streak
+  const streakEl = document.getElementById('resultaat-streak');
+  streakEl.textContent = streak > 1 ? `🔥 ${streak} dagen op rij geoefend!` : '';
+  streakEl.hidden = streak <= 1;
+
+  // Mijlpaal
+  const mijlEl = document.getElementById('resultaat-mijlpaal');
+  if (mijlpaal) {
+    mijlEl.textContent = `${mijlpaal.icoon} Mijlpaal behaald: ${mijlpaal.label} beheerst!`;
+    mijlEl.hidden = false;
+  } else {
+    mijlEl.hidden = true;
+  }
 
   // Details per onderdeel
   const details = document.getElementById('resultaat-details');
@@ -516,6 +595,21 @@ function toonVoortgang() {
       cel.innerHTML = `<span class="vg-tafel-n">× ${n}</span><span class="vg-tafel-pct">${pct}%</span>`;
       grid.appendChild(cel);
     }
+  }
+
+  // Mijlpalen-grid
+  const streak = berekenStreak(data.oefenlog);
+  document.getElementById('vg-streak').textContent =
+    streak > 0 ? `🔥 ${streak} dag${streak > 1 ? 'en' : ''} op rij` : '';
+
+  const mijlpalen = haalMijlpalen(beh);
+  const mgrid = document.getElementById('vg-mijlpalen-grid');
+  mgrid.innerHTML = '';
+  for (const m of mijlpalen) {
+    const cel = document.createElement('div');
+    cel.className = `vg-mijlpaal-cel${m.behaald ? ' behaald' : ''}`;
+    cel.innerHTML = `<span class="vg-mijlpaal-icoon">${m.behaald ? m.icoon : '🔒'}</span><span class="vg-mijlpaal-label">${m.label}</span>`;
+    mgrid.appendChild(cel);
   }
 
   toonScherm('scherm-voortgang');

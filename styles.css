@@ -671,3 +671,95 @@ input[type="text"]:focus {
 
 .vg-tafel-n   { font-weight: bold; }
 .vg-tafel-pct { font-size: 0.7rem; color: var(--tekst-zacht); }
+
+/* ── Suggestie-kaart in keuze-scherm ────────────────────── */
+.suggestie-kaart {
+  background: var(--accent-licht);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--straal);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.suggestie-streak {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--accent-dark);
+}
+.suggestie-tekst {
+  font-size: 0.85rem;
+  color: var(--tekst);
+}
+.knop-zwak {
+  align-self: flex-start;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.knop-zwak:hover { background: var(--accent-dark); }
+
+/* ── Sterren & beloningen in resultaat-scherm ───────────── */
+.resultaat-sterren {
+  font-size: 1.8rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+.resultaat-streak {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--accent-dark);
+  background: var(--accent-licht);
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+}
+.resultaat-mijlpaal {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--goed);
+  background: var(--goed-licht);
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+}
+
+/* ── Mijlpalen in voortgang-scherm ──────────────────────── */
+.vg-streak-chip {
+  font-size: 0.8rem;
+  color: var(--accent-dark);
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+.vg-mijlpalen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+.vg-mijlpaal-cel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--straal);
+  background: var(--primair-licht);
+  border: 1.5px solid var(--rand);
+  opacity: 0.5;
+}
+.vg-mijlpaal-cel.behaald {
+  opacity: 1;
+  background: var(--accent-licht);
+  border-color: var(--accent);
+}
+.vg-mijlpaal-icoon { font-size: 1.4rem; }
+.vg-mijlpaal-label { font-size: 0.65rem; color: var(--tekst-zacht); text-align: center; }
+.vg-mijlpaal-cel.behaald .vg-mijlpaal-label { color: var(--tekst); font-weight: bold; }

@@ -65,6 +65,12 @@
       <!-- 2. Keuze-scherm -->
       <section id="scherm-keuze" class="scherm" hidden>
         <div class="kaart">
+          <div id="suggestie-kaart" class="suggestie-kaart" hidden>
+            <p id="streak-tekst" class="suggestie-streak"></p>
+            <p id="suggestie-tekst" class="suggestie-tekst"></p>
+            <button id="zwak-start-knop" class="knop-zwak">Oefen mijn zwakke punten →</button>
+          </div>
+
           <p class="keuze-vraag">Kies je oefenstof</p>
 
           <p class="keuze-groep-titel">Tafels & deling</p>
@@ -204,6 +210,10 @@
           <p id="vg-totaal" class="vg-totaal"></p>
           <div id="vg-onderdelen" class="vg-onderdelen"></div>
         </div>
+        <div class="kaart vg-mijlpalen-kaart">
+          <p class="vg-sectie-titel">Mijlpalen <span id="vg-streak" class="vg-streak-chip"></span></p>
+          <div id="vg-mijlpalen-grid" class="vg-mijlpalen-grid"></div>
+        </div>
         <div class="kaart" id="vg-tafels-kaart">
           <p class="vg-sectie-titel">Tafels — beheersing per tafel</p>
           <div id="vg-tafels-grid" class="vg-tafels-grid"></div>
@@ -217,6 +227,9 @@
             <span id="resultaat-icoon" class="resultaat-icoon">🏆</span>
             <p id="resultaat-boodschap" class="resultaat-boodschap"></p>
           </div>
+          <p id="resultaat-sterren" class="resultaat-sterren"></p>
+          <p id="resultaat-streak" class="resultaat-streak" hidden></p>
+          <p id="resultaat-mijlpaal" class="resultaat-mijlpaal" hidden></p>
           <ul id="resultaat-details" class="resultaat-details"></ul>
           <p id="resultaat-totaal" class="resultaat-sub"></p>
         </div>
