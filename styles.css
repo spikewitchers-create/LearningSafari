@@ -253,11 +253,19 @@ input[type="text"]:focus {
 }
 
 .keuze-optie {
-  border-bottom: 1.5px solid var(--rand);
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rand);
+  padding: 0.45rem 0;
 }
-.keuze-optie:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.keuze-optie:last-child { border-bottom: none; }
+
+.keuze-groep-titel {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--tekst-zacht);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.6rem 0 0.2rem;
+}
 
 .optie-label {
   display: flex;

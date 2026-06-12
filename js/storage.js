@@ -6,7 +6,7 @@ const VERSIE = 1;
 function leegData() {
   return {
     versie: VERSIE,
-    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, verhaal: false, vermenigv: false, aantalSommen: 10, autoLees: false },
+    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, aantalSommen: 10, autoLees: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
     oefenlog: []      // [{ datum, sessies, nieuwBeheerst }]
   };
@@ -26,7 +26,11 @@ export function laadData() {
     if (data.profiel.verhaal === undefined) data.profiel.verhaal = false;
     if (data.profiel.aantalSommen === undefined) data.profiel.aantalSommen = 10;
     if (data.profiel.autoLees === undefined) data.profiel.autoLees = false;
-    if (data.profiel.vermenigv === undefined) data.profiel.vermenigv = false;
+    if (data.profiel.vermenigv  === undefined) data.profiel.vermenigv  = false;
+    if (data.profiel.deelrest   === undefined) data.profiel.deelrest   = false;
+    if (data.profiel.deelsplits === undefined) data.profiel.deelsplits = false;
+    if (data.profiel.halverd    === undefined) data.profiel.halverd    = false;
+    if (data.profiel.geld       === undefined) data.profiel.geld       = false;
     return data;
   } catch {
     return leegData();
