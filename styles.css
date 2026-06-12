@@ -648,6 +648,29 @@ input[type="text"]:focus {
   margin-bottom: 0.75rem;
 }
 
+.vg-blokken-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.vg-blok-cel {
+  background: var(--achtergrond);
+  border: 1px solid var(--rand);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+}
+.vg-blok-kop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+.vg-blok-naam { font-weight: 700; font-size: 0.9rem; }
+.vg-balk-oefenen { background: #f0c040; }
+.vg-balk-gelaagd { position: relative; }
+.vg-balk-abs { position: absolute; top: 0; left: 0; height: 100%; }
+
 .vg-onderdelen {
   display: flex;
   flex-direction: column;

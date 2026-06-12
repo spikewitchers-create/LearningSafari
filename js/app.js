@@ -676,6 +676,37 @@ function toonVoortgang() {
   document.getElementById('vg-totaal').textContent =
     `${data.profiel.naam} heeft ${totaal} feiten beheerst.`;
 
+  // Blokken-overzicht: groepeer ALLE_POOLS per blok
+  const blokkenEl = document.getElementById('vg-blokken');
+  blokkenEl.innerHTML = '';
+  const blokNamen = {
+    4: 'Blok 4', 5: 'Blok 5', 6: 'Blok 6', 7: 'Blok 7',
+    8: 'Blok 8', 9: 'Blok 9', 10: 'Blok 10',
+  };
+  const blokNummers = [...new Set(ALLE_POOLS.map(p => p.blok))].sort((a, b) => a - b);
+  for (const nr of blokNummers) {
+    const pools = ALLE_POOLS.filter(p => p.blok === nr);
+    const alleItems = pools.flatMap(p => p.pool);
+    const totBlok = alleItems.length;
+    if (totBlok === 0) continue;
+    const behBlok = alleItems.filter(it => beh[it.id]?.status === 'beheerst').length;
+    const oefBlok = alleItems.filter(it => beh[it.id]?.status === 'oefenen').length;
+    const pct = Math.round((behBlok / totBlok) * 100);
+    const cel = document.createElement('div');
+    cel.className = 'vg-blok-cel';
+    cel.innerHTML = `
+      <div class="vg-blok-kop">
+        <span class="vg-blok-naam">${blokNamen[nr] ?? `Blok ${nr}`}</span>
+        <span class="vg-cijfer">${behBlok}/${totBlok}</span>
+      </div>
+      <div class="vg-balk-wrap vg-balk-gelaagd">
+        <div class="vg-balk-vul vg-balk-oefenen" style="width:${Math.round(((behBlok+oefBlok)/totBlok)*100)}%"></div>
+        <div class="vg-balk-vul vg-balk-beheerst vg-balk-abs" style="width:${pct}%"></div>
+      </div>
+      <p class="vg-sub">${pools.map(p => p.label).join(' · ')}</p>`;
+    blokkenEl.appendChild(cel);
+  }
+
   // Onderdelen-overzicht
   const onderdelen = [
     { label: 'Tafels',                  prefix: 'tafel-',      totaal: 100 },
