@@ -136,10 +136,13 @@ function toonOpgave() {
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
   resetHint();
+  beheersingsVerwerkt = false;
+  document.getElementById('volgende-knop').hidden = true;
   document.getElementById('antwoord-input').focus();
 }
 
 let hintIndex = 0;
+let beheersingsVerwerkt = false; // voorkomt dubbel bijwerken bij herpogingen
 
 function resetHint() {
   hintIndex = 0;
@@ -147,6 +150,7 @@ function resetHint() {
   document.getElementById('hint-tekst').hidden = true;
   document.getElementById('hint-tekst').textContent = '';
   document.getElementById('hint-knop').textContent = 'Hint →';
+  document.getElementById('hint-knop').disabled = false;
 }
 
 function toonHintKnop() {
@@ -157,15 +161,27 @@ function toonHintKnop() {
 document.getElementById('hint-knop').addEventListener('click', () => {
   const hints = sessie[index]?.hints ?? [];
   if (hintIndex >= hints.length) return;
-  const tekst = document.getElementById('hint-tekst');
-  tekst.textContent = hints[hintIndex];
-  tekst.hidden = false;
+  document.getElementById('hint-tekst').textContent = hints[hintIndex];
+  document.getElementById('hint-tekst').hidden = false;
   hintIndex++;
   if (hintIndex >= hints.length) {
     document.getElementById('hint-knop').textContent = 'Geen hints meer';
     document.getElementById('hint-knop').disabled = true;
   }
+  document.getElementById('antwoord-input').focus();
 });
+
+function volgende() {
+  index++;
+  document.getElementById('volgende-knop').hidden = true;
+  if (index < sessie.length) {
+    setTimeout(toonOpgave, 300);
+  } else {
+    setTimeout(eindSessie, 300);
+  }
+}
+
+document.getElementById('volgende-knop').addEventListener('click', volgende);
 
 function verwerkInvoer() {
   const input = document.getElementById('antwoord-input');
@@ -173,33 +189,55 @@ function verwerkInvoer() {
   if (!gegeven) return;
 
   const opgave = sessie[index];
-  const { correct, antwoordGezien, nieuwBeheerst: nb, entry } = verwerkAntwoord(
-    opgave.id, gegeven, opgave, data.beheersing, hintIndex
-  );
 
-  data.beheersing[opgave.id] = entry;
-  slaOp(data);
+  // Beheersing alleen bij de eerste poging bijwerken
+  if (!beheersingsVerwerkt) {
+    const { correct, antwoordGezien, nieuwBeheerst: nb, entry } = verwerkAntwoord(
+      opgave.id, gegeven, opgave, data.beheersing, hintIndex
+    );
+    data.beheersing[opgave.id] = entry;
+    slaOp(data);
+    beheersingsVerwerkt = true;
 
-  if (antwoordGezien) {
-    document.getElementById('feedback').textContent = 'Goed onthouden voor de volgende keer!';
-    document.getElementById('feedback').className = 'feedback neutraal';
-  } else if (correct) {
-    score++;
-    nieuwBeheerst += nb;
-    document.getElementById('feedback').textContent = hintIndex > 0 ? '✓ Goed, met een hint!' : '✓ Goed!';
-    document.getElementById('feedback').className = 'feedback goed';
-  } else {
-    document.getElementById('feedback').textContent = `Het antwoord is ${opgave.antwoord}`;
+    if (antwoordGezien) {
+      document.getElementById('feedback').textContent = 'Goed onthouden voor de volgende keer!';
+      document.getElementById('feedback').className = 'feedback neutraal';
+      document.getElementById('volgende-knop').hidden = false;
+      return;
+    } else if (correct) {
+      score++;
+      nieuwBeheerst += nb;
+      toonGoed();
+      return;
+    }
+    // Fout op eerste poging: hints aanbieden
+    document.getElementById('feedback').textContent = `Niet helemaal — probeer nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
     toonHintKnop();
+    document.getElementById('volgende-knop').hidden = false;
+    input.value = '';
+    input.focus();
+    return;
   }
 
-  index++;
-  if (index < sessie.length) {
-    setTimeout(toonOpgave, 900);
+  // Herpoging (beheersing al verwerkt): alleen correctheid controleren
+  const correct = gegeven.trim() === String(opgave.antwoord).trim();
+  if (correct) {
+    toonGoed();
   } else {
-    setTimeout(eindSessie, 900);
+    document.getElementById('feedback').textContent = `Nog niet goed — probeer het nog eens.`;
+    document.getElementById('feedback').className = 'feedback fout';
+    input.value = '';
+    input.focus();
   }
+}
+
+function toonGoed() {
+  document.getElementById('feedback').textContent = hintIndex > 0 ? '✓ Goed, met een hint!' : '✓ Goed!';
+  document.getElementById('feedback').className = 'feedback goed';
+  document.getElementById('hint-gebied').hidden = true;
+  document.getElementById('volgende-knop').hidden = true;
+  setTimeout(volgende, 900);
 }
 
 document.getElementById('antwoord-input').addEventListener('keydown', e => {

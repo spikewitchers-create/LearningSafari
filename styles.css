@@ -341,6 +341,20 @@ input[type="text"]:focus {
   width: 100%;
 }
 
+.knop-volgende {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  padding: 0.4rem 1rem;
+  background: none;
+  color: var(--tekst-zacht);
+  border: 1px solid var(--rand);
+  border-radius: var(--straal);
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.12s, color 0.12s;
+}
+.knop-volgende:hover { background: var(--rand); color: var(--tekst); }
+
 /* ── Resultaat-scherm ────────────────────────────────── */
 .resultaat-kaart {
   text-align: center;
