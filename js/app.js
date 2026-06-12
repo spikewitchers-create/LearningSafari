@@ -250,12 +250,59 @@ function eindSessie() {
   schrijfOefenlog(data, nieuwBeheerst);
   slaOp(data);
 
-  document.getElementById('resultaat-tekst').textContent =
-    `${data.profiel.naam}, je had ${score} van de ${sessie.length} goed!`;
+  const pct = Math.round((score / sessie.length) * 100);
+
+  // Icoon + boodschap op basis van score
+  let icoon, titel, boodschap;
+  if (pct === 100) {
+    icoon = '🌟'; titel = 'Perfect!';
+    boodschap = `Wauw ${data.profiel.naam}, alles goed! Geweldig gedaan.`;
+  } else if (pct >= 70) {
+    icoon = '😊'; titel = 'Goed gedaan!';
+    boodschap = `${data.profiel.naam}, je had ${score} van de ${sessie.length} goed. Goed bezig!`;
+  } else {
+    icoon = '💪'; titel = 'Blijven oefenen!';
+    boodschap = `${data.profiel.naam}, je had ${score} van de ${sessie.length} goed. Volgende keer beter!`;
+  }
+
+  document.getElementById('resultaat-icoon').textContent = icoon;
+  document.getElementById('resultaat-titel').textContent = titel;
+  document.getElementById('resultaat-boodschap').textContent = boodschap;
+
+  // Details per onderdeel
+  const details = document.getElementById('resultaat-details');
+  details.innerHTML = '';
+
+  const onderdelen = [
+    { label: 'Tafels',      prefix: 'tafel-',   pool: TAFELS },
+    { label: 'Deelsommen',  prefix: 'deelsom-', pool: DEELSOMMEN },
+  ];
+
+  for (const { label, prefix, pool } of onderdelen) {
+    const inSessie = sessie.filter(it => it.id.startsWith(prefix));
+    if (inSessie.length === 0) continue;
+    const goed = inSessie.filter((it, i) => {
+      // tel hoe vaak dit item in de sessie goed was (op basis van beheersing rij)
+      return data.beheersing[it.id]?.rij > 0;
+    }).length;
+    const beheerst = pool.filter(it => data.beheersing[it.id]?.status === 'beheerst').length;
+    const li = document.createElement('li');
+    li.className = 'resultaat-detail-rij';
+    li.innerHTML = `<span>${label}</span><span>${beheerst} / ${pool.length} beheerst</span>`;
+    details.appendChild(li);
+  }
+
+  // Nieuw beheerste feiten
+  if (nieuwBeheerst > 0) {
+    const li = document.createElement('li');
+    li.className = 'resultaat-detail-rij resultaat-nieuw';
+    li.innerHTML = `<span>✨ Nieuw beheerst</span><span>+${nieuwBeheerst}</span>`;
+    details.appendChild(li);
+  }
 
   const totaal = Object.values(data.beheersing).filter(b => b.status === 'beheerst').length;
-  document.getElementById('voortgang-tekst').textContent =
-    `Je beheerst nu ${totaal} feiten in totaal.`;
+  document.getElementById('resultaat-totaal').textContent =
+    `Totaal beheerst: ${totaal} van de 200 feiten.`;
 
   toonScherm('scherm-resultaat');
 }
