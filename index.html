@@ -24,7 +24,7 @@
         </button>
       </li>
       <li>
-        <button class="nav-knop nav-uitgeschakeld" title="Komt binnenkort">
+        <button class="nav-knop" id="nav-voortgang">
           <span class="nav-icoon">📊</span>
           <span class="nav-label">Voortgang</span>
         </button>
@@ -146,7 +146,19 @@
         <button id="volgende-knop" class="knop-volgende" hidden>Volgende vraag →</button>
       </section>
 
-      <!-- 4. Resultaat-scherm -->
+      <!-- 4. Voortgang-scherm -->
+      <section id="scherm-voortgang" class="scherm" hidden>
+        <div class="kaart">
+          <p id="vg-totaal" class="vg-totaal"></p>
+          <div id="vg-onderdelen" class="vg-onderdelen"></div>
+        </div>
+        <div class="kaart" id="vg-tafels-kaart">
+          <p class="vg-sectie-titel">Tafels — beheersing per tafel</p>
+          <div id="vg-tafels-grid" class="vg-tafels-grid"></div>
+        </div>
+      </section>
+
+      <!-- 5. Resultaat-scherm -->
       <section id="scherm-resultaat" class="scherm" hidden>
         <div class="kaart resultaat-kaart">
           <div class="resultaat-top">

@@ -404,6 +404,12 @@ input[type="text"]:focus {
   letter-spacing: 0.03em;
   color: var(--primair-dark);
 }
+.vraag.vraag-lang {
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  line-height: 1.5;
+  font-weight: 600;
+}
 
 .antwoord-kaart {
   display: flex;
@@ -582,3 +588,78 @@ input[type="text"]:focus {
   clip: rect(0,0,0,0);
   white-space: nowrap;
 }
+
+/* ── Voortgang-scherm ────────────────────────────────── */
+.vg-totaal {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--primair-dark);
+  margin-bottom: 0.75rem;
+}
+
+.vg-onderdelen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.vg-onderdeel-kop {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.vg-cijfer { color: var(--tekst-zacht); }
+
+.vg-balk-wrap {
+  height: 10px;
+  background: var(--balk-bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.vg-balk-vul {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.vg-balk-beheerst { background: var(--goed); }
+
+.vg-sub {
+  font-size: 0.75rem;
+  color: var(--tekst-zacht);
+  margin-top: 0.2rem;
+}
+
+.vg-sectie-titel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--tekst-zacht);
+  margin-bottom: 0.65rem;
+}
+
+.vg-tafels-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+}
+
+.vg-tafel-cel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--straal);
+  font-size: 0.78rem;
+  border: 1.5px solid transparent;
+}
+
+.vg-tafel-cel.nieuw    { background: var(--primair-licht); border-color: var(--rand); }
+.vg-tafel-cel.oefenen  { background: var(--accent-licht);  border-color: var(--accent); }
+.vg-tafel-cel.beheerst { background: var(--goed-licht);    border-color: #86efac; }
+
+.vg-tafel-n   { font-weight: bold; }
+.vg-tafel-pct { font-size: 0.7rem; color: var(--tekst-zacht); }

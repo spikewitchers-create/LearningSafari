@@ -20,6 +20,7 @@ const SCHERM_TITELS = {
   'scherm-welkom':    'Wie ben jij?',
   'scherm-keuze':     'Wat wil je oefenen?',
   'scherm-sessie':    'Oefenen',
+  'scherm-voortgang': 'Voortgang',
   'scherm-resultaat': 'Hoe ging het?',
 };
 
@@ -27,6 +28,7 @@ const NAV_ACTIEF = {
   'scherm-welkom':    'nav-oefenen',
   'scherm-keuze':     'nav-oefenen',
   'scherm-sessie':    'nav-oefenen',
+  'scherm-voortgang': 'nav-voortgang',
   'scherm-resultaat': 'nav-oefenen',
 };
 
@@ -56,6 +58,12 @@ function updateNavNaam() {
 // Nav-knop "Oefenen"
 document.getElementById('nav-oefenen').addEventListener('click', () => {
   if (data.profiel.naam) toonKeuzescherm();
+  else toonScherm('scherm-welkom');
+});
+
+// Nav-knop "Voortgang"
+document.getElementById('nav-voortgang').addEventListener('click', () => {
+  if (data.profiel.naam) toonVoortgang();
   else toonScherm('scherm-welkom');
 });
 
@@ -188,7 +196,9 @@ function toonOpgave() {
   const pct = Math.round((index / sessie.length) * 100);
   document.getElementById('voortgang').textContent = `${index + 1} / ${sessie.length}`;
   document.getElementById('voortgang-balk-vul').style.width = `${pct}%`;
-  document.getElementById('vraag').textContent = opgave.vraag;
+  const vraagEl = document.getElementById('vraag');
+  vraagEl.textContent = opgave.vraag;
+  vraagEl.classList.toggle('vraag-lang', opgave.vraag.length > 60);
   document.getElementById('antwoord-input').value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
@@ -375,6 +385,66 @@ function eindSessie() {
 }
 
 document.getElementById('opnieuw-knop').addEventListener('click', toonKeuzescherm);
+
+// ── 5. Voortgang-scherm ───────────────────────────────
+function toonVoortgang() {
+  const beh = data.beheersing;
+
+  // Totaalregel
+  const totaal = Object.values(beh).filter(b => b.status === 'beheerst').length;
+  document.getElementById('vg-totaal').textContent =
+    `${data.profiel.naam} heeft ${totaal} feiten beheerst.`;
+
+  // Onderdelen-overzicht
+  const onderdelen = [
+    { label: 'Tafels',            prefix: 'tafel-',   totaal: 100 },
+    { label: 'Deelsommen',        prefix: 'deelsom-', totaal: 100 },
+    { label: 'Verhalende sommen', prefix: 'verhaal-', totaal: 100 },
+  ];
+  const vgOnderdelen = document.getElementById('vg-onderdelen');
+  vgOnderdelen.innerHTML = '';
+  for (const o of onderdelen) {
+    const beheerst = Object.entries(beh)
+      .filter(([id, b]) => id.startsWith(o.prefix) && b.status === 'beheerst').length;
+    const oefenen = Object.entries(beh)
+      .filter(([id, b]) => id.startsWith(o.prefix) && b.status === 'oefenen').length;
+    const pct = Math.round((beheerst / o.totaal) * 100);
+    const div = document.createElement('div');
+    div.className = 'vg-onderdeel';
+    div.innerHTML = `
+      <div class="vg-onderdeel-kop">
+        <span>${o.label}</span>
+        <span class="vg-cijfer">${beheerst} / ${o.totaal}</span>
+      </div>
+      <div class="vg-balk-wrap">
+        <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
+      </div>
+      <p class="vg-sub">${beheerst} beheerst · ${oefenen} in oefening · ${o.totaal - beheerst - oefenen} nog niet gezien</p>`;
+    vgOnderdelen.appendChild(div);
+  }
+
+  // Tafels-grid: één cel per tafel (1–10) met kleur naar beheersing
+  const tafelsKaart = document.getElementById('vg-tafels-kaart');
+  const heeftTafels = Object.keys(beh).some(id => id.startsWith('tafel-'));
+  tafelsKaart.hidden = !heeftTafels;
+
+  if (heeftTafels) {
+    const grid = document.getElementById('vg-tafels-grid');
+    grid.innerHTML = '';
+    for (let n = 1; n <= 10; n++) {
+      const itemsVanN = TAFELS.filter(it => tafelVanItem(it.id) === n);
+      const beheerst = itemsVanN.filter(it => beh[it.id]?.status === 'beheerst').length;
+      const pct = Math.round((beheerst / itemsVanN.length) * 100);
+      const klasse = pct === 100 ? 'vg-tafel-cel beheerst' : pct > 0 ? 'vg-tafel-cel oefenen' : 'vg-tafel-cel nieuw';
+      const cel = document.createElement('div');
+      cel.className = klasse;
+      cel.innerHTML = `<span class="vg-tafel-n">× ${n}</span><span class="vg-tafel-pct">${pct}%</span>`;
+      grid.appendChild(cel);
+    }
+  }
+
+  toonScherm('scherm-voortgang');
+}
 
 // ── Start ─────────────────────────────────────────────
 updateNavNaam();
