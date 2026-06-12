@@ -20,7 +20,6 @@
   --straal-groot: 14px;
   --schaduw:      0 1px 4px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.05);
   --font:         'Verdana', 'Geneva', sans-serif;
-  --zijbalk-br:   220px;
 }
 
 body {
@@ -32,19 +31,19 @@ body {
   min-height: 100dvh;
   display: grid;
   place-items: start center;
-  padding: 1.5rem 1rem 3rem;
+  padding: 2rem 1rem 4rem;
 }
 
-/* ── Wrapper ─────────────────────────────────────────── */
+/* ── Wrapper & schermen ──────────────────────────────── */
 .pagina {
   width: 100%;
-  max-width: 680px;
+  max-width: 420px;
 }
 
 .scherm {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.9rem;
 }
 
 /* ── Kaart ───────────────────────────────────────────── */
@@ -56,9 +55,7 @@ body {
   padding: 1.25rem 1.5rem;
 }
 
-/* ── Welkomstscherm ──────────────────────────────────── */
-.pagina > .scherm:first-child { max-width: 400px; margin: 0 auto; }
-
+/* ── Gedeelde header-stijlen ─────────────────────────── */
 .kaart-header {
   display: flex;
   flex-direction: column;
@@ -69,17 +66,29 @@ body {
 
 .logo-icoon { font-size: 2.5rem; line-height: 1; }
 
-h1 { font-size: 1.7rem; letter-spacing: -0.02em; color: var(--primair); }
-h2 { font-size: 1.4rem; color: var(--primair); }
+h1 { font-size: 1.7rem; letter-spacing: -0.02em; color: var(--primair); text-align: center; }
+h2 { font-size: 1.4rem; color: var(--primair); text-align: center; }
 
-.intro {
-  font-size: 0.9rem;
-  color: var(--tekst-zacht);
-  margin-bottom: 1rem;
-  text-align: center;
+/* ── Scherm-top (naam + terug-link) ──────────────────── */
+.scherm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.25rem;
 }
 
-.formulier { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1rem; }
+.scherm-naam {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+/* ── Invoervelden ────────────────────────────────────── */
+.formulier {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
 
 label {
   font-size: 0.78rem;
@@ -89,38 +98,130 @@ label {
   letter-spacing: 0.05em;
 }
 
-input[type="text"],
-input[type="number"] {
+input[type="text"] {
   font-family: var(--font);
   font-size: 1.1rem;
-  padding: 0.5rem 0.85rem;
+  padding: 0.55rem 0.9rem;
   border: 1.5px solid var(--rand);
   border-radius: var(--straal);
   background: var(--achtergrond);
   color: var(--tekst);
   text-align: center;
   width: 100%;
-  appearance: textfield;
   transition: border-color 0.15s, background 0.15s;
 }
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button { display: none; }
-input:focus { outline: none; border-color: var(--primair); background: #fff; }
 
-/* ── Oefenscherm header ──────────────────────────────── */
-.oefenen-header {
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primair);
+  background: #fff;
+}
+
+/* ── Keuze-scherm ────────────────────────────────────── */
+.keuze-vraag {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: var(--tekst-zacht);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.9rem;
+}
+
+.keuze-optie {
+  border-bottom: 1px solid var(--rand);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.keuze-optie:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+.optie-label {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-.logo-klein { font-size: 1.25rem; }
+.optie-label input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--primair);
+  flex-shrink: 0;
+  cursor: pointer;
+}
 
-.oefenen-naam {
+.optie-naam { flex: 1; font-weight: bold; }
+
+.optie-voortgang {
+  font-size: 0.78rem;
+  color: var(--tekst-zacht);
+}
+
+/* ── Tafels sub-selectie ─────────────────────────────── */
+.tafels-sub {
+  margin-top: 0.65rem;
+  padding-left: 1.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tafel-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.3rem;
+}
+
+.tafel-cb-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.3rem 0.2rem;
+  border-radius: var(--straal);
+  transition: background 0.12s;
+}
+.tafel-cb-label:hover { background: var(--achtergrond); }
+.tafel-cb-label input { accent-color: var(--primair); }
+
+.keuze-acties {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ── Knoppen ─────────────────────────────────────────── */
+.knop-groot {
+  font-family: var(--font);
+  font-size: 1rem;
   font-weight: bold;
-  font-size: 0.95rem;
-  flex: 1;
+  padding: 0.7rem 1.25rem;
+  background: var(--primair);
+  color: #fff;
+  border: none;
+  border-radius: var(--straal);
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.01em;
+  transition: background 0.15s, transform 0.1s;
 }
+.knop-groot:hover  { background: var(--primair-dark); }
+.knop-groot:active { transform: scale(0.98); }
+
+.knop-klein {
+  font-family: var(--font);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
+  background: var(--achtergrond);
+  color: var(--tekst-zacht);
+  border: 1px solid var(--rand);
+  border-radius: var(--straal);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.knop-klein:hover { background: var(--rand); }
 
 .knop-tekst {
   font-family: var(--font);
@@ -134,50 +235,7 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
 }
 .knop-tekst:hover { color: var(--primair); }
 
-/* ── Twee-kolommen layout ────────────────────────────── */
-.oefenen-layout {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.85rem;
-  align-items: start;
-}
-
-.oefenvlak {
-  flex: 1 1 260px; /* groeit, krimpt niet onder 260px */
-}
-
-.zijbalk {
-  flex: 0 0 var(--zijbalk-br); /* vaste breedte, nooit kleiner */
-  width: var(--zijbalk-br);
-}
-
-/* ── Oefenvlak (links) ───────────────────────────────── */
-.oefenvlak {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0; /* voorkomt overflow in flex-kind */
-}
-
-#sessie-inhoud {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.wacht-kaart {
-  background: var(--primair-licht);
-  border-color: #f0d5b8;
-  text-align: center;
-  padding: 3rem 1.5rem;
-}
-
-.wacht-tekst {
-  font-size: 1.05rem;
-  color: var(--tekst-zacht);
-  line-height: 1.8;
-}
-
+/* ── Sessie-scherm ───────────────────────────────────── */
 .voortgang-balk-wrap {
   display: flex;
   flex-direction: column;
@@ -207,7 +265,7 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
 
 .vraag-kaart {
   text-align: center;
-  padding: 2.25rem 1.5rem;
+  padding: 2.5rem 1.5rem;
   background: var(--primair-licht);
   border-color: #f0d5b8;
 }
@@ -225,7 +283,7 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
   padding: 0.85rem 1rem;
 }
 
-.antwoord-kaart input {
+.antwoord-kaart input[type="text"] {
   flex: 1;
   font-size: 1.3rem;
   padding: 0.45rem 0.75rem;
@@ -250,137 +308,7 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
 .feedback.goed { color: var(--goed); background: var(--goed-licht); }
 .feedback.fout { color: var(--fout); background: var(--fout-licht); }
 
-/* ── Zijbalk (rechts) ────────────────────────────────── */
-.zijbalk {
-  background: var(--kaart);
-  border: 1px solid var(--rand);
-  border-radius: var(--straal-groot);
-  box-shadow: var(--schaduw);
-  padding: 1rem 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.zijbalk-sectie {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.zijbalk-titel {
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: var(--tekst-zacht);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* ── Tafellijst ──────────────────────────────────────── */
-.tafel-lijst {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.tafel-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 0.4rem;
-  border-radius: var(--straal);
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.tafel-label:hover { background: var(--achtergrond); }
-
-.tafel-label input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  accent-color: var(--primair);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-/* Vinkje verbergen als sessie actief (disabled state) */
-.tafel-label input[type="checkbox"]:disabled { opacity: 0.4; cursor: default; }
-
-.tafel-naam {
-  flex: 1;
-  font-size: 0.82rem;
-}
-
-/* Actieve tafel in sessie oplichten */
-.tafel-rij.actief .tafel-naam { font-weight: bold; color: var(--primair); }
-
-.tafel-dots {
-  display: flex;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--balk-bg);
-}
-.dot-vol { background: var(--primair); }
-
-.tafels-sub {
-  padding-left: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.tafel-lijst-sub { gap: 0.1rem; }
-
-.onderdeel-voortgang {
-  font-size: 0.75rem;
-  color: var(--tekst-zacht);
-  margin-left: auto;
-}
-
-/* ── Keuze-acties ────────────────────────────────────── */
-.keuze-acties {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.knop-klein {
-  font-family: var(--font);
-  font-size: 0.75rem;
-  padding: 0.25rem 0.65rem;
-  background: var(--achtergrond);
-  color: var(--tekst-zacht);
-  border: 1px solid var(--rand);
-  border-radius: var(--straal);
-  cursor: pointer;
-  transition: background 0.12s;
-}
-.knop-klein:hover { background: var(--rand); }
-
-/* ── Grote knop ──────────────────────────────────────── */
-.knop-groot {
-  font-family: var(--font);
-  font-size: 0.95rem;
-  font-weight: bold;
-  padding: 0.65rem 1.25rem;
-  background: var(--primair);
-  color: #fff;
-  border: none;
-  border-radius: var(--straal);
-  cursor: pointer;
-  width: 100%;
-  letter-spacing: 0.01em;
-  transition: background 0.15s, transform 0.1s;
-}
-.knop-groot:hover  { background: var(--primair-dark); }
-.knop-groot:active { transform: scale(0.98); }
-
-/* ── Resultaatscherm ─────────────────────────────────── */
+/* ── Resultaat-scherm ────────────────────────────────── */
 .resultaat-kaart {
   text-align: center;
   display: flex;
