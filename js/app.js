@@ -196,9 +196,10 @@ function toonOpgave() {
   const pct = Math.round((index / sessie.length) * 100);
   document.getElementById('voortgang').textContent = `${index + 1} / ${sessie.length}`;
   document.getElementById('voortgang-balk-vul').style.width = `${pct}%`;
+  const vraagTekst = opgave.genereerVraag ? opgave.genereerVraag() : opgave.vraag;
   const vraagEl = document.getElementById('vraag');
-  vraagEl.textContent = opgave.vraag;
-  vraagEl.classList.toggle('vraag-lang', opgave.vraag.length > 60);
+  vraagEl.textContent = vraagTekst;
+  vraagEl.classList.toggle('vraag-lang', vraagTekst.length > 60);
   document.getElementById('antwoord-input').value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
@@ -209,7 +210,7 @@ function toonOpgave() {
 
   const leesKnop = document.getElementById('lees-knop');
   leesKnop.hidden = !ttsWerkt();
-  if (ttsWerkt() && data.profiel.autoLees) spreekUit(opgave.vraag);
+  if (ttsWerkt() && data.profiel.autoLees) spreekUit(vraagTekst);
 
   document.getElementById('antwoord-input').focus();
 }
@@ -232,7 +233,7 @@ function toonHintKnop() {
 }
 
 document.getElementById('lees-knop').addEventListener('click', () => {
-  spreekUit(sessie[index]?.vraag ?? '');
+  spreekUit(document.getElementById('vraag').textContent);
 });
 
 document.getElementById('hint-knop').addEventListener('click', () => {

@@ -72,24 +72,20 @@ function hints(a, b) {
   ];
 }
 
-function kiesNaam(a, b) {
-  return NAMEN[(a * 3 + b * 7 + Math.floor(Math.random() * NAMEN.length)) % NAMEN.length];
-}
-
-function kiesSjabloon(a, b) {
-  // Kies een willekeurig sjabloon voor deze combinatie
-  return SJABLONEN[Math.floor(Math.random() * SJABLONEN.length)];
+function nieuwVraag(a, b) {
+  const naam = NAMEN[Math.floor(Math.random() * NAMEN.length)];
+  const sjabloon = SJABLONEN[Math.floor(Math.random() * SJABLONEN.length)];
+  return sjabloon(a, b, naam);
 }
 
 export function genereerItems() {
   const items = [];
   for (let a = 1; a <= 10; a++) {
     for (let b = 1; b <= 10; b++) {
-      const naam = kiesNaam(a, b);
-      const sjabloon = kiesSjabloon(a, b);
       items.push({
         id: `verhaal-${a}x${b}`,
-        vraag: sjabloon(a, b, naam),
+        vraag: nieuwVraag(a, b),        // eerste weergave
+        genereerVraag: () => nieuwVraag(a, b), // elke volgende weergave vers
         antwoord: a * b,
         leerdoel: 'rek-gr5-doorlopend-tafels',
         hints: hints(a, b),
