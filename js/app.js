@@ -7,7 +7,7 @@ import { genereerItems as verhaalItems } from './onderdelen/tafels-verhaal.js';
 
 const TAFELS     = tafelsItems();
 const DEELSOMMEN = deelsomItems();
-const VERHAAL    = verhaalItems();
+// VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
 
 let data = laadData();
 let sessie = [];
@@ -98,8 +98,12 @@ function toonKeuzescherm() {
 
   // Verhalende sommen
   document.getElementById('cb-verhaal').checked = data.profiel.verhaal ?? false;
+  const verhaalPool = verhaalItems(); // alleen voor beheersing-tel
   document.getElementById('verhaal-voortgang').textContent =
-    `${beheerstVoorPool(VERHAAL)} / 100`;
+    `${beheerstVoorPool(verhaalPool)} / 100`;
+
+  // Sessielengte
+  document.getElementById('sessie-lengte').value = String(data.profiel.aantalSommen ?? 10);
 
   // Auto-lees
   document.getElementById('cb-autolees').checked = data.profiel.autoLees;
@@ -152,22 +156,26 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   data.profiel.deelsommen = metDeelsommen;
   data.profiel.verhaal = metVerhaal;
   data.profiel.autoLees = document.getElementById('cb-autolees').checked;
+  data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
   slaOp(data);
+
+  // Verhalende sommen: elke sessie vers gegenereerd voor variatie
+  const verhaalDezesSessie = metVerhaal ? verhaalItems() : [];
 
   const items = [
     ...TAFELS.filter(it => tafelsSelectie.includes(tafelVanItem(it.id))),
     ...(metDeelsommen ? DEELSOMMEN : []),
-    ...(metVerhaal ? VERHAAL.filter(it => {
+    ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
-    }) : [])
+    }))
   ];
-  startSessie(items);
+  startSessie(items, data.profiel.aantalSommen);
 });
 
 // ── 3. Sessie-scherm ──────────────────────────────────
-function startSessie(items) {
-  sessie = kiesOpgaven(items, data.beheersing);
+function startSessie(items, aantal = 10) {
+  sessie = kiesOpgaven(items, data.beheersing, aantal);
   index = 0;
   score = 0;
   nieuwBeheerst = 0;
@@ -334,22 +342,20 @@ function eindSessie() {
   details.innerHTML = '';
 
   const onderdelen = [
-    { label: 'Tafels',             prefix: 'tafel-',   pool: TAFELS },
-    { label: 'Deelsommen',         prefix: 'deelsom-', pool: DEELSOMMEN },
-    { label: 'Verhalende sommen',  prefix: 'verhaal-', pool: VERHAAL },
+    { label: 'Tafels',             prefix: 'tafel-',   pool: TAFELS,     grootte: 100 },
+    { label: 'Deelsommen',         prefix: 'deelsom-', pool: DEELSOMMEN, grootte: 100 },
+    { label: 'Verhalende sommen',  prefix: 'verhaal-', pool: null,        grootte: 100 },
   ];
 
-  for (const { label, prefix, pool } of onderdelen) {
+  for (const { label, prefix, pool, grootte } of onderdelen) {
     const inSessie = sessie.filter(it => it.id.startsWith(prefix));
     if (inSessie.length === 0) continue;
-    const goed = inSessie.filter((it, i) => {
-      // tel hoe vaak dit item in de sessie goed was (op basis van beheersing rij)
-      return data.beheersing[it.id]?.rij > 0;
-    }).length;
-    const beheerst = pool.filter(it => data.beheersing[it.id]?.status === 'beheerst').length;
+    const beheerst = pool
+      ? pool.filter(it => data.beheersing[it.id]?.status === 'beheerst').length
+      : Object.entries(data.beheersing).filter(([id, b]) => id.startsWith(prefix) && b.status === 'beheerst').length;
     const li = document.createElement('li');
     li.className = 'resultaat-detail-rij';
-    li.innerHTML = `<span>${label}</span><span>${beheerst} / ${pool.length} beheerst</span>`;
+    li.innerHTML = `<span>${label}</span><span>${beheerst} / ${grootte} beheerst</span>`;
     details.appendChild(li);
   }
 

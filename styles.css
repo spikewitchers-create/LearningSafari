@@ -503,6 +503,26 @@ input[type="text"]:focus {
 }
 .knop-lees:hover { opacity: 1; }
 
+/* ── Sessielengte ────────────────────────────────────── */
+.optie-label-rij {
+  justify-content: space-between;
+  width: 100%;
+}
+.sessie-select {
+  font-family: var(--font);
+  font-size: 0.95rem;
+  padding: 0.25rem 0.5rem;
+  border: 1.5px solid var(--rand);
+  border-radius: 6px;
+  background: var(--achtergrond);
+  color: var(--tekst);
+  cursor: pointer;
+}
+.sessie-select:focus {
+  outline: 2px solid var(--primair);
+  outline-offset: 1px;
+}
+
 /* ── Extra keuze-opties (TTS) ────────────────────────── */
 .keuze-optie-extra {
   border-top: 1.5px solid var(--rand);
