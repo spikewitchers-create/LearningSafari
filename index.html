@@ -64,119 +64,129 @@
 
       <!-- 2. Keuze-scherm -->
       <section id="scherm-keuze" class="scherm" hidden>
-        <div class="kaart">
-          <div id="suggestie-kaart" class="suggestie-kaart" hidden>
-            <p id="streak-tekst" class="suggestie-streak"></p>
-            <p id="suggestie-tekst" class="suggestie-tekst"></p>
-            <button id="zwak-start-knop" class="knop-zwak">Oefen mijn zwakke punten →</button>
-          </div>
 
-          <p class="keuze-vraag">Kies je oefenstof</p>
+        <!-- Suggestie -->
+        <div id="suggestie-kaart" class="suggestie-kaart" hidden>
+          <p id="streak-tekst" class="suggestie-streak"></p>
+          <p id="suggestie-tekst" class="suggestie-tekst"></p>
+          <button id="zwak-start-knop" class="knop-zwak">Oefen mijn zwakke punten →</button>
+        </div>
 
-          <p class="keuze-groep-titel">Tafels & deling</p>
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-tafels">
-              <input type="checkbox" id="cb-tafels">
-              <span class="optie-naam">Tafels</span>
-              <span id="tafels-voortgang" class="optie-voortgang"></span>
-            </label>
-            <div id="tafels-sub" class="tafels-sub" hidden>
-              <ul id="tafel-lijst" class="tafel-grid"></ul>
-              <div class="keuze-acties">
-                <button id="alles-knop" class="knop-klein">Alles</button>
-                <button id="niets-knop" class="knop-klein">Niets</button>
+        <p class="keuze-vraag">Kies je oefenstof</p>
+
+        <!-- Groepen grid -->
+        <div class="keuze-grid">
+
+          <!-- Tafels & deling -->
+          <div class="keuze-groep-kaart">
+            <p class="keuze-groep-titel">📖 Tafels &amp; deling</p>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-tafels">
+                <input type="checkbox" id="cb-tafels">
+                <span class="optie-naam">Tafels</span>
+                <span id="tafels-voortgang" class="optie-voortgang"></span>
+              </label>
+              <div id="tafels-sub" class="tafels-sub" hidden>
+                <ul id="tafel-lijst" class="tafel-grid"></ul>
+                <div class="keuze-acties">
+                  <button id="alles-knop" class="knop-klein">Alles</button>
+                  <button id="niets-knop" class="knop-klein">Niets</button>
+                </div>
               </div>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-deelsommen">
+                <input type="checkbox" id="cb-deelsommen">
+                <span class="optie-naam">Deelsommen</span>
+                <span id="deelsom-voortgang" class="optie-voortgang"></span>
+              </label>
             </div>
           </div>
 
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-deelsommen">
-              <input type="checkbox" id="cb-deelsommen">
-              <span class="optie-naam">Deelsommen</span>
-              <span id="deelsom-voortgang" class="optie-voortgang"></span>
-            </label>
+          <!-- Optellen, aftrekken & vermenigvuldigen -->
+          <div class="keuze-groep-kaart">
+            <p class="keuze-groep-titel">➕ Optellen, aftrekken &amp; × </p>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-optaft">
+                <input type="checkbox" id="cb-optaft">
+                <span class="optie-naam">Optellen &amp; aftrekken t/m 1000</span>
+                <span id="optaft-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-vermenigv">
+                <input type="checkbox" id="cb-vermenigv">
+                <span class="optie-naam">Vermenigvuldigen (splitsen &amp; te veel)</span>
+                <span id="vermenigv-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
           </div>
 
-          <p class="keuze-groep-titel">Optellen, aftrekken & vermenigvuldigen</p>
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-optaft">
-              <input type="checkbox" id="cb-optaft">
-              <span class="optie-naam">Optellen & aftrekken t/m 1000</span>
-              <span id="optaft-voortgang" class="optie-voortgang"></span>
-            </label>
+          <!-- Deling & geld -->
+          <div class="keuze-groep-kaart">
+            <p class="keuze-groep-titel">💰 Deling &amp; geld</p>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-deelrest">
+                <input type="checkbox" id="cb-deelrest">
+                <span class="optie-naam">Deelsommen met rest</span>
+                <span id="deelrest-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-deelsplits">
+                <input type="checkbox" id="cb-deelsplits">
+                <span class="optie-naam">Deelsommen splitsen</span>
+                <span id="deelsplits-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-halverd">
+                <input type="checkbox" id="cb-halverd">
+                <span class="optie-naam">Halveren &amp; verdubbelen</span>
+                <span id="halverd-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-geld">
+                <input type="checkbox" id="cb-geld">
+                <span class="optie-naam">Geld (aanvullen &amp; verschil)</span>
+                <span id="geld-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
           </div>
 
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-vermenigv">
-              <input type="checkbox" id="cb-vermenigv">
-              <span class="optie-naam">Vermenigvuldigen (splitsen &amp; te veel)</span>
-              <span id="vermenigv-voortgang" class="optie-voortgang"></span>
-            </label>
+          <!-- Verhalend -->
+          <div class="keuze-groep-kaart">
+            <p class="keuze-groep-titel">📝 Verhalend oefenen</p>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-verhaal">
+                <input type="checkbox" id="cb-verhaal">
+                <span class="optie-naam">Verhalende sommen</span>
+                <span id="verhaal-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
           </div>
 
-          <p class="keuze-groep-titel">Deling & geld</p>
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-deelrest">
-              <input type="checkbox" id="cb-deelrest">
-              <span class="optie-naam">Deelsommen met rest</span>
-              <span id="deelrest-voortgang" class="optie-voortgang"></span>
-            </label>
-          </div>
+        </div><!-- .keuze-grid -->
 
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-deelsplits">
-              <input type="checkbox" id="cb-deelsplits">
-              <span class="optie-naam">Deelsommen splitsen</span>
-              <span id="deelsplits-voortgang" class="optie-voortgang"></span>
-            </label>
-          </div>
-
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-halverd">
-              <input type="checkbox" id="cb-halverd">
-              <span class="optie-naam">Halveren & verdubbelen</span>
-              <span id="halverd-voortgang" class="optie-voortgang"></span>
-            </label>
-          </div>
-
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-geld">
-              <input type="checkbox" id="cb-geld">
-              <span class="optie-naam">Geld (aanvullen & verschil)</span>
-              <span id="geld-voortgang" class="optie-voortgang"></span>
-            </label>
-          </div>
-
-          <p class="keuze-groep-titel">Verhalend oefenen</p>
-          <div class="keuze-optie">
-            <label class="optie-label" for="cb-verhaal">
-              <input type="checkbox" id="cb-verhaal">
-              <span class="optie-naam">Verhalende sommen</span>
-              <span id="verhaal-voortgang" class="optie-voortgang"></span>
-            </label>
-          </div>
-
-          <div class="keuze-optie keuze-sessie">
-            <label class="optie-label optie-label-rij" for="sessie-lengte">
-              <span class="optie-naam">Aantal sommen per sessie</span>
-              <select id="sessie-lengte" class="sessie-select">
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="keuze-optie keuze-optie-extra">
-            <label class="optie-label" for="cb-autolees">
-              <input type="checkbox" id="cb-autolees">
-              <span class="optie-naam">🔊 Lees sommen voor</span>
-            </label>
-            <p class="optie-toelichting">Handig bij dyslexie of als het kind nog leest</p>
-          </div>
+        <!-- Instellingen -->
+        <div class="keuze-instellingen">
+          <label class="instelling-rij" for="sessie-lengte">
+            <span class="instelling-label">Sommen per sessie</span>
+            <select id="sessie-lengte" class="sessie-select">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+            </select>
+          </label>
+          <label class="instelling-rij" for="cb-autolees">
+            <span class="instelling-label">🔊 Lees sommen voor</span>
+            <input type="checkbox" id="cb-autolees" class="instelling-cb">
+          </label>
         </div>
+
         <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
       </section>
 
