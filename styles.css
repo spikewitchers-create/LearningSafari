@@ -26,6 +26,7 @@
   --fout-licht:    #fee2e2;
 
   --balk-bg:       #bae6fd;
+  --nav-br:        160px;
   --straal:        12px;
   --straal-groot:  18px;
   --schaduw:       0 1px 3px rgba(0,0,0,0.06), 0 6px 20px rgba(2,132,199,0.08);
@@ -39,21 +40,161 @@ body {
   background: var(--achtergrond);
   color: var(--tekst);
   min-height: 100dvh;
-  display: grid;
-  place-items: start center;
-  padding: 2rem 1rem 4rem;
 }
 
-/* ── Wrapper & schermen ──────────────────────────────── */
-.pagina {
+/* ── App-layout: nav links, hoofd rechts ─────────────── */
+.app-layout {
+  display: flex;
+  min-height: 100dvh;
+}
+
+/* ── Zijnavigatie ────────────────────────────────────── */
+.zijnav {
+  width: var(--nav-br);
+  flex-shrink: 0;
+  background: var(--primair-dark);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0.75rem 1.5rem;
+  gap: 1.5rem;
+  min-height: 100dvh;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+
+.zijnav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.logo-icoon { font-size: 1.8rem; line-height: 1; }
+
+.zijnav-appnaam {
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.01em;
+  color: #fff;
+}
+
+.zijnav-lijst {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.nav-knop {
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   width: 100%;
-  max-width: 420px;
+  padding: 0.6rem 0.75rem;
+  background: none;
+  color: rgba(255,255,255,0.75);
+  border: none;
+  border-radius: var(--straal);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-knop:hover:not(.nav-uitgeschakeld) {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.nav-knop.nav-actief {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+.nav-knop.nav-uitgeschakeld {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nav-icoon { font-size: 1.1rem; }
+
+.zijnav-naam {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  padding: 0 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Hoofdinhoud ─────────────────────────────────────── */
+.hoofd {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── Titelbalk ───────────────────────────────────────── */
+.titelbalk {
+  background: var(--kaart);
+  border-bottom: 1.5px solid var(--rand);
+  padding: 0.75rem 1.5rem;
+}
+
+.scherm-titel {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--primair-dark);
+}
+
+/* ── Pagina (centrering binnen hoofd) ────────────────── */
+.pagina {
+  padding: 1.75rem 1.5rem 3rem;
+  width: 100%;
+  max-width: 460px;
 }
 
 .scherm {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+}
+
+/* ── Mobiel: nav wordt topbalk ───────────────────────── */
+@media (max-width: 560px) {
+  .app-layout { flex-direction: column; }
+
+  .zijnav {
+    width: 100%;
+    min-height: unset;
+    height: auto;
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .zijnav-appnaam { display: none; }
+  .zijnav-naam    { display: none; }
+
+  .zijnav-lijst {
+    flex-direction: row;
+    flex: unset;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+
+  .nav-knop { padding: 0.4rem 0.6rem; }
+  .nav-label { display: none; }
+
+  .pagina { padding: 1rem 1rem 3rem; }
 }
 
 /* ── Kaart ───────────────────────────────────────────── */
@@ -65,39 +206,6 @@ body {
   padding: 1.25rem 1.5rem;
 }
 
-/* ── Welkomst-header ─────────────────────────────────── */
-.kaart-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 1rem 0 0.4rem;
-}
-
-.logo-icoon { font-size: 2.8rem; line-height: 1; }
-
-h1 {
-  font-size: 1.8rem;
-  letter-spacing: -0.02em;
-  color: var(--primair);
-  text-align: center;
-}
-
-h2 {
-  font-size: 1.4rem;
-  color: var(--primair);
-  text-align: center;
-}
-
-/* ── Scherm-top (naam + terug) ───────────────────────── */
-.scherm-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.25rem;
-}
-
-.scherm-naam { font-weight: bold; font-size: 0.95rem; }
 
 /* ── Invoervelden ────────────────────────────────────── */
 .formulier {

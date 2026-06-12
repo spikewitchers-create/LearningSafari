@@ -13,9 +13,27 @@ let score = 0;
 let nieuwBeheerst = 0;
 
 // ── Navigatie ─────────────────────────────────────────
+const SCHERM_TITELS = {
+  'scherm-welkom':    'Wie ben jij?',
+  'scherm-keuze':     'Wat wil je oefenen?',
+  'scherm-sessie':    'Oefenen',
+  'scherm-resultaat': 'Hoe ging het?',
+};
+
+const NAV_ACTIEF = {
+  'scherm-welkom':    'nav-oefenen',
+  'scherm-keuze':     'nav-oefenen',
+  'scherm-sessie':    'nav-oefenen',
+  'scherm-resultaat': 'nav-oefenen',
+};
+
 function toonScherm(id) {
   document.querySelectorAll('.scherm').forEach(el => el.hidden = true);
   document.getElementById(id).hidden = false;
+  document.getElementById('scherm-titel').textContent = SCHERM_TITELS[id] ?? '';
+  document.querySelectorAll('.nav-knop').forEach(k => k.classList.remove('nav-actief'));
+  const actief = NAV_ACTIEF[id];
+  if (actief) document.getElementById(actief)?.classList.add('nav-actief');
 }
 
 // ── Hulpfuncties beheersing ───────────────────────────
@@ -27,17 +45,37 @@ function tafelVanItem(id) {
   return Number(id.split('-')[1].split('x')[0]);
 }
 
+function updateNavNaam() {
+  document.getElementById('nav-naam').textContent =
+    data.profiel.naam ? `👤 ${data.profiel.naam}` : '';
+}
+
+// Nav-knop "Oefenen"
+document.getElementById('nav-oefenen').addEventListener('click', () => {
+  if (data.profiel.naam) toonKeuzescherm();
+  else toonScherm('scherm-welkom');
+});
+
 // ── 1. Welkomstscherm ─────────────────────────────────
 document.getElementById('welkom-verder-knop').addEventListener('click', () => {
   const naam = document.getElementById('naam-input').value.trim();
   if (!naam) return;
   data.profiel.naam = naam;
   slaOp(data);
+  updateNavNaam();
   toonKeuzescherm();
 });
 
 document.getElementById('naam-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('welkom-verder-knop').click();
+});
+
+// Naam wijzigen vanuit keuze-scherm
+document.getElementById('keuze-naam-knop')?.addEventListener('click', () => {
+  toonScherm('scherm-welkom');
+  const input = document.getElementById('naam-input');
+  input.select();
+  input.focus();
 });
 
 // ── 2. Keuze-scherm ───────────────────────────────────
@@ -310,6 +348,7 @@ function eindSessie() {
 document.getElementById('opnieuw-knop').addEventListener('click', toonKeuzescherm);
 
 // ── Start ─────────────────────────────────────────────
+updateNavNaam();
 if (data.profiel.naam) {
   document.getElementById('naam-input').value = data.profiel.naam;
   toonKeuzescherm();

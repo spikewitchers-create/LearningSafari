@@ -7,97 +7,132 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="pagina">
 
-  <!-- 1. Welkomstscherm -->
-  <section id="scherm-welkom" class="scherm" hidden>
-    <header class="kaart-header">
+<div class="app-layout">
+
+  <!-- Zijnavigatie -->
+  <nav class="zijnav">
+    <div class="zijnav-logo">
       <span class="logo-icoon">🦁</span>
-      <h1>LearningSafari</h1>
-    </header>
-    <div class="kaart">
-      <div class="formulier">
-        <label for="naam-input">Hoe heet jij?</label>
-        <input id="naam-input" type="text" placeholder="Jouw naam"
-               autocomplete="off" maxlength="30">
-      </div>
-      <button id="welkom-verder-knop" class="knop-groot">Verder →</button>
+      <span class="zijnav-appnaam">Safari</span>
     </div>
-  </section>
+    <ul class="zijnav-lijst">
+      <li>
+        <button class="nav-knop" id="nav-oefenen" data-doel="oefenen">
+          <span class="nav-icoon">📚</span>
+          <span class="nav-label">Oefenen</span>
+        </button>
+      </li>
+      <li>
+        <button class="nav-knop nav-uitgeschakeld" title="Komt binnenkort">
+          <span class="nav-icoon">📊</span>
+          <span class="nav-label">Voortgang</span>
+        </button>
+      </li>
+      <li>
+        <button class="nav-knop nav-uitgeschakeld" title="Komt binnenkort">
+          <span class="nav-icoon">⚙️</span>
+          <span class="nav-label">Instellingen</span>
+        </button>
+      </li>
+    </ul>
+    <div class="zijnav-naam" id="nav-naam"></div>
+  </nav>
 
-  <!-- 2. Keuze-scherm -->
-  <section id="scherm-keuze" class="scherm" hidden>
-    <header class="scherm-top">
-      <span id="keuze-naam" class="scherm-naam"></span>
-      <button id="keuze-naam-knop" class="knop-tekst">← Naam wijzigen</button>
+  <!-- Hoofdinhoud -->
+  <div class="hoofd">
+
+    <!-- Titelbalk -->
+    <header class="titelbalk">
+      <h1 id="scherm-titel" class="scherm-titel"></h1>
     </header>
-    <div class="kaart">
-      <p class="keuze-vraag">Wat wil je oefenen?</p>
 
-      <div class="keuze-optie">
-        <label class="optie-label" for="cb-tafels">
-          <input type="checkbox" id="cb-tafels">
-          <span class="optie-naam">Tafels</span>
-          <span id="tafels-voortgang" class="optie-voortgang"></span>
-        </label>
-        <div id="tafels-sub" class="tafels-sub" hidden>
-          <ul id="tafel-lijst" class="tafel-grid"></ul>
-          <div class="keuze-acties">
-            <button id="alles-knop" class="knop-klein">Alles</button>
-            <button id="niets-knop" class="knop-klein">Niets</button>
+    <!-- Schermen -->
+    <main class="pagina">
+
+      <!-- 1. Welkomstscherm -->
+      <section id="scherm-welkom" class="scherm" hidden>
+        <div class="kaart">
+          <div class="formulier">
+            <label for="naam-input">Hoe heet jij?</label>
+            <input id="naam-input" type="text" placeholder="Jouw naam"
+                   autocomplete="off" maxlength="30">
+          </div>
+          <button id="welkom-verder-knop" class="knop-groot">Verder →</button>
+        </div>
+      </section>
+
+      <!-- 2. Keuze-scherm -->
+      <section id="scherm-keuze" class="scherm" hidden>
+        <div class="kaart">
+          <p class="keuze-vraag">Kies je oefenstof</p>
+
+          <div class="keuze-optie">
+            <label class="optie-label" for="cb-tafels">
+              <input type="checkbox" id="cb-tafels">
+              <span class="optie-naam">Tafels</span>
+              <span id="tafels-voortgang" class="optie-voortgang"></span>
+            </label>
+            <div id="tafels-sub" class="tafels-sub" hidden>
+              <ul id="tafel-lijst" class="tafel-grid"></ul>
+              <div class="keuze-acties">
+                <button id="alles-knop" class="knop-klein">Alles</button>
+                <button id="niets-knop" class="knop-klein">Niets</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="keuze-optie">
+            <label class="optie-label" for="cb-deelsommen">
+              <input type="checkbox" id="cb-deelsommen">
+              <span class="optie-naam">Deelsommen</span>
+              <span id="deelsom-voortgang" class="optie-voortgang"></span>
+            </label>
           </div>
         </div>
-      </div>
+        <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
+      </section>
 
-      <div class="keuze-optie">
-        <label class="optie-label" for="cb-deelsommen">
-          <input type="checkbox" id="cb-deelsommen">
-          <span class="optie-naam">Deelsommen</span>
-          <span id="deelsom-voortgang" class="optie-voortgang"></span>
-        </label>
-      </div>
-    </div>
-    <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
-  </section>
+      <!-- 3. Sessie-scherm -->
+      <section id="scherm-sessie" class="scherm" hidden>
+        <div class="voortgang-balk-wrap">
+          <div class="voortgang-balk"><div id="voortgang-balk-vul"></div></div>
+          <span id="voortgang" class="voortgang-label">1 / 10</span>
+        </div>
+        <div class="kaart vraag-kaart">
+          <p id="vraag" class="vraag"></p>
+        </div>
+        <div class="kaart antwoord-kaart">
+          <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
+          <input id="antwoord-input" type="text" inputmode="numeric"
+                 pattern="[0-9]*" placeholder="?" autocomplete="off">
+          <button id="controleer-knop" class="knop-groot">OK</button>
+        </div>
+        <p id="feedback" class="feedback"></p>
+        <div id="hint-gebied" class="hint-gebied" hidden>
+          <button id="hint-knop" class="knop-hint">Hint →</button>
+          <p id="hint-tekst" class="hint-tekst" hidden></p>
+        </div>
+        <button id="volgende-knop" class="knop-volgende" hidden>Volgende vraag →</button>
+      </section>
 
-  <!-- 3. Sessie-scherm -->
-  <section id="scherm-sessie" class="scherm" hidden>
-    <div class="voortgang-balk-wrap">
-      <div class="voortgang-balk"><div id="voortgang-balk-vul"></div></div>
-      <span id="voortgang" class="voortgang-label">1 / 10</span>
-    </div>
-    <div class="kaart vraag-kaart">
-      <p id="vraag" class="vraag"></p>
-    </div>
-    <div class="kaart antwoord-kaart">
-      <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
-      <input id="antwoord-input" type="text" inputmode="numeric"
-             pattern="[0-9]*" placeholder="?" autocomplete="off">
-      <button id="controleer-knop" class="knop-groot">OK</button>
-    </div>
-    <p id="feedback" class="feedback"></p>
-    <div id="hint-gebied" class="hint-gebied" hidden>
-      <button id="hint-knop" class="knop-hint">Hint →</button>
-      <p id="hint-tekst" class="hint-tekst" hidden></p>
-    </div>
-    <button id="volgende-knop" class="knop-volgende" hidden>Volgende vraag →</button>
-  </section>
+      <!-- 4. Resultaat-scherm -->
+      <section id="scherm-resultaat" class="scherm" hidden>
+        <div class="kaart resultaat-kaart">
+          <div class="resultaat-top">
+            <span id="resultaat-icoon" class="resultaat-icoon">🏆</span>
+            <p id="resultaat-boodschap" class="resultaat-boodschap"></p>
+          </div>
+          <ul id="resultaat-details" class="resultaat-details"></ul>
+          <p id="resultaat-totaal" class="resultaat-sub"></p>
+        </div>
+        <button id="opnieuw-knop" class="knop-groot">Opnieuw kiezen →</button>
+      </section>
 
-  <!-- 4. Resultaat-scherm -->
-  <section id="scherm-resultaat" class="scherm" hidden>
-    <header class="kaart-header">
-      <span id="resultaat-icoon" class="logo-icoon">🏆</span>
-      <h2 id="resultaat-titel">Sessie klaar!</h2>
-    </header>
-    <div class="kaart resultaat-kaart">
-      <p id="resultaat-boodschap" class="resultaat-boodschap"></p>
-      <ul id="resultaat-details" class="resultaat-details"></ul>
-      <p id="resultaat-totaal" class="resultaat-sub"></p>
-    </div>
-    <button id="opnieuw-knop" class="knop-groot">Terug naar keuze →</button>
-  </section>
+    </main>
+  </div><!-- .hoofd -->
+</div><!-- .app-layout -->
 
-</div>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
