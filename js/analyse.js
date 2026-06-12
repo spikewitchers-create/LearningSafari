@@ -2,9 +2,9 @@
 // Pure functie — geen DOM, geen opslag
 
 // Alle onderdelen met hun pool en profiel-sleutel
-// Wordt aangeroepen met de geladen pools als argument zodat er geen circulaire import is
+// blok: vroeger blok = hogere urgentie bij onbeheerste items
 export function analyseerOnderdelen(pools, beheersing) {
-  return pools.map(({ key, label, pool }) => {
+  return pools.map(({ key, label, pool, blok }) => {
     const items = pool;
     const gezien = items.filter(it => beheersing[it.id]);
     const beheerst = gezien.filter(it => beheersing[it.id].status === 'beheerst').length;
@@ -12,11 +12,10 @@ export function analyseerOnderdelen(pools, beheersing) {
     const totFout  = gezien.reduce((s, it) => s + (beheersing[it.id].fout ?? 0), 0);
     const pctBeheerst = Math.round((beheerst / items.length) * 100);
 
-    // Zwakheid: hogere score = meer aandacht nodig
-    // Nog-niet-geziene items tellen zwaar (potentieel gat)
-    // Items in 'oefenen' met fouten tellen ook zwaar
     const nogNietGezien = items.length - gezien.length;
-    const zwakheid = nogNietGezien * 2 + oefenen * 3 + totFout;
+    // Eerder blok = hogere urgentie (blok 5 → gewicht 6, blok 10 → gewicht 1)
+    const blokGewicht = blok ? Math.max(1, 11 - blok) : 3;
+    const zwakheid = (nogNietGezien * 2 + oefenen * 3 + totFout) * blokGewicht;
 
     return { key, label, pool, beheerst, oefenen, gezien: gezien.length,
              totaal: items.length, pctBeheerst, zwakheid };

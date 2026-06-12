@@ -10,7 +10,7 @@ function leegDierentuin() {
 function leegData() {
   return {
     versie: VERSIE,
-    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, aantalSommen: 10, autoLees: false },
+    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, klok: false, deelanalog: false, lengtematen: false, handigreken: false, kalender: false, aantalSommen: 10, autoLees: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
     oefenlog: [],     // [{ datum, sessies, nieuwBeheerst }]
     dierentuin: leegDierentuin(),
@@ -35,7 +35,12 @@ export function laadData() {
     if (data.profiel.deelrest   === undefined) data.profiel.deelrest   = false;
     if (data.profiel.deelsplits === undefined) data.profiel.deelsplits = false;
     if (data.profiel.halverd    === undefined) data.profiel.halverd    = false;
-    if (data.profiel.geld       === undefined) data.profiel.geld       = false;
+    if (data.profiel.geld        === undefined) data.profiel.geld        = false;
+    if (data.profiel.klok        === undefined) data.profiel.klok        = false;
+    if (data.profiel.deelanalog  === undefined) data.profiel.deelanalog  = false;
+    if (data.profiel.lengtematen === undefined) data.profiel.lengtematen  = false;
+    if (data.profiel.handigreken === undefined) data.profiel.handigreken  = false;
+    if (data.profiel.kalender    === undefined) data.profiel.kalender     = false;
     if (!data.dierentuin) data.dierentuin = leegDierentuin();
     if (!data.dierentuin.weekDoelSleutel) data.dierentuin.weekDoelSleutel = '';
     return data;

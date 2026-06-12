@@ -10,6 +10,11 @@ import { genereerItems as deelRestItems } from './onderdelen/deelsommen-rest.js'
 import { genereerItems as deelSplitsenItems } from './onderdelen/deelsommen-splitsen.js';
 import { genereerItems as halverenItems } from './onderdelen/halveren-verdubbelen.js';
 import { genereerItems as geldItems } from './onderdelen/geld.js';
+import { genereerItems as klokItems } from './onderdelen/klokkijken.js';
+import { genereerItems as deelAnalogItems } from './onderdelen/deelsommen-analogie.js';
+import { genereerItems as lengteItems } from './onderdelen/lengtematen.js';
+import { genereerItems as handrekenItems } from './onderdelen/handig-rekenen.js';
+import { genereerItems as kalenderItems } from './onderdelen/kalender.js';
 import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
          haalMijlpalen, nieuweMijlpaal,
          berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
@@ -24,18 +29,28 @@ const DEEL_REST    = deelRestItems();
 const DEEL_SPLITS  = deelSplitsenItems();
 const HALVERD      = halverenItems();
 const GELD         = geldItems();
+const KLOK         = klokItems();
+const DEEL_ANALOG  = deelAnalogItems();
+const LENGTE       = lengteItems();
+const HANDIGREKEN  = handrekenItems();
+const KALENDER     = kalenderItems();
 // VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
 
-// Alle vaste pools voor analyse (verhaal niet — dynamisch gegenereerd)
+// Alle vaste pools voor analyse — blok = curriculumblok (lager = hogere urgentie)
 const ALLE_POOLS = [
-  { key: 'tafels',      label: 'Tafels',                  pool: TAFELS      },
-  { key: 'deelsommen',  label: 'Deelsommen',               pool: DEELSOMMEN  },
-  { key: 'optaft',      label: 'Optellen & aftrekken',     pool: OPT_AFT     },
-  { key: 'vermenigv',   label: 'Vermenigvuldigen',         pool: VERMENIGV   },
-  { key: 'deelrest',    label: 'Deelsommen met rest',      pool: DEEL_REST   },
-  { key: 'deelsplits',  label: 'Deelsommen splitsen',      pool: DEEL_SPLITS },
-  { key: 'halverd',     label: 'Halveren & verdubbelen',   pool: HALVERD     },
-  { key: 'geld',        label: 'Geld',                     pool: GELD        },
+  { key: 'tafels',      label: 'Tafels',                   pool: TAFELS,      blok: 1  },
+  { key: 'deelsommen',  label: 'Deelsommen',                pool: DEELSOMMEN,  blok: 5  },
+  { key: 'optaft',      label: 'Optellen & aftrekken',      pool: OPT_AFT,     blok: 5  },
+  { key: 'klok',        label: 'Klokkijken',                pool: KLOK,        blok: 5  },
+  { key: 'vermenigv',   label: 'Vermenigvuldigen',          pool: VERMENIGV,   blok: 6  },
+  { key: 'deelrest',    label: 'Deelsommen met rest',       pool: DEEL_REST,   blok: 6  },
+  { key: 'kalender',    label: 'Kalender & datums',         pool: KALENDER,    blok: 7  },
+  { key: 'deelanalog',  label: 'Deelsommen naar analogie',  pool: DEEL_ANALOG, blok: 8  },
+  { key: 'geld',        label: 'Geld',                      pool: GELD,        blok: 8  },
+  { key: 'deelsplits',  label: 'Deelsommen splitsen',       pool: DEEL_SPLITS, blok: 9  },
+  { key: 'lengtematen', label: 'Lengtematen',               pool: LENGTE,      blok: 9  },
+  { key: 'halverd',     label: 'Halveren & verdubbelen',    pool: HALVERD,     blok: 10 },
+  { key: 'handigreken', label: 'Handig rekenen',            pool: HANDIGREKEN, blok: 10 },
 ];
 
 let data = laadData();
@@ -177,6 +192,31 @@ function toonKeuzescherm() {
   document.getElementById('verhaal-voortgang').textContent =
     `${beheerstVoorPool(verhaalPool)} / 100`;
 
+  // Klokkijken
+  document.getElementById('cb-klok').checked = data.profiel.klok ?? false;
+  document.getElementById('klok-voortgang').textContent =
+    `${beheerstVoorPool(KLOK)} / ${KLOK.length}`;
+
+  // Deelsommen naar analogie
+  document.getElementById('cb-deelanalog').checked = data.profiel.deelanalog ?? false;
+  document.getElementById('deelanalog-voortgang').textContent =
+    `${beheerstVoorPool(DEEL_ANALOG)} / ${DEEL_ANALOG.length}`;
+
+  // Lengtematen
+  document.getElementById('cb-lengtematen').checked = data.profiel.lengtematen ?? false;
+  document.getElementById('lengtematen-voortgang').textContent =
+    `${beheerstVoorPool(LENGTE)} / ${LENGTE.length}`;
+
+  // Handig rekenen
+  document.getElementById('cb-handigreken').checked = data.profiel.handigreken ?? false;
+  document.getElementById('handigreken-voortgang').textContent =
+    `${beheerstVoorPool(HANDIGREKEN)} / ${HANDIGREKEN.length}`;
+
+  // Kalender
+  document.getElementById('cb-kalender').checked = data.profiel.kalender ?? false;
+  document.getElementById('kalender-voortgang').textContent =
+    `${beheerstVoorPool(KALENDER)} / ${KALENDER.length}`;
+
   // Sessielengte
   document.getElementById('sessie-lengte').value = String(data.profiel.aantalSommen ?? 10);
 
@@ -285,22 +325,33 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metHalverd     = document.getElementById('cb-halverd').checked;
   const metGeld        = document.getElementById('cb-geld').checked;
   const metVerhaal     = document.getElementById('cb-verhaal').checked;
+  const metKlok        = document.getElementById('cb-klok').checked;
+  const metDeelAnalog  = document.getElementById('cb-deelanalog').checked;
+  const metLengte      = document.getElementById('cb-lengtematen').checked;
+  const metHandig      = document.getElementById('cb-handigreken').checked;
+  const metKalender    = document.getElementById('cb-kalender').checked;
 
   const erIsIets = tafelsSelectie.length > 0 || metDeelsommen || metOptAft ||
-    metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal;
+    metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal ||
+    metKlok || metDeelAnalog || metLengte || metHandig || metKalender;
   if (!erIsIets) return;
 
-  data.profiel.tafels      = metTafels;
+  data.profiel.tafels       = metTafels;
   data.profiel.tafelselectie = tafelsSelectie;
-  data.profiel.deelsommen  = metDeelsommen;
-  data.profiel.optaft      = metOptAft;
-  data.profiel.vermenigv   = metVermenigv;
-  data.profiel.deelrest    = metDeelRest;
-  data.profiel.deelsplits  = metDeelSplits;
-  data.profiel.halverd     = metHalverd;
-  data.profiel.geld        = metGeld;
-  data.profiel.verhaal     = metVerhaal;
-  data.profiel.autoLees = document.getElementById('cb-autolees').checked;
+  data.profiel.deelsommen   = metDeelsommen;
+  data.profiel.optaft       = metOptAft;
+  data.profiel.vermenigv    = metVermenigv;
+  data.profiel.deelrest     = metDeelRest;
+  data.profiel.deelsplits   = metDeelSplits;
+  data.profiel.halverd      = metHalverd;
+  data.profiel.geld         = metGeld;
+  data.profiel.verhaal      = metVerhaal;
+  data.profiel.klok         = metKlok;
+  data.profiel.deelanalog   = metDeelAnalog;
+  data.profiel.lengtematen  = metLengte;
+  data.profiel.handigreken  = metHandig;
+  data.profiel.kalender     = metKalender;
+  data.profiel.autoLees     = document.getElementById('cb-autolees').checked;
   data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
   slaOp(data);
 
@@ -316,6 +367,11 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ...(metDeelSplits  ? DEEL_SPLITS : []),
     ...(metHalverd     ? HALVERD     : []),
     ...(metGeld        ? GELD        : []),
+    ...(metKlok        ? KLOK        : []),
+    ...(metDeelAnalog  ? DEEL_ANALOG : []),
+    ...(metLengte      ? LENGTE      : []),
+    ...(metHandig      ? HANDIGREKEN : []),
+    ...(metKalender    ? KALENDER    : []),
     ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
@@ -533,15 +589,20 @@ function eindSessie() {
   details.innerHTML = '';
 
   const onderdelen = [
-    { label: 'Tafels',                  prefix: 'tafel-',      pool: TAFELS,      grootte: 100 },
-    { label: 'Deelsommen',              prefix: 'deelsom-',    pool: DEELSOMMEN,  grootte: 100 },
-    { label: 'Optellen & aftrekken',    prefix: 'optaft-',     pool: OPT_AFT,     grootte: OPT_AFT.length },
-    { label: 'Vermenigvuldigen',        prefix: 'vermenigv-',  pool: VERMENIGV,   grootte: VERMENIGV.length },
-    { label: 'Deelsommen met rest',     prefix: 'deelrest-',   pool: DEEL_REST,   grootte: DEEL_REST.length },
-    { label: 'Deelsommen splitsen',     prefix: 'deelspl-',    pool: DEEL_SPLITS, grootte: DEEL_SPLITS.length },
-    { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    pool: HALVERD,     grootte: HALVERD.length },
-    { label: 'Geld',                    prefix: 'geld-',       pool: GELD,        grootte: GELD.length },
-    { label: 'Verhalende sommen',       prefix: 'verhaal-',    pool: null,         grootte: 100 },
+    { label: 'Tafels',                   prefix: 'tafel-',      pool: TAFELS,      grootte: 100 },
+    { label: 'Deelsommen',               prefix: 'deelsom-',    pool: DEELSOMMEN,  grootte: 100 },
+    { label: 'Optellen & aftrekken',     prefix: 'optaft-',     pool: OPT_AFT,     grootte: OPT_AFT.length },
+    { label: 'Klokkijken',               prefix: 'klok-',       pool: KLOK,        grootte: KLOK.length },
+    { label: 'Vermenigvuldigen',         prefix: 'vermenigv-',  pool: VERMENIGV,   grootte: VERMENIGV.length },
+    { label: 'Deelsommen met rest',      prefix: 'deelrest-',   pool: DEEL_REST,   grootte: DEEL_REST.length },
+    { label: 'Kalender & datums',        prefix: 'kalender-',   pool: KALENDER,    grootte: KALENDER.length },
+    { label: 'Deels. naar analogie',     prefix: 'deelanalog-', pool: DEEL_ANALOG, grootte: DEEL_ANALOG.length },
+    { label: 'Geld',                     prefix: 'geld-',       pool: GELD,        grootte: GELD.length },
+    { label: 'Deelsommen splitsen',      prefix: 'deelspl-',    pool: DEEL_SPLITS, grootte: DEEL_SPLITS.length },
+    { label: 'Lengtematen',              prefix: 'lengte-',     pool: LENGTE,      grootte: LENGTE.length },
+    { label: 'Halveren & verdubbelen',   prefix: 'halverd-',    pool: HALVERD,     grootte: HALVERD.length },
+    { label: 'Handig rekenen',           prefix: 'handig-',     pool: HANDIGREKEN, grootte: HANDIGREKEN.length },
+    { label: 'Verhalende sommen',        prefix: 'verhaal-',    pool: null,        grootte: 100 },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
@@ -587,11 +648,16 @@ function toonVoortgang() {
     { label: 'Tafels',                  prefix: 'tafel-',      totaal: 100 },
     { label: 'Deelsommen',              prefix: 'deelsom-',    totaal: 100 },
     { label: 'Optellen & aftrekken',    prefix: 'optaft-',     totaal: OPT_AFT.length },
+    { label: 'Klokkijken',              prefix: 'klok-',       totaal: KLOK.length },
     { label: 'Vermenigvuldigen',        prefix: 'vermenigv-',  totaal: VERMENIGV.length },
     { label: 'Deelsommen met rest',     prefix: 'deelrest-',   totaal: DEEL_REST.length },
-    { label: 'Deelsommen splitsen',     prefix: 'deelspl-',    totaal: DEEL_SPLITS.length },
-    { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    totaal: HALVERD.length },
+    { label: 'Kalender & datums',       prefix: 'kalender-',   totaal: KALENDER.length },
+    { label: 'Deels. naar analogie',    prefix: 'deelanalog-', totaal: DEEL_ANALOG.length },
     { label: 'Geld',                    prefix: 'geld-',       totaal: GELD.length },
+    { label: 'Deelsommen splitsen',     prefix: 'deelspl-',    totaal: DEEL_SPLITS.length },
+    { label: 'Lengtematen',             prefix: 'lengte-',     totaal: LENGTE.length },
+    { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    totaal: HALVERD.length },
+    { label: 'Handig rekenen',          prefix: 'handig-',     totaal: HANDIGREKEN.length },
     { label: 'Verhalende sommen',       prefix: 'verhaal-',    totaal: 100 },
   ];
   const vgOnderdelen = document.getElementById('vg-onderdelen');
