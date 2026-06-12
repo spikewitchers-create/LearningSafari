@@ -136,23 +136,30 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
 
 /* ── Twee-kolommen layout ────────────────────────────── */
 .oefenen-layout {
-  display: grid;
-  grid-template-columns: 1fr var(--zijbalk-br);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.85rem;
   align-items: start;
 }
 
-/* Op smalle schermen: zijbalk onder het oefenvlak */
-@media (max-width: 520px) {
-  .oefenen-layout {
-    grid-template-columns: 1fr;
-  }
-  .zijbalk { order: 2; }
-  .oefenvlak { order: 1; }
+.oefenvlak {
+  flex: 1 1 260px; /* groeit, krimpt niet onder 260px */
+}
+
+.zijbalk {
+  flex: 0 0 var(--zijbalk-br); /* vaste breedte, nooit kleiner */
+  width: var(--zijbalk-br);
 }
 
 /* ── Oefenvlak (links) ───────────────────────────────── */
 .oefenvlak {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0; /* voorkomt overflow in flex-kind */
+}
+
+#sessie-inhoud {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
