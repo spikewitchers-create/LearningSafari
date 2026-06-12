@@ -88,8 +88,12 @@ document.getElementById('alles-knop').addEventListener('click', () =>
 document.getElementById('niets-knop').addEventListener('click', () =>
   document.querySelectorAll('#tafel-lijst input').forEach(cb => cb.checked = false));
 
-document.getElementById('keuze-naam-knop').addEventListener('click', () =>
-  toonScherm('scherm-welkom'));
+document.getElementById('keuze-naam-knop').addEventListener('click', () => {
+  toonScherm('scherm-welkom');
+  const input = document.getElementById('naam-input');
+  input.select();
+  input.focus();
+});
 
 document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metTafels = document.getElementById('cb-tafels').checked;
