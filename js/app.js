@@ -4,9 +4,11 @@ import { kiesOpgaven, verwerkAntwoord } from './session.js';
 import { genereerItems as tafelsItems } from './onderdelen/tafels.js';
 import { genereerItems as deelsomItems } from './onderdelen/deelsommen.js';
 import { genereerItems as verhaalItems } from './onderdelen/tafels-verhaal.js';
+import { genereerItems as optAftItems } from './onderdelen/optellen-aftrekken.js';
 
-const TAFELS     = tafelsItems();
-const DEELSOMMEN = deelsomItems();
+const TAFELS      = tafelsItems();
+const DEELSOMMEN  = deelsomItems();
+const OPT_AFT     = optAftItems();
 // VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
 
 let data = laadData();
@@ -104,6 +106,11 @@ function toonKeuzescherm() {
   document.getElementById('deelsom-voortgang').textContent =
     `${beheerstVoorPool(DEELSOMMEN)} / 100`;
 
+  // Optellen & aftrekken
+  document.getElementById('cb-optaft').checked = data.profiel.optaft ?? false;
+  document.getElementById('optaft-voortgang').textContent =
+    `${beheerstVoorPool(OPT_AFT)} / ${OPT_AFT.length}`;
+
   // Verhalende sommen
   document.getElementById('cb-verhaal').checked = data.profiel.verhaal ?? false;
   const verhaalPool = verhaalItems(); // alleen voor beheersing-tel
@@ -155,13 +162,15 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ? Array.from(document.querySelectorAll('#tafel-lijst input:checked')).map(cb => Number(cb.value))
     : [];
   const metDeelsommen = document.getElementById('cb-deelsommen').checked;
+  const metOptAft = document.getElementById('cb-optaft').checked;
   const metVerhaal = document.getElementById('cb-verhaal').checked;
 
-  if (tafelsSelectie.length === 0 && !metDeelsommen && !metVerhaal) return;
+  if (tafelsSelectie.length === 0 && !metDeelsommen && !metOptAft && !metVerhaal) return;
 
   data.profiel.tafels = metTafels;
   data.profiel.tafelselectie = tafelsSelectie;
   data.profiel.deelsommen = metDeelsommen;
+  data.profiel.optaft = metOptAft;
   data.profiel.verhaal = metVerhaal;
   data.profiel.autoLees = document.getElementById('cb-autolees').checked;
   data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
@@ -173,6 +182,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const items = [
     ...TAFELS.filter(it => tafelsSelectie.includes(tafelVanItem(it.id))),
     ...(metDeelsommen ? DEELSOMMEN : []),
+    ...(metOptAft ? OPT_AFT : []),
     ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
@@ -353,9 +363,10 @@ function eindSessie() {
   details.innerHTML = '';
 
   const onderdelen = [
-    { label: 'Tafels',             prefix: 'tafel-',   pool: TAFELS,     grootte: 100 },
-    { label: 'Deelsommen',         prefix: 'deelsom-', pool: DEELSOMMEN, grootte: 100 },
-    { label: 'Verhalende sommen',  prefix: 'verhaal-', pool: null,        grootte: 100 },
+    { label: 'Tafels',               prefix: 'tafel-',   pool: TAFELS,     grootte: 100 },
+    { label: 'Deelsommen',           prefix: 'deelsom-', pool: DEELSOMMEN, grootte: 100 },
+    { label: 'Verhalende sommen',    prefix: 'verhaal-', pool: null,        grootte: 100 },
+    { label: 'Optellen & aftrekken', prefix: 'optaft-',  pool: OPT_AFT,    grootte: OPT_AFT.length },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
@@ -398,9 +409,10 @@ function toonVoortgang() {
 
   // Onderdelen-overzicht
   const onderdelen = [
-    { label: 'Tafels',            prefix: 'tafel-',   totaal: 100 },
-    { label: 'Deelsommen',        prefix: 'deelsom-', totaal: 100 },
-    { label: 'Verhalende sommen', prefix: 'verhaal-', totaal: 100 },
+    { label: 'Tafels',                    prefix: 'tafel-',   totaal: 100 },
+    { label: 'Deelsommen',                prefix: 'deelsom-', totaal: 100 },
+    { label: 'Verhalende sommen',         prefix: 'verhaal-', totaal: 100 },
+    { label: 'Optellen & aftrekken',      prefix: 'optaft-',  totaal: OPT_AFT.length },
   ];
   const vgOnderdelen = document.getElementById('vg-onderdelen');
   vgOnderdelen.innerHTML = '';
