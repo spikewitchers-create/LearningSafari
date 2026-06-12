@@ -1,14 +1,18 @@
 const LEERDOEL = 'rek-gr5-blok5-deelsom-keersom';
 
 function hints(a, b, c) {
-  // Toon de eerste helft van de rij (min. 2, max. c-1) — kind telt zelf verder
-  const toonStappen = Math.min(Math.max(2, Math.floor(c / 2)), c - 1);
-  const deelRij = Array.from({ length: toonStappen }, (_, i) => (i + 1) * b).join(', ');
+  let hint2;
+  if (c === 1) {
+    hint2 = `${b} × 1 = ${b}, dus ${b} ÷ ${b} = 1.`;
+  } else {
+    // Toon max floor(c/2) stappen — kind telt zelf verder naar het antwoord
+    const toonStappen = Math.max(1, Math.floor(c / 2));
+    const deelRij = Array.from({ length: toonStappen }, (_, i) => (i + 1) * b).join(', ');
+    hint2 = `Tel de rij van ${b}: ${deelRij}, ... Ga verder tellen tot je ${a} bereikt. Hoeveel stappen heb je gezet?`;
+  }
   return [
-    `Zoek de keersom: ? × ${b} = ${a}.`,
-    c > 1
-      ? `Begin de rij van ${b} te tellen: ${deelRij}, ... Ga verder tot je ${a} bereikt.`
-      : `${b} × 1 = ${b}, dus ${b} ÷ ${b} = 1.`,
+    `Zoek de keersom: ? × ${b} = ${a}. Welk getal maal ${b} geeft ${a}?`,
+    hint2,
     `Het antwoord is ${c}.`
   ];
 }

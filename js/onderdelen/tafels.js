@@ -2,14 +2,22 @@ const LEERDOEL = 'rek-gr5-doorlopend-tafels';
 
 function hints(a, b) {
   const uitkomst = a * b;
-  // Rij tot en met de voorlaatste stap — laatste stap doet het kind zelf
-  const rijZonderLaatste = Array.from({ length: a - 1 }, (_, i) => (i + 1) * b).join(' → ');
   const voorlaatste = (a - 1) * b;
+
+  let hint2;
+  if (a === 1) {
+    hint2 = `1 × ${b} = ${b}, dus het antwoord staat al vast.`;
+  } else if (a === 2) {
+    hint2 = `De rij van ${b} begint met ${b}. Welk getal is ${b} + ${b}?`;
+  } else {
+    // Rij tot en met de voorlaatste stap — kind doet de laatste stap zelf
+    const rijZonderLaatste = Array.from({ length: a - 1 }, (_, i) => (i + 1) * b).join(', ');
+    hint2 = `${rijZonderLaatste}. Welk getal komt er na ${voorlaatste} in de rij van ${b}?`;
+  }
+
   return [
-    `Gebruik rijgen: tel ${a} stappen van ${b}.`,
-    a > 1
-      ? `De rij van ${b}: ${rijZonderLaatste} → ? (tel nog één stap van ${b} bij ${voorlaatste} op).`
-      : `${b} × 1 = ${b}.`,
+    `Gebruik de rij van ${b}: tel ${a} stappen van ${b}.`,
+    hint2,
     `Het antwoord is ${uitkomst}.`
   ];
 }
