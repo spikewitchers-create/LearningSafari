@@ -401,19 +401,54 @@ function startSessie(items, aantal = 10) {
   toonOpgave();
 }
 
+// SVG analoge klok — geeft een SVG-string terug
+function tekenKlok(uur, minuten) {
+  const rad = a => (a - 90) * Math.PI / 180;
+  const pt  = (r, a) => [50 + r * Math.cos(rad(a)), 50 + r * Math.sin(rad(a))];
+  const hA  = ((uur % 12) + minuten / 60) * 30;
+  const mA  = minuten * 6;
+  const [hx, hy] = pt(26, hA);
+  const [mx, my] = pt(36, mA);
+  let strepen = '';
+  for (let i = 0; i < 60; i++) {
+    const a = i * 6;
+    const r1 = i % 5 === 0 ? 38 : 41;
+    const [x1, y1] = pt(r1, a);
+    const [x2, y2] = pt(44, a);
+    strepen += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${i%5===0?'#1e293b':'#94a3b8'}" stroke-width="${i%5===0?2:1}"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="klok-svg" aria-label="Analoge klok">
+    <circle cx="50" cy="50" r="47" fill="white" stroke="#1e293b" stroke-width="2.5"/>
+    ${strepen}
+    <text x="50" y="16"  text-anchor="middle" font-size="9" fill="#1e293b" font-weight="bold">12</text>
+    <text x="85" y="54"  text-anchor="middle" font-size="9" fill="#1e293b" font-weight="bold">3</text>
+    <text x="50" y="91"  text-anchor="middle" font-size="9" fill="#1e293b" font-weight="bold">6</text>
+    <text x="15" y="54"  text-anchor="middle" font-size="9" fill="#1e293b" font-weight="bold">9</text>
+    <line x1="50" y1="50" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="50" y1="50" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="3" fill="#1e293b"/>
+  </svg>`;
+}
+
+const KLADBLOK_PREFIXEN = ['optaft-','vermenigv-','deelanalog-','deelspl-','deelrest-','geld-','halverd-'];
+const LENGTE_PREFIX = 'lengte-';
+
 function toonOpgave() {
   const opgave = sessie[index];
   const pct = Math.round((index / sessie.length) * 100);
   document.getElementById('voortgang').textContent = `${index + 1} / ${sessie.length}`;
   document.getElementById('voortgang-balk-vul').style.width = `${pct}%`;
+  document.getElementById('sessie-punten').textContent = `⭐ ${data.dierentuin.punten}`;
   const vraagTekst = opgave.genereerVraag ? opgave.genereerVraag() : opgave.vraag;
   const vraagEl = document.getElementById('vraag');
   vraagEl.textContent = vraagTekst;
-  vraagEl.classList.toggle('vraag-lang', vraagTekst.length > 60);
+  const vraagLengte = vraagTekst.length;
+  vraagEl.classList.toggle('vraag-lang',   vraagLengte > 80);
+  vraagEl.classList.toggle('vraag-middel', vraagLengte > 30 && vraagLengte <= 80);
   const isTekst = opgave.invoerType === 'tekst';
   const inp = document.getElementById('antwoord-input');
-  inp.inputMode  = isTekst ? 'text'    : 'numeric';
-  inp.pattern    = isTekst ? '.*'      : '[0-9]*';
+  inp.inputMode   = isTekst ? 'text'    : 'numeric';
+  inp.pattern     = isTekst ? '.*'      : '[0-9]*';
   inp.placeholder = isTekst ? 'typ hier…' : '?';
   inp.value = '';
   document.getElementById('feedback').textContent = '';
@@ -423,9 +458,45 @@ function toonOpgave() {
   document.getElementById('volgende-knop').hidden = true;
   toonHintKnop();
 
+  // ── Klok SVG ──────────────────────────────────────────────────
+  const klokWrap = document.getElementById('klok-svg-wrap');
+  if (opgave.klokTijd) {
+    document.getElementById('klok-svg-inhoud').innerHTML = tekenKlok(opgave.klokTijd.uur, opgave.klokTijd.minuten);
+    document.getElementById('klok-label').textContent = opgave.klokLabel ?? '';
+    klokWrap.hidden = false;
+  } else {
+    klokWrap.hidden = true;
+  }
+
+  // ── Kladblok-knop ─────────────────────────────────────────────
+  const isGroteSom = KLADBLOK_PREFIXEN.some(p => opgave.id.startsWith(p));
+  const kladblokKnop = document.getElementById('kladblok-knop');
+  kladblokKnop.hidden = !isGroteSom;
+  document.getElementById('kladblok').hidden = true;
+  document.getElementById('kladblok').value = '';
+
+  // ── Trappenschema (lengtematen) ────────────────────────────────
+  const isTrap = opgave.id.startsWith(LENGTE_PREFIX);
+  document.getElementById('trap-knop').hidden = !isTrap;
+  document.getElementById('trap-schema').hidden = true;
+
+  // ── Staal TTS / dictee-modus ───────────────────────────────────
+  const isStaalDictee = !!opgave.spellingDictee;
+  const ttsOk = ttsWerkt();
+  document.getElementById('staal-tts-waarschuwing').hidden = !(isStaalDictee && !ttsOk);
+
   const leesKnop = document.getElementById('lees-knop');
-  leesKnop.hidden = !ttsWerkt();
-  if (ttsWerkt() && data.profiel.autoLees) spreekUit(vraagTekst);
+  if (isStaalDictee) {
+    leesKnop.hidden = false;
+    leesKnop.textContent = '🔊 Hoor het woord opnieuw';
+    leesKnop.onclick = () => spreekUit(opgave.spreekUit ?? vraagTekst);
+    if (ttsOk) spreekUit(opgave.spreekUit ?? vraagTekst);
+  } else {
+    leesKnop.hidden = !ttsOk;
+    leesKnop.textContent = '🔊';
+    leesKnop.onclick = () => spreekUit(vraagTekst);
+    if (ttsOk && data.profiel.autoLees) spreekUit(opgave.spreekUit ?? vraagTekst);
+  }
 
   document.getElementById('antwoord-input').focus();
 }
@@ -447,8 +518,17 @@ function toonHintKnop() {
   if (hints.length > 0) document.getElementById('hint-gebied').hidden = false;
 }
 
-document.getElementById('lees-knop').addEventListener('click', () => {
-  spreekUit(document.getElementById('vraag').textContent);
+// lees-knop.onclick wordt per opgave ingesteld in toonOpgave()
+
+document.getElementById('kladblok-knop').addEventListener('click', () => {
+  const kb = document.getElementById('kladblok');
+  kb.hidden = !kb.hidden;
+  if (!kb.hidden) kb.focus();
+});
+
+document.getElementById('trap-knop').addEventListener('click', () => {
+  const ts = document.getElementById('trap-schema');
+  ts.hidden = !ts.hidden;
 });
 
 document.getElementById('hint-knop').addEventListener('click', () => {
@@ -588,8 +668,7 @@ function eindSessie() {
   }
 
   document.getElementById('resultaat-icoon').textContent = icoon;
-  document.getElementById('resultaat-titel').textContent = titel;
-  document.getElementById('resultaat-boodschap').textContent = boodschap;
+  document.getElementById('resultaat-boodschap').textContent = `${titel} ${boodschap}`;
 
   // Sterren
   document.getElementById('resultaat-sterren').textContent = '⭐'.repeat(sterren) + '☆'.repeat(3 - sterren);

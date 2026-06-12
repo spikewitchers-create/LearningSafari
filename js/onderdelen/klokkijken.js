@@ -53,15 +53,18 @@ export function genereerItems() {
   const items = [];
 
   // ── Type 1: x minuten over het halfuur (blok 5 focus) ──────────
+  // "half h" in NL = (h-1):30, dus 5 over half 3 = 2:35
   for (let h = 2; h <= 10; h++) {
     for (const x of [5, 10]) {
       const min = 30 + x;
       items.push({
         id: `klok-halfuur-${h}-${x}`,
-        vraag: `De klok wijst ${x} minuten over half ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+        vraag: `Hoeveel minuten wijst de klok?`,
         antwoord: min,
         leerdoel: `Klokkijken: minuten over het halfuur`,
         hints: hints5minOverHalf(h, x),
+        klokTijd: { uur: h - 1, minuten: min },
+        klokLabel: `${x} min. over half ${UURNAMEN[h]}`,
       });
     }
   }
@@ -70,10 +73,12 @@ export function genereerItems() {
   for (let h = 1; h <= 12; h++) {
     items.push({
       id: `klok-kwartover-${h}`,
-      vraag: `De klok wijst kwart over ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+      vraag: `Hoeveel minuten wijst de klok?`,
       antwoord: 15,
       leerdoel: `Klokkijken: kwart over`,
       hints: hintsKwartOver(h),
+      klokTijd: { uur: h, minuten: 15 },
+      klokLabel: `kwart over ${UURNAMEN[h]}`,
     });
   }
 
@@ -81,21 +86,26 @@ export function genereerItems() {
   for (let h = 2; h <= 12; h++) {
     items.push({
       id: `klok-half-${h}`,
-      vraag: `De klok wijst precies half ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+      vraag: `Hoeveel minuten wijst de klok?`,
       antwoord: 30,
       leerdoel: `Klokkijken: het halfuur`,
       hints: hintsHalf(h),
+      klokTijd: { uur: h - 1, minuten: 30 },
+      klokLabel: `half ${UURNAMEN[h]}`,
     });
   }
 
   // ── Type 4: kwart voor ──────────────────────────────────────────
+  // "kwart voor h" = (h-1):45
   for (let h = 1; h <= 12; h++) {
     items.push({
       id: `klok-kwartvoor-${h}`,
-      vraag: `De klok wijst kwart voor ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+      vraag: `Hoeveel minuten wijst de klok?`,
       antwoord: 45,
       leerdoel: `Klokkijken: kwart voor`,
       hints: hintsKwartVoor(h),
+      klokTijd: { uur: h - 1, minuten: 45 },
+      klokLabel: `kwart voor ${UURNAMEN[h]}`,
     });
   }
 
@@ -104,24 +114,29 @@ export function genereerItems() {
     for (const x of [5, 10, 20, 25]) {
       items.push({
         id: `klok-over-${h}-${x}`,
-        vraag: `De klok wijst ${x} minuten over ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+        vraag: `Hoeveel minuten wijst de klok?`,
         antwoord: x,
         leerdoel: `Klokkijken: minuten over het uur`,
         hints: hintsOverUur(h, x),
+        klokTijd: { uur: h, minuten: x },
+        klokLabel: `${x} min. over ${UURNAMEN[h]}`,
       });
     }
   }
 
   // ── Type 6: x minuten voor het uur (5/10/20/25) ────────────────
+  // "x voor h" = (h-1):(60-x)
   for (let h = 2; h <= 11; h++) {
     for (const x of [5, 10, 20, 25]) {
       const min = 60 - x;
       items.push({
         id: `klok-voor-${h}-${x}`,
-        vraag: `De klok wijst ${x} minuten voor ${UURNAMEN[h]}. Hoeveel minuten zijn dat?`,
+        vraag: `Hoeveel minuten wijst de klok?`,
         antwoord: min,
         leerdoel: `Klokkijken: minuten voor het uur`,
         hints: hintsVoorUur(h, x),
+        klokTijd: { uur: h - 1, minuten: min },
+        klokLabel: `${x} min. voor ${UURNAMEN[h]}`,
       });
     }
   }

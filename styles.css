@@ -452,30 +452,77 @@ input[type="text"]:focus {
 }
 
 .voortgang-label {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--tekst-zacht);
   text-align: right;
+}
+.voortgang-balk-wrap {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.voortgang-balk { flex: 1; }
+.sessie-punten-chip {
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: var(--accent-dark);
+  white-space: nowrap;
+}
+
+.staal-tts-waarschuwing {
+  background: #fff3c4;
+  border: 2px solid #f0c040;
+  border-radius: var(--straal);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: #7c5a00;
+  text-align: center;
+}
+
+/* ── Analoge klok ──────────────────────────────────────── */
+.klok-svg-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0;
+}
+.klok-svg { width: 160px; height: 160px; }
+.klok-label {
+  font-size: 0.82rem;
+  color: var(--tekst-zacht);
+  font-style: italic;
 }
 
 .vraag-kaart {
   position: relative;
   text-align: center;
-  padding: 2.5rem 1.5rem;
+  padding: 1.8rem 1.5rem;
   background: var(--primair-licht);
   border-color: #7dd3fc;
 }
 
 .vraag {
-  font-size: 3.2rem;
+  font-size: 2.8rem;
   font-weight: bold;
   letter-spacing: 0.03em;
   color: var(--primair-dark);
+  line-height: 1.2;
+}
+.vraag.vraag-middel {
+  font-size: 1.5rem;
+  letter-spacing: 0;
+  line-height: 1.35;
+  font-weight: 700;
 }
 .vraag.vraag-lang {
   font-size: 1.05rem;
   letter-spacing: 0;
-  line-height: 1.5;
+  line-height: 1.55;
   font-weight: 600;
+  white-space: pre-wrap;
+  text-align: left;
 }
 
 .antwoord-kaart {
@@ -518,8 +565,13 @@ input[type="text"]:focus {
 .hint-gebied {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.hint-knoppen-rij {
+  display: flex;
   gap: 0.4rem;
-  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .knop-hint {
@@ -546,6 +598,59 @@ input[type="text"]:focus {
   width: 100%;
 }
 
+/* ── Kladblok & trap-knopjes ─────────────────────────── */
+.knop-kladblok, .knop-trap {
+  font-family: var(--font);
+  font-size: 0.78rem;
+  padding: 0.3rem 0.7rem;
+  background: none;
+  color: var(--tekst-zacht);
+  border: 1.5px dashed var(--rand);
+  border-radius: var(--straal);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.knop-kladblok:hover, .knop-trap:hover { background: var(--primair-licht); }
+
+.kladblok {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.92rem;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--rand);
+  border-radius: var(--straal);
+  resize: vertical;
+  background: #fafff5;
+  color: var(--tekst);
+  line-height: 1.5;
+}
+
+.trap-schema { padding: 0.5rem 0; }
+.trap-tabel {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 0 auto;
+}
+.trap-tabel th {
+  background: var(--primair);
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.trap-pijl {
+  padding: 0 0.4rem;
+  color: var(--tekst-zacht);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.trap-uitleg {
+  font-size: 0.78rem;
+  color: var(--tekst-zacht);
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
 /* ── Volgende-knop ───────────────────────────────────── */
 .knop-volgende {
   font-family: var(--font);
@@ -564,14 +669,16 @@ input[type="text"]:focus {
 /* ── Voorleesknop ────────────────────────────────────── */
 .knop-lees {
   position: absolute;
-  top: 0.6rem;
-  right: 0.75rem;
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  top: 0.5rem;
+  right: 0.6rem;
+  background: var(--primair-licht);
+  border: 1.5px solid var(--rand);
+  border-radius: var(--straal);
+  font-size: 0.88rem;
+  font-family: var(--font);
   cursor: pointer;
-  padding: 0.25rem;
-  opacity: 0.7;
+  padding: 0.2rem 0.55rem;
+  opacity: 0.85;
   transition: opacity 0.12s;
 }
 .knop-lees:hover { opacity: 1; }

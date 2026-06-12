@@ -247,6 +247,14 @@
         <div class="voortgang-balk-wrap">
           <div class="voortgang-balk"><div id="voortgang-balk-vul"></div></div>
           <span id="voortgang" class="voortgang-label">1 / 10</span>
+          <span id="sessie-punten" class="sessie-punten-chip"></span>
+        </div>
+        <div id="staal-tts-waarschuwing" class="staal-tts-waarschuwing" hidden>
+          🔇 Zet geluid aan — je hoort het woord dat je moet schrijven.
+        </div>
+        <div id="klok-svg-wrap" class="klok-svg-wrap" hidden>
+          <div id="klok-svg-inhoud"></div>
+          <p id="klok-label" class="klok-label"></p>
         </div>
         <div class="kaart vraag-kaart">
           <p id="vraag" class="vraag"></p>
@@ -260,8 +268,27 @@
         </div>
         <p id="feedback" class="feedback"></p>
         <div id="hint-gebied" class="hint-gebied" hidden>
-          <button id="hint-knop" class="knop-hint">Hint →</button>
+          <div class="hint-knoppen-rij">
+            <button id="hint-knop" class="knop-hint">Hint →</button>
+            <button id="kladblok-knop" class="knop-kladblok" hidden>📝 Kladblok</button>
+            <button id="trap-knop" class="knop-trap" hidden>📏 Trappenschema</button>
+          </div>
           <p id="hint-tekst" class="hint-tekst" hidden></p>
+          <div id="trap-schema" class="trap-schema" hidden>
+            <table class="trap-tabel">
+              <tr>
+                <th>m</th>
+                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+                <th>dm</th>
+                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+                <th>cm</th>
+                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+                <th>mm</th>
+              </tr>
+            </table>
+            <p class="trap-uitleg">Naar rechts (kleiner) = ×10 &nbsp;|&nbsp; Naar links (groter) = ÷10</p>
+          </div>
+          <textarea id="kladblok" class="kladblok" hidden placeholder="Schrijf hier je tussenstappen..." rows="4"></textarea>
         </div>
         <button id="volgende-knop" class="knop-volgende" hidden>Volgende vraag →</button>
       </section>

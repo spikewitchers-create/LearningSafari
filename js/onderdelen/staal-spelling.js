@@ -228,147 +228,130 @@ const SUPERLATIEF = [
   ['slim',    'slimste',    'slim → slimmer → slim + ste = slimste'],
 ];
 
+
 // ── Items genereren ──────────────────────────────────────────────
 export function genereerItems() {
   const items = [];
 
-  // Apostrof-s
+  // Apostrof-s — dictee: kind hoort het woord en schrijft het
   for (let i = 0; i < APOSTROF_S.length; i++) {
-    const [antwoord, vraag] = APOSTROF_S[i];
+    const [antwoord] = APOSTROF_S[i];
     items.push({
       id: `staal-apots-${i}`,
-      invoerType: 'tekst',
-      vraag,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: antwoord,
+      vraag: `Schrijf het tijdstip dat je hoort.`,
       antwoord,
       leerdoel: `Spelling blok 4: 's-woorden`,
       hints: [
-        `"Des" wordt vervangen door een apostrof + s. Het klinkt hetzelfde maar schrijf je anders.`,
-        `Het begint altijd met een apostrof (') gevolgd door een 's': '...`,
+        `"Des" wordt vervangen door apostrof + s: 's ...`,
+        `Begint met apostrof: '${antwoord.slice(2)}`,
       ],
     });
   }
 
-  // Verkleinwoord -etje
-  for (let i = 0; i < VERKLEINWOORD_ETJE.length; i++) {
-    const [woord, verk, hint2] = VERKLEINWOORD_ETJE[i];
+  // Verkleinwoord — kind hoort het basiswoord, schrijft het verkleinwoord
+  for (const [woord, verk, hint2] of VERKLEINWOORD_ETJE) {
     items.push({
       id: `staal-etje-${woord}`,
-      invoerType: 'tekst',
-      vraag: `Maak een verkleinwoord van: "${woord}"`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: woord,
+      vraag: `Schrijf het verkleinwoord van het woord dat je hoort.`,
       antwoord: verk,
       leerdoel: `Spelling blok 4: verkleinwoord`,
       hints: [
-        `Korte klinker + medeklinker → medeklinker verdubbelen + -etje. Na -ng geen verdubbeling.`,
-        `${hint2}. Schrijf het verkleinwoord volledig.`,
+        `Korte klinker + medeklinker → verdubbel + -etje. Na -ng geen verdubbeling.`,
+        `${hint2}.`,
       ],
     });
   }
 
-  // Ei/ij-plaat
-  for (let i = 0; i < EI_IJ_PLAAT.length; i++) {
-    const [antwoord, vraag, hint2] = EI_IJ_PLAAT[i];
+  // Ei/ij-plaat — kind hoort het woord in een zin
+  for (const [antwoord, zin, hint2] of EI_IJ_PLAAT) {
     items.push({
       id: `staal-eiij-plaat-${antwoord}`,
-      invoerType: 'tekst',
-      vraag,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: antwoord,
+      vraag: zin,
       antwoord,
       leerdoel: `Spelling blok 4: ei/ij-woorden`,
-      hints: [
-        `Leer per woord of het ei of ij heeft — er is geen vaste regel, je moet het onthouden.`,
-        hint2,
-      ],
+      hints: [`Leer per woord of het ei of ij heeft — er is geen vaste regel.`, hint2],
     });
   }
 
-  // Persoonsvorm
+  // Persoonsvorm — lees + luister de zin
   for (let i = 0; i < PERSOONSVORM.length; i++) {
     const [antwoord, zin, hint2] = PERSOONSVORM[i];
     items.push({
       id: `staal-pv-${i}`,
-      invoerType: 'tekst',
+      invoerType: 'tekst', spreekUit: zin,
       vraag: `Wat is de persoonsvorm?\n"${zin}"`,
       antwoord,
-      leerdoel: `Spelling blok 4: persoonsvorm (vraagproef)`,
+      leerdoel: `Spelling blok 4: persoonsvorm`,
       hints: [
-        `Gebruik de vraagproef: maak er een vraag van. Het woord dat van plaats verwisselt is de persoonsvorm.`,
+        `Vraagproef: maak er een vraag van. Het woord dat van plaats wisselt is de persoonsvorm.`,
         hint2,
       ],
     });
   }
 
-  // Centwoord
-  for (let i = 0; i < CENTWOORDEN.length; i++) {
-    const [goed, fout, hint2] = CENTWOORDEN[i];
+  // Centwoord — kind hoort het woord en schrijft het
+  for (const [goed, , hint2] of CENTWOORDEN) {
     items.push({
       id: `staal-cent-${goed}`,
-      invoerType: 'tekst',
-      vraag: `Centwoord — schrijf correct: "${fout}" of "${goed}"?`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: goed,
+      vraag: `Schrijf het woord dat je hoort.`,
       antwoord: goed,
-      leerdoel: `Spelling blok 5: centwoord (c klinkt als s)`,
-      hints: [
-        `De letter c klinkt als "s" als hij voor een e, i of y staat.`,
-        hint2,
-      ],
+      leerdoel: `Spelling blok 5: centwoord`,
+      hints: [`De letter c klinkt als "s" voor e, i of y.`, hint2],
     });
   }
 
-  // Apostrof-s meervoud
-  for (let i = 0; i < APOSTROF_MEERVOUD.length; i++) {
-    const [enkelvoud, meervoud] = APOSTROF_MEERVOUD[i];
+  // Apostrof-s meervoud — kind hoort het enkelvoud, schrijft meervoud
+  for (const [enkelvoud, meervoud] of APOSTROF_MEERVOUD) {
     items.push({
       id: `staal-apomv-${enkelvoud}`,
-      invoerType: 'tekst',
-      vraag: `Meervoud: wat is het meervoud van "${enkelvoud}"?`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: enkelvoud,
+      vraag: `Schrijf het meervoud van het woord dat je hoort.`,
       antwoord: meervoud,
       leerdoel: `Spelling blok 5: apostrof-s meervoud`,
       hints: [
-        `Woorden die eindigen op een klinker (a, i, o, u, y) krijgen 's in het meervoud.`,
-        `${enkelvoud} eindigt op een klinker → ${enkelvoud}'s`,
+        `Woorden die eindigen op a, i, o, u of y krijgen 's in het meervoud.`,
+        `${enkelvoud} → ${enkelvoud}'s`,
       ],
     });
   }
 
-  // Ei/ij-woorden zonder plaat
-  for (let i = 0; i < EI_IJ_ZONDER_PLAAT.length; i++) {
-    const [antwoord, vraag, hint2] = EI_IJ_ZONDER_PLAAT[i];
+  // Ei/ij zonder plaat — context-zin met audio
+  for (const [antwoord, zin, hint2] of EI_IJ_ZONDER_PLAAT) {
     items.push({
       id: `staal-eiij-${antwoord}`,
-      invoerType: 'tekst',
-      vraag,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: antwoord,
+      vraag: zin,
       antwoord,
       leerdoel: `Spelling blok 6: ei/ij-woorden`,
-      hints: [
-        `Er is geen vaste regel — deze woorden moet je per stuk onthouden.`,
-        hint2,
-      ],
+      hints: [`Geen vaste regel — onthoud per woord.`, hint2],
     });
   }
 
-  // Pech-woorden (-ch)
-  for (let i = 0; i < PECH_WOORDEN.length; i++) {
-    const [woord, hint2] = PECH_WOORDEN[i];
-    const fout = woord.replace(/ch/g, 'k');
+  // Pech-woorden — kind hoort het woord en schrijft het
+  for (const [woord, hint2] of PECH_WOORDEN) {
     items.push({
       id: `staal-pech-${woord}`,
-      invoerType: 'tekst',
-      vraag: `Pech-versje — schrijf correct: "${fout}" of "${woord}"?`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: woord,
+      vraag: `Schrijf het woord dat je hoort.`,
       antwoord: woord,
-      leerdoel: `Spelling blok 6: pech-versje (-ch woorden)`,
+      leerdoel: `Spelling blok 6: pech-versje (-ch)`,
       hints: [
-        `Deze woorden schrijf je met -ch (niet met k). Onthoud het pech-versje: pech, recht, licht, lucht, nacht...`,
+        `Pech-versje: schrijf met -ch (niet -k). Denk aan: pech, recht, licht, lucht, nacht…`,
         hint2,
       ],
     });
   }
 
-  // t(s)ie-woorden
-  for (let i = 0; i < TSIE_WOORDEN.length; i++) {
-    const [woord, hint2] = TSIE_WOORDEN[i];
-    const fout = woord.replace('tie', 'tsie');
+  // t(s)ie-woorden — kind hoort het woord en schrijft het
+  for (const [woord, hint2] of TSIE_WOORDEN) {
     items.push({
       id: `staal-tsie-${woord}`,
-      invoerType: 'tekst',
-      vraag: `T(s)ie-woord — hoe schrijf je het woord dat klinkt als "${fout}"?`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: woord,
+      vraag: `Schrijf het woord dat je hoort.`,
       antwoord: woord,
       leerdoel: `Spelling blok 6: t(s)ie-woorden`,
       hints: [
@@ -378,68 +361,54 @@ export function genereerItems() {
     });
   }
 
-  // Cola-woorden
-  for (let i = 0; i < COLA_WOORDEN.length; i++) {
-    const [woord, hint2] = COLA_WOORDEN[i];
-    const metK = woord.replace(/^c/, 'k').replace(/^C/, 'K');
+  // Cola-woorden — kind hoort het woord en schrijft het
+  for (const [woord, hint2] of COLA_WOORDEN) {
     items.push({
       id: `staal-cola-${woord}`,
-      invoerType: 'tekst',
-      vraag: `Cola-woord — schrijf correct: "${metK}" of "${woord}"?`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: woord,
+      vraag: `Schrijf het woord dat je hoort.`,
       antwoord: woord,
-      leerdoel: `Spelling blok 7: cola-woord (c klinkt als k)`,
-      hints: [
-        `De letter c klinkt als "k" als hij voor een a, o of u staat.`,
-        hint2,
-      ],
+      leerdoel: `Spelling blok 7: cola-woord (c = k)`,
+      hints: [`De letter c klinkt als "k" voor a, o of u.`, hint2],
     });
   }
 
-  // Voltooid deelwoord
-  for (let i = 0; i < VOLTOOID_DEELWOORD.length; i++) {
-    const [inf, vd, hint2] = VOLTOOID_DEELWOORD[i];
+  // Voltooid deelwoord — lees + luister het werkwoord
+  for (const [inf, vd, hint2] of VOLTOOID_DEELWOORD) {
     items.push({
       id: `staal-vd-${inf}`,
-      invoerType: 'tekst',
-      vraag: `Voltooid deelwoord: "Hij heeft gisteren ___." — voltooid deelwoord van "${inf}":`,
+      invoerType: 'tekst', spreekUit: inf,
+      vraag: `Wat is het voltooid deelwoord van "${inf}"?\n(Hij heeft gisteren ___ .)`,
       antwoord: vd,
       leerdoel: `Spelling blok 7: voltooid deelwoord`,
       hints: [
-        `Het voltooid deelwoord begint bijna altijd met ge-. Sterk werkwoord → van buiten leren. Zwak: kijk of de stam eindigt op een 't kofschip'-letter (t,k,f,s,ch,p) → -t, anders -d.`,
+        `Begint met ge-. Zwak: stam eindigt op t/k/f/s/ch/p → -t, anders -d. Sterk: uit je hoofd leren.`,
         hint2,
       ],
     });
   }
 
-  // Isch-woorden
-  for (let i = 0; i < ISCH_WOORDEN.length; i++) {
-    const [woord, hint2] = ISCH_WOORDEN[i];
+  // Isch-woorden — kind hoort het woord en schrijft het
+  for (const [woord, hint2] of ISCH_WOORDEN) {
     items.push({
       id: `staal-isch-${woord}`,
-      invoerType: 'tekst',
-      vraag: `Isch-woord — schrijf het bijvoeglijk naamwoord correct:\n"${woord.replace(/isch$|iek$/, '...')}"`,
+      invoerType: 'tekst', spellingDictee: true, spreekUit: woord,
+      vraag: `Schrijf het bijvoeglijk naamwoord dat je hoort.`,
       antwoord: woord,
       leerdoel: `Spelling blok 8: isch-woorden`,
-      hints: [
-        `Woorden die eindigen op -isch schrijf je met -sch (niet -s of -sk). Denk aan tropi-sch.`,
-        hint2,
-      ],
+      hints: [`Eindigt op -isch (met -sch). Denk aan tropi-sch.`, hint2],
     });
   }
 
-  // Superlatief (overtreffende trap)
-  for (let i = 0; i < SUPERLATIEF.length; i++) {
-    const [grond, sup, hint2] = SUPERLATIEF[i];
+  // Superlatief — lees + luister het grondwoord
+  for (const [grond, sup, hint2] of SUPERLATIEF) {
     items.push({
       id: `staal-sup-${grond}`,
-      invoerType: 'tekst',
-      vraag: `Overtreffende trap: wat is de overtreffende trap van "${grond}"?`,
+      invoerType: 'tekst', spreekUit: grond,
+      vraag: `Wat is de overtreffende trap van "${grond}"?`,
       antwoord: sup,
-      leerdoel: `Spelling blok 8: overtreffende trap (-ste)`,
-      hints: [
-        `Overtreffende trap = meest/het -st. Voeg -ste toe aan de vergrotende trap.`,
-        hint2,
-      ],
+      leerdoel: `Spelling blok 8: overtreffende trap`,
+      hints: [`Overtreffende trap: voeg -ste toe aan de vergrotende trap.`, hint2],
     });
   }
 
