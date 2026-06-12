@@ -39,10 +39,13 @@ function startSessie() {
 // ── Sessiescherm ─────────────────────────────────────────────
 function toonOpgave() {
   const opgave = sessie[index];
+  const pct = Math.round((index / sessie.length) * 100);
   document.getElementById('voortgang').textContent = `${index + 1} / ${sessie.length}`;
+  document.getElementById('voortgang-balk-vul').style.width = `${pct}%`;
   document.getElementById('vraag').textContent = opgave.vraag;
   document.getElementById('antwoord-input').value = '';
   document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
   document.getElementById('antwoord-input').focus();
 }
 
