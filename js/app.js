@@ -36,6 +36,13 @@ const LENGTE       = lengteItems();
 const HANDIGREKEN  = handrekenItems();
 const KALENDER     = kalenderItems();
 const STAAL        = staalItems();
+
+// Staal-spelling gesplitst per blok voor correcte urgentieberekening
+const STAAL_BLOK4  = STAAL.filter(it => ['staal-apots-','staal-etje-','staal-eiij-plaat-','staal-pv-'].some(p => it.id.startsWith(p)));
+const STAAL_BLOK5  = STAAL.filter(it => ['staal-cent-','staal-apomv-'].some(p => it.id.startsWith(p)));
+const STAAL_BLOK6  = STAAL.filter(it => ['staal-eiij-','staal-pech-','staal-tsie-'].some(p => it.id.startsWith(p)) && !it.id.startsWith('staal-eiij-plaat-'));
+const STAAL_BLOK7  = STAAL.filter(it => ['staal-cola-','staal-vd-'].some(p => it.id.startsWith(p)));
+const STAAL_BLOK8  = STAAL.filter(it => ['staal-isch-','staal-sup-'].some(p => it.id.startsWith(p)));
 // VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
 
 // Alle vaste pools voor analyse — blok = curriculumblok (lager = hogere urgentie)
@@ -53,7 +60,11 @@ const ALLE_POOLS = [
   { key: 'lengtematen', label: 'Lengtematen',               pool: LENGTE,      blok: 9  },
   { key: 'halverd',     label: 'Halveren & verdubbelen',    pool: HALVERD,     blok: 10 },
   { key: 'handigreken', label: 'Handig rekenen',            pool: HANDIGREKEN, blok: 10 },
-  { key: 'staal',       label: 'Spelling (Staal)',          pool: STAAL,       blok: 4  },
+  { key: 'staal4', label: 'Spelling blok 4 (apostrof, verk., ei/ij, pv)', pool: STAAL_BLOK4, blok: 4 },
+  { key: 'staal5', label: 'Spelling blok 5 (centwoord, meervoud)',        pool: STAAL_BLOK5, blok: 5 },
+  { key: 'staal6', label: 'Spelling blok 6 (ei/ij, pech, tsie)',          pool: STAAL_BLOK6, blok: 6 },
+  { key: 'staal7', label: 'Spelling blok 7 (cola, voltooid deelwoord)',   pool: STAAL_BLOK7, blok: 7 },
+  { key: 'staal8', label: 'Spelling blok 8 (isch, superlatief)',          pool: STAAL_BLOK8, blok: 8 },
 ];
 
 let data = laadData();
@@ -717,11 +728,17 @@ function eindSessie() {
     { label: 'Halveren & verdubbelen',   prefix: 'halverd-',    pool: HALVERD,     grootte: HALVERD.length },
     { label: 'Handig rekenen',           prefix: 'handig-',     pool: HANDIGREKEN, grootte: HANDIGREKEN.length },
     { label: 'Verhalende sommen',        prefix: 'verhaal-',    pool: null,        grootte: 100 },
-    { label: 'Spelling (Staal)',         prefix: 'staal-',      pool: STAAL,       grootte: STAAL.length },
+    { label: 'Spelling blok 4',         prefix: 'staal-',      pool: STAAL_BLOK4, grootte: STAAL_BLOK4.length },
+    { label: 'Spelling blok 5',         prefix: null,          pool: STAAL_BLOK5, grootte: STAAL_BLOK5.length },
+    { label: 'Spelling blok 6',         prefix: null,          pool: STAAL_BLOK6, grootte: STAAL_BLOK6.length },
+    { label: 'Spelling blok 7',         prefix: null,          pool: STAAL_BLOK7, grootte: STAAL_BLOK7.length },
+    { label: 'Spelling blok 8',         prefix: null,          pool: STAAL_BLOK8, grootte: STAAL_BLOK8.length },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
-    const inSessie = sessie.filter(it => it.id.startsWith(prefix));
+    const inSessie = pool
+      ? sessie.filter(it => pool.some(p => p.id === it.id))
+      : sessie.filter(it => it.id.startsWith(prefix));
     if (inSessie.length === 0) continue;
     const beheerst = pool
       ? pool.filter(it => data.beheersing[it.id]?.status === 'beheerst').length
@@ -810,10 +827,11 @@ function toonVoortgang() {
   const vgOnderdelen = document.getElementById('vg-onderdelen');
   vgOnderdelen.innerHTML = '';
   for (const o of onderdelen) {
-    const beheerst = Object.entries(beh)
-      .filter(([id, b]) => id.startsWith(o.prefix) && b.status === 'beheerst').length;
-    const oefenen = Object.entries(beh)
-      .filter(([id, b]) => id.startsWith(o.prefix) && b.status === 'oefenen').length;
+    const match = o.pool
+      ? ([id]) => o.pool.some(it => it.id === id)
+      : ([id]) => id.startsWith(o.prefix);
+    const beheerst = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
+    const oefenen  = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen').length;
     const pct = Math.round((beheerst / o.totaal) * 100);
     const div = document.createElement('div');
     div.className = 'vg-onderdeel';
