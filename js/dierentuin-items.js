@@ -67,6 +67,9 @@ export const ITEMS = [
   { id: 'acc-vlag',     naam: 'Safari Vlag',  icoon: '🚩', type: 'accessoire', kosten: 20, beschrijving: 'Jouw eigen vlag!' },
   { id: 'acc-fontein',  naam: 'Fontein',      icoon: '⛲', type: 'accessoire', kosten: 40, beschrijving: 'Prachtig middelpunt' },
   { id: 'acc-ballon',   naam: 'Luchtballon',  icoon: '🎈', type: 'accessoire', kosten: 50, beschrijving: 'Zweef boven de dierentuin!' },
+
+  // Speciale diploma-items — worden automatisch ontgrendeld, niet te kopen
+  { id: 'spec-diploma', naam: 'Tafeldiploma 🎓', icoon: '🏆', type: 'speciaal', kosten: 0, beschrijving: 'Alle tafels beheerst! Gegeven door de juf of meester.' },
 ];
 
 export const START_ITEMS = ['loc-leeuw', 'dier-leeuw'];

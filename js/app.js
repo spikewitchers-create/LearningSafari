@@ -15,6 +15,7 @@ import { genereerItems as deelAnalogItems } from './onderdelen/deelsommen-analog
 import { genereerItems as lengteItems } from './onderdelen/lengtematen.js';
 import { genereerItems as handrekenItems } from './onderdelen/handig-rekenen.js';
 import { genereerItems as kalenderItems } from './onderdelen/kalender.js';
+import { genereerItems as staalItems } from './onderdelen/staal-spelling.js';
 import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
          haalMijlpalen, nieuweMijlpaal,
          berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
@@ -34,6 +35,7 @@ const DEEL_ANALOG  = deelAnalogItems();
 const LENGTE       = lengteItems();
 const HANDIGREKEN  = handrekenItems();
 const KALENDER     = kalenderItems();
+const STAAL        = staalItems();
 // VERHAAL wordt per sessie opnieuw gegenereerd voor variatie in verhaalteksten
 
 // Alle vaste pools voor analyse — blok = curriculumblok (lager = hogere urgentie)
@@ -51,6 +53,7 @@ const ALLE_POOLS = [
   { key: 'lengtematen', label: 'Lengtematen',               pool: LENGTE,      blok: 9  },
   { key: 'halverd',     label: 'Halveren & verdubbelen',    pool: HALVERD,     blok: 10 },
   { key: 'handigreken', label: 'Handig rekenen',            pool: HANDIGREKEN, blok: 10 },
+  { key: 'staal',       label: 'Spelling (Staal)',          pool: STAAL,       blok: 4  },
 ];
 
 let data = laadData();
@@ -217,6 +220,11 @@ function toonKeuzescherm() {
   document.getElementById('kalender-voortgang').textContent =
     `${beheerstVoorPool(KALENDER)} / ${KALENDER.length}`;
 
+  // Staal spelling
+  document.getElementById('cb-staal').checked = data.profiel.staal ?? false;
+  document.getElementById('staal-voortgang').textContent =
+    `${beheerstVoorPool(STAAL)} / ${STAAL.length}`;
+
   // Sessielengte
   document.getElementById('sessie-lengte').value = String(data.profiel.aantalSommen ?? 10);
 
@@ -330,10 +338,11 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metLengte      = document.getElementById('cb-lengtematen').checked;
   const metHandig      = document.getElementById('cb-handigreken').checked;
   const metKalender    = document.getElementById('cb-kalender').checked;
+  const metStaal       = document.getElementById('cb-staal').checked;
 
   const erIsIets = tafelsSelectie.length > 0 || metDeelsommen || metOptAft ||
     metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal ||
-    metKlok || metDeelAnalog || metLengte || metHandig || metKalender;
+    metKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal;
   if (!erIsIets) return;
 
   data.profiel.tafels       = metTafels;
@@ -351,6 +360,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   data.profiel.lengtematen  = metLengte;
   data.profiel.handigreken  = metHandig;
   data.profiel.kalender     = metKalender;
+  data.profiel.staal        = metStaal;
   data.profiel.autoLees     = document.getElementById('cb-autolees').checked;
   data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
   slaOp(data);
@@ -372,6 +382,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ...(metLengte      ? LENGTE      : []),
     ...(metHandig      ? HANDIGREKEN : []),
     ...(metKalender    ? KALENDER    : []),
+    ...(metStaal       ? STAAL       : []),
     ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
@@ -399,7 +410,12 @@ function toonOpgave() {
   const vraagEl = document.getElementById('vraag');
   vraagEl.textContent = vraagTekst;
   vraagEl.classList.toggle('vraag-lang', vraagTekst.length > 60);
-  document.getElementById('antwoord-input').value = '';
+  const isTekst = opgave.invoerType === 'tekst';
+  const inp = document.getElementById('antwoord-input');
+  inp.inputMode  = isTekst ? 'text'    : 'numeric';
+  inp.pattern    = isTekst ? '.*'      : '[0-9]*';
+  inp.placeholder = isTekst ? 'typ hier…' : '?';
+  inp.value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
   resetHint();
@@ -499,7 +515,8 @@ function verwerkInvoer() {
   }
 
   // Herpoging (beheersing al verwerkt): alleen correctheid controleren
-  const correct = gegeven.trim() === String(opgave.antwoord).trim();
+  const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
+  const correct = norm(gegeven) === norm(opgave.antwoord);
   if (correct) {
     toonGoed();
   } else {
@@ -530,6 +547,16 @@ function eindSessie() {
   const pct     = Math.round((score / sessie.length) * 100);
   const sterren = berekenSterren(score, sessie.length);
   const mijlpaal = nieuweMijlpaal(data.beheersing, nieuwBeheerst);
+
+  // Tafeldiploma: check of alle tafels nu beheerst zijn
+  const nieuwDiploma = !data.profiel.tafeldiploma &&
+    TAFELS.every(it => data.beheersing[it.id]?.status === 'beheerst');
+  if (nieuwDiploma) {
+    data.profiel.tafeldiploma = true;
+    data.dierentuin.punten += 100; // bonus
+    if (!data.dierentuin.ontgrendeld.includes('spec-diploma'))
+      data.dierentuin.ontgrendeld.push('spec-diploma');
+  }
 
   // Punten toekennen
   const verdiend = PUNTEN_PER_STER[sterren] ?? 10;
@@ -577,9 +604,14 @@ function eindSessie() {
 
   // Mijlpaal
   const mijlEl = document.getElementById('resultaat-mijlpaal');
-  if (mijlpaal) {
+  if (nieuwDiploma) {
+    mijlEl.textContent = `🎓 TAFELDIPLOMA BEHAALD! Alle tafels beheerst! +100 punten bonus!`;
+    mijlEl.hidden = false;
+    mijlEl.className = 'resultaat-mijlpaal diploma';
+  } else if (mijlpaal) {
     mijlEl.textContent = `${mijlpaal.icoon} Mijlpaal behaald: ${mijlpaal.label} beheerst!`;
     mijlEl.hidden = false;
+    mijlEl.className = 'resultaat-mijlpaal';
   } else {
     mijlEl.hidden = true;
   }
@@ -603,6 +635,7 @@ function eindSessie() {
     { label: 'Halveren & verdubbelen',   prefix: 'halverd-',    pool: HALVERD,     grootte: HALVERD.length },
     { label: 'Handig rekenen',           prefix: 'handig-',     pool: HANDIGREKEN, grootte: HANDIGREKEN.length },
     { label: 'Verhalende sommen',        prefix: 'verhaal-',    pool: null,        grootte: 100 },
+    { label: 'Spelling (Staal)',         prefix: 'staal-',      pool: STAAL,       grootte: STAAL.length },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
@@ -659,6 +692,7 @@ function toonVoortgang() {
     { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    totaal: HALVERD.length },
     { label: 'Handig rekenen',          prefix: 'handig-',     totaal: HANDIGREKEN.length },
     { label: 'Verhalende sommen',       prefix: 'verhaal-',    totaal: 100 },
+    { label: 'Spelling (Staal)',        prefix: 'staal-',      totaal: STAAL.length },
   ];
   const vgOnderdelen = document.getElementById('vg-onderdelen');
   vgOnderdelen.innerHTML = '';
@@ -701,6 +735,10 @@ function toonVoortgang() {
       grid.appendChild(cel);
     }
   }
+
+  // Tafeldiploma badge
+  const diplomaBadge = document.getElementById('vg-diploma');
+  if (diplomaBadge) diplomaBadge.hidden = !data.profiel.tafeldiploma;
 
   // Weekdoel-chip naast mijlpalen-titel
   const weekVg = berekenWeekVoortgang(data.oefenlog);

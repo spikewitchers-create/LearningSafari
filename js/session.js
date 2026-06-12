@@ -47,7 +47,9 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
 export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt = 0) {
   const aantalHints = opgave.hints?.length ?? 0;
   const antwoordGezien = hintsGebruikt >= aantalHints && aantalHints > 0;
-  const correct = !antwoordGezien && gegeven.trim() === String(opgave.antwoord).trim();
+  // Normaliseer voor vergelijking: trimmen, kleine letters, apostrof-varianten gelijkstellen
+  const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
+  const correct = !antwoordGezien && norm(gegeven) === norm(opgave.antwoord);
   const metHulp  = !antwoordGezien && hintsGebruikt > 0;
   const vandaag  = new Date().toISOString().slice(0, 10);
 

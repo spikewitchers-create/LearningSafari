@@ -765,6 +765,23 @@ input[type="text"]:focus {
   border-radius: 8px;
   padding: 0.3rem 0.75rem;
 }
+.resultaat-mijlpaal.diploma {
+  font-size: 1rem;
+  color: #7c5a00;
+  background: #fff3c4;
+  border: 2px solid #f0c040;
+}
+.vg-diploma-badge {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #7c5a00;
+  background: #fff3c4;
+  border: 2px solid #f0c040;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+}
 
 /* ── Weekdoel-stippen (keuze-scherm suggestie) ──────────── */
 .week-stippen { display: inline-flex; gap: 0.3rem; vertical-align: middle; margin-right: 0.3rem; }
