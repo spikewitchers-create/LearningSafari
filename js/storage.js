@@ -6,7 +6,7 @@ const VERSIE = 1;
 function leegData() {
   return {
     versie: VERSIE,
-    profiel: { naam: '', leerjaar: 5, tafelselectie: [1,2,3,4,5,6,7,8,9,10] },
+    profiel: { naam: '', leerjaar: 5, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
     oefenlog: []      // [{ datum, sessies, nieuwBeheerst }]
   };
@@ -20,6 +20,7 @@ export function laadData() {
     if (data.versie !== VERSIE) return leegData(); // migratie later
     // Veld toegevoegd in latere versie — zet default als het ontbreekt
     if (!data.profiel.tafelselectie) data.profiel.tafelselectie = [1,2,3,4,5,6,7,8,9,10];
+    if (data.profiel.deelsommen === undefined) data.profiel.deelsommen = false;
     return data;
   } catch {
     return leegData();

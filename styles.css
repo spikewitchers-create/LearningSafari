@@ -262,6 +262,12 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
   gap: 0.6rem;
 }
 
+.zijbalk-sectie {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 .zijbalk-titel {
   font-size: 0.75rem;
   font-weight: bold;
@@ -321,6 +327,12 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
   background: var(--balk-bg);
 }
 .dot-vol { background: var(--primair); }
+
+.onderdeel-voortgang {
+  font-size: 0.75rem;
+  color: var(--tekst-zacht);
+  margin-left: auto;
+}
 
 /* ── Keuze-acties ────────────────────────────────────── */
 .keuze-acties {

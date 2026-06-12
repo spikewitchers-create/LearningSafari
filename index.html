@@ -68,12 +68,29 @@
 
       <!-- Zijbalk: tafelkeuze + beheersing -->
       <aside class="zijbalk">
-        <p class="zijbalk-titel">Tafels</p>
-        <ul id="tafel-lijst" class="tafel-lijst"></ul>
-        <div class="keuze-acties">
-          <button id="alles-knop" class="knop-klein">Alles</button>
-          <button id="niets-knop" class="knop-klein">Niets</button>
+
+        <div class="zijbalk-sectie">
+          <p class="zijbalk-titel">Tafels</p>
+          <ul id="tafel-lijst" class="tafel-lijst"></ul>
+          <div class="keuze-acties">
+            <button id="alles-knop" class="knop-klein">Alles</button>
+            <button id="niets-knop" class="knop-klein">Niets</button>
+          </div>
         </div>
+
+        <div class="zijbalk-sectie">
+          <p class="zijbalk-titel">Rekenen</p>
+          <ul class="tafel-lijst">
+            <li class="tafel-rij" id="rij-deelsommen">
+              <label class="tafel-label" for="cb-deelsommen">
+                <input type="checkbox" id="cb-deelsommen">
+                <span class="tafel-naam">Deelsommen</span>
+                <span id="deelsom-voortgang" class="onderdeel-voortgang">0/100</span>
+              </label>
+            </li>
+          </ul>
+        </div>
+
         <button id="keuze-start-knop" class="knop-groot">Start →</button>
       </aside>
 

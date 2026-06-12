@@ -1,8 +1,10 @@
 import { laadData, slaOp, schrijfOefenlog } from './storage.js';
 import { kiesOpgaven, verwerkAntwoord } from './session.js';
-import { genereerItems } from './onderdelen/tafels.js';
+import { genereerItems as tafelsItems } from './onderdelen/tafels.js';
+import { genereerItems as deelsomItems } from './onderdelen/deelsommen.js';
 
-const ALLE_ITEMS = genereerItems();
+const TAFELS   = tafelsItems();
+const DEELSOMMEN = deelsomItems();
 
 let data = laadData();
 let sessie = [];
@@ -17,17 +19,19 @@ function toonScherm(id) {
   document.getElementById(id).hidden = false;
 }
 
-// ── Hulpfuncties beheersing ───────────────────────────
+// ── Beheersing hulpfuncties ───────────────────────────
 function beheerstPerTafel(n) {
-  let teller = 0;
-  for (let b = 1; b <= 10; b++) {
-    if (data.beheersing[`tafel-${n}x${b}`]?.status === 'beheerst') teller++;
-  }
-  return teller;
+  let t = 0;
+  for (let b = 1; b <= 10; b++)
+    if (data.beheersing[`tafel-${n}x${b}`]?.status === 'beheerst') t++;
+  return t;
+}
+
+function beheerstVoorPool(items) {
+  return items.filter(it => data.beheersing[it.id]?.status === 'beheerst').length;
 }
 
 function tafelVanItem(id) {
-  // id = "tafel-6x7" → 6
   return Number(id.split('-')[1].split('x')[0]);
 }
 
@@ -44,68 +48,74 @@ document.getElementById('naam-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('start-knop').click();
 });
 
-// ── Oefenscherm opbouwen ──────────────────────────────
+// ── Oefenscherm ───────────────────────────────────────
 function toonOefenscherm() {
   document.getElementById('oefenen-naam').textContent = data.profiel.naam;
-  bouwTafelLijst();
+  bouwZijbalk();
   zetSessieActief(false);
   toonScherm('scherm-oefenen');
 }
 
-function bouwTafelLijst() {
+function bouwZijbalk() {
+  // Tafels
   const selectie = new Set(data.profiel.tafelselectie);
   const lijst = document.getElementById('tafel-lijst');
   lijst.innerHTML = '';
-
   for (let n = 1; n <= 10; n++) {
     const beheerst = beheerstPerTafel(n);
     const li = document.createElement('li');
     li.className = 'tafel-rij';
     li.dataset.tafel = n;
-
     const cbId = `cb-${n}`;
     li.innerHTML = `
       <label class="tafel-label" for="${cbId}">
         <input type="checkbox" id="${cbId}" value="${n}" ${selectie.has(n) ? 'checked' : ''}>
         <span class="tafel-naam">× ${n}</span>
-        <span class="tafel-dots">${dotjes(beheerst)}</span>
+        <span class="tafel-dots">${dotjes(beheerst, 10)}</span>
       </label>`;
     lijst.appendChild(li);
   }
+
+  // Deelsommen
+  document.getElementById('cb-deelsommen').checked = data.profiel.deelsommen;
+  hertekenDeelsom();
 }
 
-function dotjes(beheerst) {
-  return Array.from({ length: 10 }, (_, i) =>
+function dotjes(beheerst, totaal) {
+  return Array.from({ length: totaal }, (_, i) =>
     `<span class="dot ${i < beheerst ? 'dot-vol' : ''}"></span>`
   ).join('');
 }
 
-// Bijwerken van dotjes voor één tafel (na elk antwoord)
 function hertekenDotjes(n) {
   const rij = document.querySelector(`.tafel-rij[data-tafel="${n}"]`);
-  if (!rij) return;
-  rij.querySelector('.tafel-dots').innerHTML = dotjes(beheerstPerTafel(n));
+  if (rij) rij.querySelector('.tafel-dots').innerHTML = dotjes(beheerstPerTafel(n), 10);
 }
 
-// Actieve tafel markeren
-function markeerActieveTafel(n) {
+function hertekenDeelsom() {
+  const beheerst = beheerstVoorPool(DEELSOMMEN);
+  document.getElementById('deelsom-voortgang').textContent = `${beheerst}/100`;
+}
+
+function markeerActieveTafel(id) {
   document.querySelectorAll('.tafel-rij').forEach(el => el.classList.remove('actief'));
-  const rij = document.querySelector(`.tafel-rij[data-tafel="${n}"]`);
-  if (rij) rij.classList.add('actief');
+  if (id.startsWith('tafel-')) {
+    const rij = document.querySelector(`.tafel-rij[data-tafel="${tafelVanItem(id)}"]`);
+    if (rij) rij.classList.add('actief');
+  } else if (id.startsWith('deelsom-')) {
+    document.getElementById('rij-deelsommen')?.classList.add('actief');
+  }
 }
 
-// Vinkjes en Start-knop vergrendelen/ontgrendelen tijdens sessie
 function zetSessieActief(actief) {
   sessieActief = actief;
-  document.querySelectorAll('#tafel-lijst input').forEach(cb => cb.disabled = actief);
+  document.querySelectorAll('#tafel-lijst input, #cb-deelsommen').forEach(cb => cb.disabled = actief);
   document.getElementById('alles-knop').disabled = actief;
   document.getElementById('niets-knop').disabled = actief;
   document.getElementById('keuze-start-knop').disabled = actief;
   document.getElementById('wacht-kaart').hidden = actief;
   document.getElementById('sessie-inhoud').hidden = !actief;
-  if (!actief) {
-    document.querySelectorAll('.tafel-rij').forEach(el => el.classList.remove('actief'));
-  }
+  if (!actief) document.querySelectorAll('.tafel-rij').forEach(el => el.classList.remove('actief'));
 }
 
 // ── Zijbalk knoppen ───────────────────────────────────
@@ -119,17 +129,25 @@ document.getElementById('wissel-naam-knop').addEventListener('click', () =>
   toonScherm('scherm-welkom'));
 
 document.getElementById('keuze-start-knop').addEventListener('click', () => {
-  const selectie = Array.from(document.querySelectorAll('#tafel-lijst input:checked'))
+  const tafelsSelectie = Array.from(document.querySelectorAll('#tafel-lijst input:checked'))
     .map(cb => Number(cb.value));
-  if (selectie.length === 0) return;
-  data.profiel.tafelselectie = selectie;
+  const metDeelsommen = document.getElementById('cb-deelsommen').checked;
+
+  if (tafelsSelectie.length === 0 && !metDeelsommen) return;
+
+  data.profiel.tafelselectie = tafelsSelectie;
+  data.profiel.deelsommen = metDeelsommen;
   slaOp(data);
-  startSessie(selectie);
+
+  const items = [
+    ...TAFELS.filter(it => tafelsSelectie.includes(tafelVanItem(it.id))),
+    ...(metDeelsommen ? DEELSOMMEN : [])
+  ];
+  startSessie(items);
 });
 
 // ── Sessie ────────────────────────────────────────────
-function startSessie(selectie) {
-  const items = ALLE_ITEMS.filter(it => selectie.includes(tafelVanItem(it.id)));
+function startSessie(items) {
   sessie = kiesOpgaven(items, data.beheersing);
   index = 0;
   score = 0;
@@ -147,7 +165,7 @@ function toonOpgave() {
   document.getElementById('antwoord-input').value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
-  markeerActieveTafel(tafelVanItem(opgave.id));
+  markeerActieveTafel(opgave.id);
   document.getElementById('antwoord-input').focus();
 }
 
@@ -164,8 +182,9 @@ function verwerkInvoer() {
   data.beheersing[opgave.id] = entry;
   slaOp(data);
 
-  // Dotjes van deze tafel direct bijwerken
-  hertekenDotjes(tafelVanItem(opgave.id));
+  // Voortgang live bijwerken in zijbalk
+  if (opgave.id.startsWith('tafel-')) hertekenDotjes(tafelVanItem(opgave.id));
+  if (opgave.id.startsWith('deelsom-')) hertekenDeelsom();
 
   if (correct) {
     score++;
@@ -198,9 +217,9 @@ function eindSessie() {
   document.getElementById('resultaat-tekst').textContent =
     `${data.profiel.naam}, je had ${score} van de ${sessie.length} goed!`;
 
-  const totaal = Object.values(data.beheersing).filter(b => b.status === 'beheerst').length;
+  const tTotaal = Object.values(data.beheersing).filter(b => b.status === 'beheerst').length;
   document.getElementById('voortgang-tekst').textContent =
-    `Je beheerst nu ${totaal} van de 100 tafels.`;
+    `Je beheerst nu ${tTotaal} feiten.`;
 
   toonScherm('scherm-resultaat');
 }
