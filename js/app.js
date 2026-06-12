@@ -168,6 +168,8 @@ function toonOpgave() {
   resetHint();
   beheersingsVerwerkt = false;
   document.getElementById('volgende-knop').hidden = true;
+  // Hint-knop altijd tonen als de opgave hints heeft
+  toonHintKnop();
   document.getElementById('antwoord-input').focus();
 }
 
@@ -240,10 +242,9 @@ function verwerkInvoer() {
       toonGoed();
       return;
     }
-    // Fout op eerste poging: hints aanbieden
+    // Fout op eerste poging
     document.getElementById('feedback').textContent = `Niet helemaal — probeer nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
-    toonHintKnop();
     document.getElementById('volgende-knop').hidden = false;
     input.value = '';
     input.focus();
