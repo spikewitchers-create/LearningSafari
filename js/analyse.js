@@ -36,18 +36,26 @@ export function berekenSterren(score, totaal) {
   return 1;
 }
 
-// Bereken huidige dagstreak vanuit oefenlog
-export function berekenStreak(oefenlog) {
-  if (!oefenlog || oefenlog.length === 0) return 0;
-  const vandaag = new Date().toISOString().slice(0, 10);
-  let streak = 0;
-  let check = new Date(vandaag);
-  const datumSet = new Set(oefenlog.map(e => e.datum));
-  while (datumSet.has(check.toISOString().slice(0, 10))) {
-    streak++;
-    check.setDate(check.getDate() - 1);
-  }
-  return streak;
+// Weeknummer string "YYYY-WW" voor weekdoel-notificatie deduplicatie
+export function huidigeWeekSleutel() {
+  const nu = new Date();
+  const dag = nu.getDay() || 7; // 1=ma ... 7=zo
+  const maandag = new Date(nu);
+  maandag.setDate(nu.getDate() - dag + 1);
+  return maandag.toISOString().slice(0, 10); // "YYYY-MM-DD" van maandag
+}
+
+// Hoeveel unieke oefendagen zijn er al deze week (ma t/m zo)
+export function berekenWeekVoortgang(oefenlog, doel = 3) {
+  if (!oefenlog || oefenlog.length === 0) return { gedaan: 0, doel };
+  const nu  = new Date();
+  const dag = nu.getDay() || 7;
+  const maandag = new Date(nu);
+  maandag.setDate(nu.getDate() - dag + 1);
+  maandag.setHours(0, 0, 0, 0);
+  const mStr = maandag.toISOString().slice(0, 10);
+  const dezeWeekDagen = new Set(oefenlog.filter(e => e.datum >= mStr).map(e => e.datum));
+  return { gedaan: Math.min(dezeWeekDagen.size, doel), doel };
 }
 
 // Mijlpalen op basis van totaal beheerste feiten

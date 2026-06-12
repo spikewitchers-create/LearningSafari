@@ -30,9 +30,9 @@
         </button>
       </li>
       <li>
-        <button class="nav-knop nav-uitgeschakeld" title="Komt binnenkort">
-          <span class="nav-icoon">⚙️</span>
-          <span class="nav-label">Instellingen</span>
+        <button class="nav-knop" id="nav-dierentuin">
+          <span class="nav-icoon">🦁</span>
+          <span class="nav-label">Dierentuin</span>
         </button>
       </li>
     </ul>
@@ -244,6 +244,31 @@
           <p id="resultaat-totaal" class="resultaat-sub"></p>
         </div>
         <button id="opnieuw-knop" class="knop-groot">Opnieuw kiezen →</button>
+      </section>
+
+      <!-- 6. Dierentuin-scherm -->
+      <section id="scherm-dierentuin" class="scherm" hidden>
+
+        <!-- Punten + weekdoel -->
+        <div id="dzt-header" class="dzt-header"></div>
+
+        <!-- Zoo-weergave -->
+        <div class="kaart dzt-zoo-kaart">
+          <p class="dzt-sectie-titel">Mijn dierentuin</p>
+          <div id="dzt-zoo" class="dzt-zoo"></div>
+        </div>
+
+        <!-- Winkel -->
+        <div class="kaart dzt-winkel-kaart">
+          <p class="dzt-sectie-titel">Winkel — koop met ⭐ punten</p>
+          <div id="dzt-tabs" class="dzt-tabs" role="tablist">
+            <button class="dzt-tab actief" data-tab="locaties">🏕️ Locaties</button>
+            <button class="dzt-tab" data-tab="dieren">🐾 Dieren</button>
+            <button class="dzt-tab" data-tab="accessoires">🌿 Accessoires</button>
+          </div>
+          <div id="dzt-winkel-inhoud" class="dzt-winkel-inhoud"></div>
+        </div>
+
       </section>
 
     </main>

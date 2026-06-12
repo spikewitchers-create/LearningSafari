@@ -11,7 +11,10 @@ import { genereerItems as deelSplitsenItems } from './onderdelen/deelsommen-spli
 import { genereerItems as halverenItems } from './onderdelen/halveren-verdubbelen.js';
 import { genereerItems as geldItems } from './onderdelen/geld.js';
 import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
-         berekenStreak, haalMijlpalen, nieuweMijlpaal } from './analyse.js';
+         haalMijlpalen, nieuweMijlpaal,
+         berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
+import { toonDierentuin, initialiseerDierentuin } from './dierentuin.js';
+import { PUNTEN_PER_STER, WEEK_BONUS } from './dierentuin-items.js';
 
 const TAFELS       = tafelsItems();
 const DEELSOMMEN   = deelsomItems();
@@ -43,19 +46,21 @@ let nieuwBeheerst = 0;
 
 // ── Navigatie ─────────────────────────────────────────
 const SCHERM_TITELS = {
-  'scherm-welkom':    'Wie ben jij?',
-  'scherm-keuze':     'Wat wil je oefenen?',
-  'scherm-sessie':    'Oefenen',
-  'scherm-voortgang': 'Voortgang',
-  'scherm-resultaat': 'Hoe ging het?',
+  'scherm-welkom':      'Wie ben jij?',
+  'scherm-keuze':       'Wat wil je oefenen?',
+  'scherm-sessie':      'Oefenen',
+  'scherm-voortgang':   'Voortgang',
+  'scherm-resultaat':   'Hoe ging het?',
+  'scherm-dierentuin':  '🦁 Mijn dierentuin',
 };
 
 const NAV_ACTIEF = {
-  'scherm-welkom':    'nav-oefenen',
-  'scherm-keuze':     'nav-oefenen',
-  'scherm-sessie':    'nav-oefenen',
-  'scherm-voortgang': 'nav-voortgang',
-  'scherm-resultaat': 'nav-oefenen',
+  'scherm-welkom':      'nav-oefenen',
+  'scherm-keuze':       'nav-oefenen',
+  'scherm-sessie':      'nav-oefenen',
+  'scherm-voortgang':   'nav-voortgang',
+  'scherm-resultaat':   'nav-oefenen',
+  'scherm-dierentuin':  'nav-dierentuin',
 };
 
 function toonScherm(id) {
@@ -90,6 +95,12 @@ document.getElementById('nav-oefenen').addEventListener('click', () => {
 // Nav-knop "Voortgang"
 document.getElementById('nav-voortgang').addEventListener('click', () => {
   if (data.profiel.naam) toonVoortgang();
+  else toonScherm('scherm-welkom');
+});
+
+// Nav-knop "Dierentuin"
+document.getElementById('nav-dierentuin').addEventListener('click', () => {
+  if (data.profiel.naam) { toonDierentuin(data); toonScherm('scherm-dierentuin'); }
   else toonScherm('scherm-welkom');
 });
 
@@ -171,7 +182,10 @@ function toonKeuzescherm() {
 
   // Auto-lees
   document.getElementById('cb-autolees').checked = data.profiel.autoLees;
-  if (!ttsWerkt()) document.querySelector('.keuze-optie-extra').hidden = true;
+  if (!ttsWerkt()) {
+    const autoLeesRij = document.getElementById('cb-autolees')?.closest('.instelling-rij');
+    if (autoLeesRij) autoLeesRij.hidden = true;
+  }
 
   // Slimme suggestie
   toonSuggestie();
@@ -182,22 +196,30 @@ function toonKeuzescherm() {
 function toonSuggestie() {
   const analyse = analyseerOnderdelen(ALLE_POOLS, data.beheersing);
   const zwak    = zwaksteOnderdelen(analyse, 3);
-  const streak  = berekenStreak(data.oefenlog);
+  const weekVg  = berekenWeekVoortgang(data.oefenlog);
   const kaart   = document.getElementById('suggestie-kaart');
 
+  const stippen = Array.from({ length: weekVg.doel }, (_, i) =>
+    `<span class="week-stip${i < weekVg.gedaan ? ' gedaan' : ''}"></span>`
+  ).join('');
+  const weekTekst = weekVg.gedaan >= weekVg.doel
+    ? `🎉 Weekdoel gehaald!`
+    : `${weekVg.gedaan} van ${weekVg.doel} sessies deze week`;
+  document.getElementById('streak-tekst').innerHTML =
+    `<span class="week-stippen">${stippen}</span> ${weekTekst}`;
+
   if (zwak.length === 0) {
-    kaart.hidden = true;
+    kaart.hidden = false;
+    document.getElementById('suggestie-tekst').textContent = '';
+    document.getElementById('zwak-start-knop').hidden = true;
+    kaart.dataset.zwakKeys = '[]';
     return;
   }
 
   const labels = zwak.map(o => o.label).join(', ');
-  document.getElementById('suggestie-tekst').textContent =
-    `Tip: oefen extra aan ${labels}.`;
-  document.getElementById('streak-tekst').textContent =
-    streak > 1 ? `🔥 ${streak} dagen op rij!` : '';
+  document.getElementById('suggestie-tekst').textContent = `Tip: oefen extra aan ${labels}.`;
+  document.getElementById('zwak-start-knop').hidden = false;
   kaart.hidden = false;
-
-  // Sla de zwakke selectie op voor de snelstart-knop
   kaart.dataset.zwakKeys = JSON.stringify(zwak.map(o => o.key));
 }
 
@@ -448,12 +470,26 @@ document.getElementById('controleer-knop').addEventListener('click', verwerkInvo
 // ── 4. Resultaat-scherm ───────────────────────────────
 function eindSessie() {
   schrijfOefenlog(data, nieuwBeheerst);
-  slaOp(data);
 
   const pct     = Math.round((score / sessie.length) * 100);
   const sterren = berekenSterren(score, sessie.length);
-  const streak  = berekenStreak(data.oefenlog);
   const mijlpaal = nieuweMijlpaal(data.beheersing, nieuwBeheerst);
+
+  // Punten toekennen
+  const verdiend = PUNTEN_PER_STER[sterren] ?? 10;
+  data.dierentuin.punten += verdiend;
+  const weekVg = berekenWeekVoortgang(data.oefenlog);
+  let weekBonus = 0;
+  if (weekVg.gedaan >= weekVg.doel) {
+    const weekSleutel = huidigeWeekSleutel();
+    if (data.dierentuin.weekDoelSleutel !== weekSleutel) {
+      data.dierentuin.weekDoelSleutel = weekSleutel;
+      weekBonus = WEEK_BONUS;
+      data.dierentuin.punten += weekBonus;
+    }
+  }
+
+  slaOp(data);
 
   // Icoon + boodschap op basis van score
   let icoon, titel, boodschap;
@@ -475,10 +511,13 @@ function eindSessie() {
   // Sterren
   document.getElementById('resultaat-sterren').textContent = '⭐'.repeat(sterren) + '☆'.repeat(3 - sterren);
 
-  // Streak
+  // Punten verdiend
   const streakEl = document.getElementById('resultaat-streak');
-  streakEl.textContent = streak > 1 ? `🔥 ${streak} dagen op rij geoefend!` : '';
-  streakEl.hidden = streak <= 1;
+  let puntentekst = `⭐ +${verdiend} punten verdiend`;
+  if (weekBonus > 0) puntentekst += ` · 🎉 +${weekBonus} weekbonus!`;
+  puntentekst += ` · Totaal: ${data.dierentuin.punten}`;
+  streakEl.textContent = puntentekst;
+  streakEl.hidden = false;
 
   // Mijlpaal
   const mijlEl = document.getElementById('resultaat-mijlpaal');
@@ -597,10 +636,12 @@ function toonVoortgang() {
     }
   }
 
-  // Mijlpalen-grid
-  const streak = berekenStreak(data.oefenlog);
+  // Weekdoel-chip naast mijlpalen-titel
+  const weekVg = berekenWeekVoortgang(data.oefenlog);
   document.getElementById('vg-streak').textContent =
-    streak > 0 ? `🔥 ${streak} dag${streak > 1 ? 'en' : ''} op rij` : '';
+    weekVg.gedaan >= weekVg.doel
+      ? `🎉 Weekdoel gehaald!`
+      : `${weekVg.gedaan}/${weekVg.doel} deze week`;
 
   const mijlpalen = haalMijlpalen(beh);
   const mgrid = document.getElementById('vg-mijlpalen-grid');
@@ -616,6 +657,7 @@ function toonVoortgang() {
 }
 
 // ── Start ─────────────────────────────────────────────
+initialiseerDierentuin();
 updateNavNaam();
 if (data.profiel.naam) {
   document.getElementById('naam-input').value = data.profiel.naam;

@@ -3,12 +3,17 @@
 const SLEUTEL = 'learningsafari';
 const VERSIE = 1;
 
+function leegDierentuin() {
+  return { punten: 0, ontgrendeld: ['loc-leeuw', 'dier-leeuw'], weekDoelSleutel: '' };
+}
+
 function leegData() {
   return {
     versie: VERSIE,
     profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, aantalSommen: 10, autoLees: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
-    oefenlog: []      // [{ datum, sessies, nieuwBeheerst }]
+    oefenlog: [],     // [{ datum, sessies, nieuwBeheerst }]
+    dierentuin: leegDierentuin(),
   };
 }
 
@@ -31,6 +36,8 @@ export function laadData() {
     if (data.profiel.deelsplits === undefined) data.profiel.deelsplits = false;
     if (data.profiel.halverd    === undefined) data.profiel.halverd    = false;
     if (data.profiel.geld       === undefined) data.profiel.geld       = false;
+    if (!data.dierentuin) data.dierentuin = leegDierentuin();
+    if (!data.dierentuin.weekDoelSleutel) data.dierentuin.weekDoelSleutel = '';
     return data;
   } catch {
     return leegData();
