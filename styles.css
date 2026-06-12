@@ -1,25 +1,32 @@
-/* LearningSafari — rustig, dyslexievriendelijk */
+/* LearningSafari — fris, vrolijk, dyslexievriendelijk */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --achtergrond:  #f5f0e8;
-  --kaart:        #ffffff;
-  --rand:         #e2d9c8;
-  --tekst:        #1e1a12;
-  --tekst-zacht:  #7a6a4f;
-  --primair:      #c96a22;
-  --primair-dark: #a3521a;
-  --primair-licht:#fdf0e6;
-  --goed:         #256f46;
-  --goed-licht:   #eaf6ee;
-  --fout:         #a82828;
-  --fout-licht:   #fdeaea;
-  --balk-bg:      #e2d9c8;
-  --straal:       10px;
-  --straal-groot: 14px;
-  --schaduw:      0 1px 4px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.05);
-  --font:         'Verdana', 'Geneva', sans-serif;
+  --achtergrond:   #f0f9ff;
+  --kaart:         #ffffff;
+  --rand:          #bae6fd;
+  --tekst:         #0c1a2e;
+  --tekst-zacht:   #4a7a9b;
+
+  --primair:       #0284c7;
+  --primair-dark:  #0369a1;
+  --primair-licht: #e0f2fe;
+
+  --accent:        #f59e0b;
+  --accent-dark:   #d97706;
+  --accent-licht:  #fef3c7;
+
+  --goed:          #15803d;
+  --goed-licht:    #dcfce7;
+  --fout:          #b91c1c;
+  --fout-licht:    #fee2e2;
+
+  --balk-bg:       #bae6fd;
+  --straal:        12px;
+  --straal-groot:  18px;
+  --schaduw:       0 1px 3px rgba(0,0,0,0.06), 0 6px 20px rgba(2,132,199,0.08);
+  --font:          'Verdana', 'Geneva', sans-serif;
 }
 
 body {
@@ -49,13 +56,13 @@ body {
 /* ── Kaart ───────────────────────────────────────────── */
 .kaart {
   background: var(--kaart);
-  border: 1px solid var(--rand);
+  border: 1.5px solid var(--rand);
   border-radius: var(--straal-groot);
   box-shadow: var(--schaduw);
   padding: 1.25rem 1.5rem;
 }
 
-/* ── Gedeelde header-stijlen ─────────────────────────── */
+/* ── Welkomst-header ─────────────────────────────────── */
 .kaart-header {
   display: flex;
   flex-direction: column;
@@ -64,12 +71,22 @@ body {
   padding: 1rem 0 0.4rem;
 }
 
-.logo-icoon { font-size: 2.5rem; line-height: 1; }
+.logo-icoon { font-size: 2.8rem; line-height: 1; }
 
-h1 { font-size: 1.7rem; letter-spacing: -0.02em; color: var(--primair); text-align: center; }
-h2 { font-size: 1.4rem; color: var(--primair); text-align: center; }
+h1 {
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+  color: var(--primair);
+  text-align: center;
+}
 
-/* ── Scherm-top (naam + terug-link) ──────────────────── */
+h2 {
+  font-size: 1.4rem;
+  color: var(--primair);
+  text-align: center;
+}
+
+/* ── Scherm-top (naam + terug) ───────────────────────── */
 .scherm-top {
   display: flex;
   align-items: center;
@@ -77,10 +94,7 @@ h2 { font-size: 1.4rem; color: var(--primair); text-align: center; }
   padding: 0 0.25rem;
 }
 
-.scherm-naam {
-  font-weight: bold;
-  font-size: 0.95rem;
-}
+.scherm-naam { font-weight: bold; font-size: 0.95rem; }
 
 /* ── Invoervelden ────────────────────────────────────── */
 .formulier {
@@ -95,14 +109,14 @@ label {
   font-weight: bold;
   color: var(--tekst-zacht);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 input[type="text"] {
   font-family: var(--font);
   font-size: 1.1rem;
-  padding: 0.55rem 0.9rem;
-  border: 1.5px solid var(--rand);
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--rand);
   border-radius: var(--straal);
   background: var(--achtergrond);
   color: var(--tekst);
@@ -119,16 +133,16 @@ input[type="text"]:focus {
 
 /* ── Keuze-scherm ────────────────────────────────────── */
 .keuze-vraag {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: bold;
   color: var(--tekst-zacht);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.9rem;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.85rem;
 }
 
 .keuze-optie {
-  border-bottom: 1px solid var(--rand);
+  border-bottom: 1.5px solid var(--rand);
   padding-bottom: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -137,14 +151,15 @@ input[type="text"]:focus {
 .optie-label {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   cursor: pointer;
   font-size: 1rem;
+  padding: 0.15rem 0;
 }
 
 .optie-label input[type="checkbox"] {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.15rem;
+  height: 1.15rem;
   accent-color: var(--primair);
   flex-shrink: 0;
   cursor: pointer;
@@ -155,12 +170,15 @@ input[type="text"]:focus {
 .optie-voortgang {
   font-size: 0.78rem;
   color: var(--tekst-zacht);
+  background: var(--primair-licht);
+  padding: 0.1rem 0.4rem;
+  border-radius: 99px;
 }
 
 /* ── Tafels sub-selectie ─────────────────────────────── */
 .tafels-sub {
   margin-top: 0.65rem;
-  padding-left: 1.7rem;
+  padding-left: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -184,21 +202,18 @@ input[type="text"]:focus {
   border-radius: var(--straal);
   transition: background 0.12s;
 }
-.tafel-cb-label:hover { background: var(--achtergrond); }
+.tafel-cb-label:hover { background: var(--primair-licht); }
 .tafel-cb-label input { accent-color: var(--primair); }
 
-.keuze-acties {
-  display: flex;
-  gap: 0.4rem;
-}
+.keuze-acties { display: flex; gap: 0.4rem; }
 
 /* ── Knoppen ─────────────────────────────────────────── */
 .knop-groot {
   font-family: var(--font);
   font-size: 1rem;
   font-weight: bold;
-  padding: 0.7rem 1.25rem;
-  background: var(--primair);
+  padding: 0.75rem 1.25rem;
+  background: var(--accent);
   color: #fff;
   border: none;
   border-radius: var(--straal);
@@ -206,22 +221,23 @@ input[type="text"]:focus {
   width: 100%;
   letter-spacing: 0.01em;
   transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
 }
-.knop-groot:hover  { background: var(--primair-dark); }
+.knop-groot:hover  { background: var(--accent-dark); }
 .knop-groot:active { transform: scale(0.98); }
 
 .knop-klein {
   font-family: var(--font);
   font-size: 0.78rem;
-  padding: 0.25rem 0.65rem;
+  padding: 0.25rem 0.7rem;
   background: var(--achtergrond);
   color: var(--tekst-zacht);
-  border: 1px solid var(--rand);
+  border: 1.5px solid var(--rand);
   border-radius: var(--straal);
   cursor: pointer;
   transition: background 0.12s;
 }
-.knop-klein:hover { background: var(--rand); }
+.knop-klein:hover { background: var(--primair-licht); }
 
 .knop-tekst {
   font-family: var(--font);
@@ -243,7 +259,7 @@ input[type="text"]:focus {
 }
 
 .voortgang-balk {
-  height: 7px;
+  height: 8px;
   background: var(--balk-bg);
   border-radius: 99px;
   overflow: hidden;
@@ -254,7 +270,7 @@ input[type="text"]:focus {
   background: var(--primair);
   border-radius: 99px;
   width: 0%;
-  transition: width 0.35s ease;
+  transition: width 0.4s ease;
 }
 
 .voortgang-label {
@@ -267,13 +283,14 @@ input[type="text"]:focus {
   text-align: center;
   padding: 2.5rem 1.5rem;
   background: var(--primair-licht);
-  border-color: #f0d5b8;
+  border-color: #7dd3fc;
 }
 
 .vraag {
-  font-size: 3rem;
+  font-size: 3.2rem;
   font-weight: bold;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  color: var(--primair-dark);
 }
 
 .antwoord-kaart {
@@ -285,28 +302,31 @@ input[type="text"]:focus {
 
 .antwoord-kaart input[type="text"] {
   flex: 1;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   padding: 0.45rem 0.75rem;
+  border-width: 2px;
 }
 
 .antwoord-kaart .knop-groot {
   flex-shrink: 0;
   width: auto;
-  padding: 0.45rem 1.1rem;
-  font-size: 0.9rem;
+  padding: 0.45rem 1.25rem;
+  font-size: 0.95rem;
+  box-shadow: none;
 }
 
+/* ── Feedback ────────────────────────────────────────── */
 .feedback {
   min-height: 1.8rem;
   font-size: 0.9rem;
   font-weight: bold;
   text-align: center;
-  padding: 0.35rem 1rem;
+  padding: 0.4rem 1rem;
   border-radius: var(--straal);
   transition: background 0.15s;
 }
-.feedback.goed     { color: var(--goed); background: var(--goed-licht); }
-.feedback.fout     { color: var(--fout); background: var(--fout-licht); }
+.feedback.goed     { color: var(--goed);       background: var(--goed-licht); }
+.feedback.fout     { color: var(--fout);       background: var(--fout-licht); }
 .feedback.neutraal { color: var(--tekst-zacht); background: var(--achtergrond); }
 
 /* ── Hint ────────────────────────────────────────────── */
@@ -322,38 +342,39 @@ input[type="text"]:focus {
   font-size: 0.82rem;
   padding: 0.3rem 0.8rem;
   background: none;
-  color: var(--tekst-zacht);
-  border: 1px dashed var(--rand);
+  color: var(--primair);
+  border: 1.5px dashed var(--rand);
   border-radius: var(--straal);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s;
 }
-.knop-hint:hover:not(:disabled) { background: var(--achtergrond); color: var(--tekst); }
-.knop-hint:disabled { opacity: 0.5; cursor: default; }
+.knop-hint:hover:not(:disabled) { background: var(--primair-licht); }
+.knop-hint:disabled { opacity: 0.45; cursor: default; }
 
 .hint-tekst {
   font-size: 0.9rem;
-  color: var(--tekst-zacht);
-  background: var(--achtergrond);
-  border-left: 3px solid var(--primair);
-  padding: 0.4rem 0.75rem;
+  color: var(--tekst);
+  background: var(--accent-licht);
+  border-left: 3px solid var(--accent);
+  padding: 0.45rem 0.85rem;
   border-radius: 0 var(--straal) var(--straal) 0;
   width: 100%;
 }
 
+/* ── Volgende-knop ───────────────────────────────────── */
 .knop-volgende {
   font-family: var(--font);
   font-size: 0.85rem;
   padding: 0.4rem 1rem;
   background: none;
   color: var(--tekst-zacht);
-  border: 1px solid var(--rand);
+  border: 1.5px solid var(--rand);
   border-radius: var(--straal);
   cursor: pointer;
   align-self: flex-end;
   transition: background 0.12s, color 0.12s;
 }
-.knop-volgende:hover { background: var(--rand); color: var(--tekst); }
+.knop-volgende:hover { background: var(--primair-licht); color: var(--primair); }
 
 /* ── Resultaat-scherm ────────────────────────────────── */
 .resultaat-kaart {
@@ -373,7 +394,7 @@ input[type="text"]:focus {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  border-top: 1px solid var(--rand);
+  border-top: 1.5px solid var(--rand);
   padding-top: 0.65rem;
 }
 
@@ -381,19 +402,15 @@ input[type="text"]:focus {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
-  color: var(--tekst);
 }
 
-.resultaat-nieuw {
-  color: var(--goed);
-  font-weight: bold;
-}
+.resultaat-nieuw { color: var(--goed); font-weight: bold; }
 
 .resultaat-sub {
   font-size: 0.8rem;
   color: var(--tekst-zacht);
   text-align: center;
-  border-top: 1px solid var(--rand);
+  border-top: 1.5px solid var(--rand);
   padding-top: 0.5rem;
 }
 
