@@ -57,7 +57,13 @@ function toonOefenscherm() {
 }
 
 function bouwZijbalk() {
-  // Tafels
+  // Tafels hoofd-toggle
+  const cbTafels = document.getElementById('cb-tafels');
+  cbTafels.checked = data.profiel.tafels;
+  hertekenTafelsVoortgang();
+  zetTafelsSub(data.profiel.tafels);
+
+  // Sub-lijst × 1-10
   const selectie = new Set(data.profiel.tafelselectie);
   const lijst = document.getElementById('tafel-lijst');
   lijst.innerHTML = '';
@@ -79,6 +85,15 @@ function bouwZijbalk() {
   // Deelsommen
   document.getElementById('cb-deelsommen').checked = data.profiel.deelsommen;
   hertekenDeelsom();
+}
+
+function zetTafelsSub(zichtbaar) {
+  document.getElementById('tafels-sub').hidden = !zichtbaar;
+}
+
+function hertekenTafelsVoortgang() {
+  const beheerst = beheerstVoorPool(TAFELS);
+  document.getElementById('tafels-voortgang').textContent = `${beheerst}/100`;
 }
 
 function dotjes(beheerst, totaal) {
@@ -109,7 +124,7 @@ function markeerActieveTafel(id) {
 
 function zetSessieActief(actief) {
   sessieActief = actief;
-  document.querySelectorAll('#tafel-lijst input, #cb-deelsommen').forEach(cb => cb.disabled = actief);
+  document.querySelectorAll('#tafel-lijst input, #cb-tafels, #cb-deelsommen').forEach(cb => cb.disabled = actief);
   document.getElementById('alles-knop').disabled = actief;
   document.getElementById('niets-knop').disabled = actief;
   document.getElementById('keuze-start-knop').disabled = actief;
@@ -119,6 +134,10 @@ function zetSessieActief(actief) {
 }
 
 // ── Zijbalk knoppen ───────────────────────────────────
+document.getElementById('cb-tafels').addEventListener('change', e => {
+  zetTafelsSub(e.target.checked);
+});
+
 document.getElementById('alles-knop').addEventListener('click', () =>
   document.querySelectorAll('#tafel-lijst input').forEach(cb => cb.checked = true));
 
@@ -129,12 +148,15 @@ document.getElementById('wissel-naam-knop').addEventListener('click', () =>
   toonScherm('scherm-welkom'));
 
 document.getElementById('keuze-start-knop').addEventListener('click', () => {
-  const tafelsSelectie = Array.from(document.querySelectorAll('#tafel-lijst input:checked'))
-    .map(cb => Number(cb.value));
+  const metTafels = document.getElementById('cb-tafels').checked;
+  const tafelsSelectie = metTafels
+    ? Array.from(document.querySelectorAll('#tafel-lijst input:checked')).map(cb => Number(cb.value))
+    : [];
   const metDeelsommen = document.getElementById('cb-deelsommen').checked;
 
   if (tafelsSelectie.length === 0 && !metDeelsommen) return;
 
+  data.profiel.tafels = metTafels;
   data.profiel.tafelselectie = tafelsSelectie;
   data.profiel.deelsommen = metDeelsommen;
   slaOp(data);
@@ -183,7 +205,7 @@ function verwerkInvoer() {
   slaOp(data);
 
   // Voortgang live bijwerken in zijbalk
-  if (opgave.id.startsWith('tafel-')) hertekenDotjes(tafelVanItem(opgave.id));
+  if (opgave.id.startsWith('tafel-')) { hertekenDotjes(tafelVanItem(opgave.id)); hertekenTafelsVoortgang(); }
   if (opgave.id.startsWith('deelsom-')) hertekenDeelsom();
 
   if (correct) {

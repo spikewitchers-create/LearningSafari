@@ -43,7 +43,7 @@
 
         <!-- Rust-kaart vóór de sessie -->
         <div id="wacht-kaart" class="kaart vraag-kaart wacht-kaart">
-          <p class="wacht-tekst">Kies je tafels<br>en klik <strong>Start</strong>!</p>
+          <p class="wacht-tekst">Kies je oefenstof<br>en klik <strong>Start</strong>!</p>
         </div>
 
         <!-- Actieve sessie -->
@@ -66,30 +66,39 @@
 
       </div><!-- .oefenvlak -->
 
-      <!-- Zijbalk: tafelkeuze + beheersing -->
+      <!-- Zijbalk: oefenstofkeuze -->
       <aside class="zijbalk">
 
-        <div class="zijbalk-sectie">
-          <p class="zijbalk-titel">Tafels</p>
-          <ul id="tafel-lijst" class="tafel-lijst"></ul>
-          <div class="keuze-acties">
-            <button id="alles-knop" class="knop-klein">Alles</button>
-            <button id="niets-knop" class="knop-klein">Niets</button>
-          </div>
-        </div>
+        <p class="zijbalk-titel">Oefenstof</p>
 
-        <div class="zijbalk-sectie">
-          <p class="zijbalk-titel">Rekenen</p>
-          <ul class="tafel-lijst">
-            <li class="tafel-rij" id="rij-deelsommen">
-              <label class="tafel-label" for="cb-deelsommen">
-                <input type="checkbox" id="cb-deelsommen">
-                <span class="tafel-naam">Deelsommen</span>
-                <span id="deelsom-voortgang" class="onderdeel-voortgang">0/100</span>
-              </label>
-            </li>
-          </ul>
-        </div>
+        <ul class="tafel-lijst">
+
+          <!-- Tafels (met uitklapbare sub-selectie) -->
+          <li class="tafel-rij" id="rij-tafels">
+            <label class="tafel-label" for="cb-tafels">
+              <input type="checkbox" id="cb-tafels">
+              <span class="tafel-naam">Tafels</span>
+              <span id="tafels-voortgang" class="onderdeel-voortgang">0/100</span>
+            </label>
+          </li>
+          <li id="tafels-sub" class="tafels-sub" hidden>
+            <ul id="tafel-lijst" class="tafel-lijst tafel-lijst-sub"></ul>
+            <div class="keuze-acties">
+              <button id="alles-knop" class="knop-klein">Alles</button>
+              <button id="niets-knop" class="knop-klein">Niets</button>
+            </div>
+          </li>
+
+          <!-- Deelsommen -->
+          <li class="tafel-rij" id="rij-deelsommen">
+            <label class="tafel-label" for="cb-deelsommen">
+              <input type="checkbox" id="cb-deelsommen">
+              <span class="tafel-naam">Deelsommen</span>
+              <span id="deelsom-voortgang" class="onderdeel-voortgang">0/100</span>
+            </label>
+          </li>
+
+        </ul>
 
         <button id="keuze-start-knop" class="knop-groot">Start →</button>
       </aside>

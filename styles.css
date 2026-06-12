@@ -328,6 +328,15 @@ input:focus { outline: none; border-color: var(--primair); background: #fff; }
 }
 .dot-vol { background: var(--primair); }
 
+.tafels-sub {
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tafel-lijst-sub { gap: 0.1rem; }
+
 .onderdeel-voortgang {
   font-size: 0.75rem;
   color: var(--tekst-zacht);
