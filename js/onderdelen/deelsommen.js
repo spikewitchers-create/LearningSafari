@@ -1,19 +1,25 @@
-// Genereert alle deelfeiten afgeleid van tafels 1×1 t/m 10×10.
-// Strategie per Pluspunt groep 5: keersom zoeken.
-
 const LEERDOEL = 'rek-gr5-blok5-deelsom-keersom';
+
+function hints(a, b, c) {
+  const rij = Array.from({ length: c }, (_, i) => (i + 1) * b).join(' → ');
+  return [
+    `Zoek de keersom: ? × ${b} = ${a}.`,
+    `Tel de rij van ${b} tot je ${a} bereikt: ${rij}. Dat zijn ${c} stappen.`,
+    `Het antwoord is ${c}.`
+  ];
+}
 
 export function genereerItems() {
   const items = [];
-  for (let b = 1; b <= 10; b++) {      // deler
-    for (let c = 1; c <= 10; c++) {    // uitkomst
-      const a = b * c;                  // deeltal
+  for (let b = 1; b <= 10; b++) {
+    for (let c = 1; c <= 10; c++) {
+      const a = b * c;
       items.push({
         id: `deelsom-${a}d${b}`,
         vraag: `${a} ÷ ${b}`,
         antwoord: String(c),
         leerdoel: LEERDOEL,
-        hints: [`Zoek de keersom: ? × ${b} = ${a}`],
+        hints: hints(a, b, c),
         keuzes: []
       });
     }

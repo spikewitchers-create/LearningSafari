@@ -173,17 +173,20 @@ function verwerkInvoer() {
   if (!gegeven) return;
 
   const opgave = sessie[index];
-  const { correct, nieuwBeheerst: nb, entry } = verwerkAntwoord(
-    opgave.id, gegeven, opgave, data.beheersing
+  const { correct, antwoordGezien, nieuwBeheerst: nb, entry } = verwerkAntwoord(
+    opgave.id, gegeven, opgave, data.beheersing, hintIndex
   );
 
   data.beheersing[opgave.id] = entry;
   slaOp(data);
 
-  if (correct) {
+  if (antwoordGezien) {
+    document.getElementById('feedback').textContent = 'Goed onthouden voor de volgende keer!';
+    document.getElementById('feedback').className = 'feedback neutraal';
+  } else if (correct) {
     score++;
     nieuwBeheerst += nb;
-    document.getElementById('feedback').textContent = '✓ Goed!';
+    document.getElementById('feedback').textContent = hintIndex > 0 ? '✓ Goed, met een hint!' : '✓ Goed!';
     document.getElementById('feedback').className = 'feedback goed';
   } else {
     document.getElementById('feedback').textContent = `Het antwoord is ${opgave.antwoord}`;

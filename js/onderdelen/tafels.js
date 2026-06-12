@@ -1,12 +1,13 @@
-// Genereert alle tafel-items (1×1 t/m 10×10).
-// Voldoet aan het opgave-contract uit ARCHITECTUUR.md.
-
 const LEERDOEL = 'rek-gr5-doorlopend-tafels';
 
-// Rijgen: tel a stappen van b op en toon de rij
-function rijgenHint(a, b) {
-  const stappen = Array.from({ length: a }, (_, i) => (i + 1) * b).join(', ');
-  return `Tel de rij van ${b}: ${stappen}`;
+function hints(a, b) {
+  const uitkomst = a * b;
+  const rij = Array.from({ length: a }, (_, i) => (i + 1) * b).join(' → ');
+  return [
+    `Strategie rijgen: tel ${a} stappen van ${b}.`,
+    `De rij van ${b}: ${rij}. De laatste stap is het antwoord.`,
+    `Het antwoord is ${uitkomst}.`
+  ];
 }
 
 export function genereerItems() {
@@ -18,7 +19,7 @@ export function genereerItems() {
         vraag: `${a} × ${b}`,
         antwoord: String(a * b),
         leerdoel: LEERDOEL,
-        hints: [rijgenHint(a, b)],
+        hints: hints(a, b),
         keuzes: []
       });
     }

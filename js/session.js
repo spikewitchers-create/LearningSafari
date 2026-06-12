@@ -39,32 +39,43 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   return gekozen;
 }
 
-// Verwerkt een antwoord; geeft terug { correct, nieuwBeheerst, beheersing }.
-export function verwerkAntwoord(id, gegeven, opgave, beheersing) {
-  const correct = gegeven.trim() === String(opgave.antwoord).trim();
-  const vandaag = new Date().toISOString().slice(0, 10);
+// Verwerkt een antwoord.
+// hintsGebruikt: aantal hints dat de leerling heeft bekeken.
+//   0               → normaal; correct telt mee voor rij naar beheerst
+//   1..hints.length-1 → hulp gebruikt; correct bevriест rij (neutraal)
+//   >= hints.length → antwoord voorgezegd; telt altijd als fout
+export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt = 0) {
+  const aantalHints = opgave.hints?.length ?? 0;
+  const antwoordGezien = hintsGebruikt >= aantalHints && aantalHints > 0;
+  const correct = !antwoordGezien && gegeven.trim() === String(opgave.antwoord).trim();
+  const metHulp  = !antwoordGezien && hintsGebruikt > 0;
+  const vandaag  = new Date().toISOString().slice(0, 10);
 
   const b = beheersing[id] ?? { goed: 0, fout: 0, rij: 0, status: 'nieuw', laatstGeoefend: null };
-
   b.laatstGeoefend = vandaag;
 
   let nieuwBeheerst = 0;
 
-  if (correct) {
+  if (correct && !metHulp) {
+    // Zelfstandig goed: normaal vooruitgaan
     b.goed += 1;
-    b.rij += 1;
+    b.rij  += 1;
     if (b.status !== 'beheerst' && b.rij >= DREMPEL_BEHEERST) {
       b.status = 'beheerst';
       nieuwBeheerst = 1;
     } else if (b.status === 'nieuw') {
       b.status = 'oefenen';
     }
+  } else if (correct && metHulp) {
+    // Goed mét hint: rij bevroren, geen achteruitgang
+    b.goed += 1;
+    if (b.status === 'nieuw') b.status = 'oefenen';
   } else {
+    // Fout of antwoord voorgezegd: rij reset
     b.fout += 1;
-    b.rij = 0;
-    if (b.status === 'beheerst') b.status = 'oefenen';
-    else b.status = 'oefenen';
+    b.rij   = 0;
+    b.status = 'oefenen';
   }
 
-  return { correct, nieuwBeheerst, entry: b };
+  return { correct, antwoordGezien, nieuwBeheerst, entry: b };
 }

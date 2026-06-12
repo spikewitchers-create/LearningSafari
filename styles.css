@@ -305,8 +305,9 @@ input[type="text"]:focus {
   border-radius: var(--straal);
   transition: background 0.15s;
 }
-.feedback.goed { color: var(--goed); background: var(--goed-licht); }
-.feedback.fout { color: var(--fout); background: var(--fout-licht); }
+.feedback.goed     { color: var(--goed); background: var(--goed-licht); }
+.feedback.fout     { color: var(--fout); background: var(--fout-licht); }
+.feedback.neutraal { color: var(--tekst-zacht); background: var(--achtergrond); }
 
 /* ── Hint ────────────────────────────────────────────── */
 .hint-gebied {
