@@ -26,6 +26,24 @@
     </div>
   </section>
 
+  <!-- Keuze + voortgangscherm -->
+  <section id="scherm-keuze" class="scherm" hidden>
+    <header class="sessie-header">
+      <span class="logo-klein">🦁</span>
+      <div class="keuze-naam" id="keuze-naam"></div>
+      <button id="wissel-naam-knop" class="knop-tekst">Naam wijzigen</button>
+    </header>
+    <div class="kaart">
+      <p class="keuze-titel">Welke tafels wil je oefenen?</p>
+      <ul id="tafel-lijst" class="tafel-lijst"></ul>
+      <div class="keuze-acties">
+        <button id="alles-knop" class="knop-klein">Alles</button>
+        <button id="niets-knop" class="knop-klein">Niets</button>
+      </div>
+    </div>
+    <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
+  </section>
+
   <!-- Sessiescherm -->
   <section id="scherm-sessie" class="scherm" hidden>
     <header class="sessie-header">
@@ -57,7 +75,7 @@
       <p id="resultaat-tekst" class="resultaat-score"></p>
       <p id="voortgang-tekst" class="resultaat-sub"></p>
     </div>
-    <button id="opnieuw-knop" class="knop-groot">Nog een ronde →</button>
+    <button id="opnieuw-knop" class="knop-groot">Terug naar keuze →</button>
   </section>
 
 </div><!-- .pagina -->
