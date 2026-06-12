@@ -135,8 +135,37 @@ function toonOpgave() {
   document.getElementById('antwoord-input').value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
+  resetHint();
   document.getElementById('antwoord-input').focus();
 }
+
+let hintIndex = 0;
+
+function resetHint() {
+  hintIndex = 0;
+  document.getElementById('hint-gebied').hidden = true;
+  document.getElementById('hint-tekst').hidden = true;
+  document.getElementById('hint-tekst').textContent = '';
+  document.getElementById('hint-knop').textContent = 'Hint →';
+}
+
+function toonHintKnop() {
+  const hints = sessie[index]?.hints ?? [];
+  if (hints.length > 0) document.getElementById('hint-gebied').hidden = false;
+}
+
+document.getElementById('hint-knop').addEventListener('click', () => {
+  const hints = sessie[index]?.hints ?? [];
+  if (hintIndex >= hints.length) return;
+  const tekst = document.getElementById('hint-tekst');
+  tekst.textContent = hints[hintIndex];
+  tekst.hidden = false;
+  hintIndex++;
+  if (hintIndex >= hints.length) {
+    document.getElementById('hint-knop').textContent = 'Geen hints meer';
+    document.getElementById('hint-knop').disabled = true;
+  }
+});
 
 function verwerkInvoer() {
   const input = document.getElementById('antwoord-input');
@@ -159,6 +188,7 @@ function verwerkInvoer() {
   } else {
     document.getElementById('feedback').textContent = `Het antwoord is ${opgave.antwoord}`;
     document.getElementById('feedback').className = 'feedback fout';
+    toonHintKnop();
   }
 
   index++;

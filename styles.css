@@ -308,6 +308,38 @@ input[type="text"]:focus {
 .feedback.goed { color: var(--goed); background: var(--goed-licht); }
 .feedback.fout { color: var(--fout); background: var(--fout-licht); }
 
+/* ── Hint ────────────────────────────────────────────── */
+.hint-gebied {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.knop-hint {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  padding: 0.3rem 0.8rem;
+  background: none;
+  color: var(--tekst-zacht);
+  border: 1px dashed var(--rand);
+  border-radius: var(--straal);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.knop-hint:hover:not(:disabled) { background: var(--achtergrond); color: var(--tekst); }
+.knop-hint:disabled { opacity: 0.5; cursor: default; }
+
+.hint-tekst {
+  font-size: 0.9rem;
+  color: var(--tekst-zacht);
+  background: var(--achtergrond);
+  border-left: 3px solid var(--primair);
+  padding: 0.4rem 0.75rem;
+  border-radius: 0 var(--straal) var(--straal) 0;
+  width: 100%;
+}
+
 /* ── Resultaat-scherm ────────────────────────────────── */
 .resultaat-kaart {
   text-align: center;

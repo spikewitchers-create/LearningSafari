@@ -13,7 +13,7 @@ export function genereerItems() {
         vraag: `${a} ÷ ${b}`,
         antwoord: String(c),
         leerdoel: LEERDOEL,
-        hints: [],
+        hints: [`Zoek de keersom: ? × ${b} = ${a}`],
         keuzes: []
       });
     }
