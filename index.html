@@ -89,6 +89,22 @@
               <span id="deelsom-voortgang" class="optie-voortgang"></span>
             </label>
           </div>
+
+          <div class="keuze-optie">
+            <label class="optie-label" for="cb-verhaal">
+              <input type="checkbox" id="cb-verhaal">
+              <span class="optie-naam">Verhalende sommen</span>
+              <span id="verhaal-voortgang" class="optie-voortgang"></span>
+            </label>
+          </div>
+
+          <div class="keuze-optie keuze-optie-extra">
+            <label class="optie-label" for="cb-autolees">
+              <input type="checkbox" id="cb-autolees">
+              <span class="optie-naam">🔊 Lees sommen voor</span>
+            </label>
+            <p class="optie-toelichting">Handig bij dyslexie of als het kind nog leest</p>
+          </div>
         </div>
         <button id="keuze-start-knop" class="knop-groot">Start oefenen →</button>
       </section>
@@ -101,6 +117,7 @@
         </div>
         <div class="kaart vraag-kaart">
           <p id="vraag" class="vraag"></p>
+          <button id="lees-knop" class="knop-lees" title="Lees voor" hidden>🔊</button>
         </div>
         <div class="kaart antwoord-kaart">
           <label for="antwoord-input" class="sr-only">Jouw antwoord</label>

@@ -1,10 +1,13 @@
 import { laadData, slaOp, schrijfOefenlog } from './storage.js';
+import { spreekUit, ttsWerkt } from './tts.js';
 import { kiesOpgaven, verwerkAntwoord } from './session.js';
 import { genereerItems as tafelsItems } from './onderdelen/tafels.js';
 import { genereerItems as deelsomItems } from './onderdelen/deelsommen.js';
+import { genereerItems as verhaalItems } from './onderdelen/tafels-verhaal.js';
 
-const TAFELS    = tafelsItems();
+const TAFELS     = tafelsItems();
 const DEELSOMMEN = deelsomItems();
+const VERHAAL    = verhaalItems();
 
 let data = laadData();
 let sessie = [];
@@ -93,6 +96,15 @@ function toonKeuzescherm() {
   document.getElementById('deelsom-voortgang').textContent =
     `${beheerstVoorPool(DEELSOMMEN)} / 100`;
 
+  // Verhalende sommen
+  document.getElementById('cb-verhaal').checked = data.profiel.verhaal ?? false;
+  document.getElementById('verhaal-voortgang').textContent =
+    `${beheerstVoorPool(VERHAAL)} / 100`;
+
+  // Auto-lees
+  document.getElementById('cb-autolees').checked = data.profiel.autoLees;
+  if (!ttsWerkt()) document.querySelector('.keuze-optie-extra').hidden = true;
+
   toonScherm('scherm-keuze');
 }
 
@@ -131,17 +143,24 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ? Array.from(document.querySelectorAll('#tafel-lijst input:checked')).map(cb => Number(cb.value))
     : [];
   const metDeelsommen = document.getElementById('cb-deelsommen').checked;
+  const metVerhaal = document.getElementById('cb-verhaal').checked;
 
-  if (tafelsSelectie.length === 0 && !metDeelsommen) return;
+  if (tafelsSelectie.length === 0 && !metDeelsommen && !metVerhaal) return;
 
   data.profiel.tafels = metTafels;
   data.profiel.tafelselectie = tafelsSelectie;
   data.profiel.deelsommen = metDeelsommen;
+  data.profiel.verhaal = metVerhaal;
+  data.profiel.autoLees = document.getElementById('cb-autolees').checked;
   slaOp(data);
 
   const items = [
     ...TAFELS.filter(it => tafelsSelectie.includes(tafelVanItem(it.id))),
-    ...(metDeelsommen ? DEELSOMMEN : [])
+    ...(metDeelsommen ? DEELSOMMEN : []),
+    ...(metVerhaal ? VERHAAL.filter(it => {
+      const a = Number(it.id.split('-')[1].split('x')[0]);
+      return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
+    }) : [])
   ];
   startSessie(items);
 });
@@ -168,8 +187,12 @@ function toonOpgave() {
   resetHint();
   beheersingsVerwerkt = false;
   document.getElementById('volgende-knop').hidden = true;
-  // Hint-knop altijd tonen als de opgave hints heeft
   toonHintKnop();
+
+  const leesKnop = document.getElementById('lees-knop');
+  leesKnop.hidden = !ttsWerkt();
+  if (ttsWerkt() && data.profiel.autoLees) spreekUit(opgave.vraag);
+
   document.getElementById('antwoord-input').focus();
 }
 
@@ -190,11 +213,17 @@ function toonHintKnop() {
   if (hints.length > 0) document.getElementById('hint-gebied').hidden = false;
 }
 
+document.getElementById('lees-knop').addEventListener('click', () => {
+  spreekUit(sessie[index]?.vraag ?? '');
+});
+
 document.getElementById('hint-knop').addEventListener('click', () => {
   const hints = sessie[index]?.hints ?? [];
   if (hintIndex >= hints.length) return;
-  document.getElementById('hint-tekst').textContent = hints[hintIndex];
+  const hintTekst = hints[hintIndex];
+  document.getElementById('hint-tekst').textContent = hintTekst;
   document.getElementById('hint-tekst').hidden = false;
+  if (data.profiel.autoLees) spreekUit(hintTekst);
   hintIndex++;
   if (hintIndex >= hints.length) {
     document.getElementById('hint-knop').textContent = 'Geen hints meer';
@@ -305,8 +334,9 @@ function eindSessie() {
   details.innerHTML = '';
 
   const onderdelen = [
-    { label: 'Tafels',      prefix: 'tafel-',   pool: TAFELS },
-    { label: 'Deelsommen',  prefix: 'deelsom-', pool: DEELSOMMEN },
+    { label: 'Tafels',             prefix: 'tafel-',   pool: TAFELS },
+    { label: 'Deelsommen',         prefix: 'deelsom-', pool: DEELSOMMEN },
+    { label: 'Verhalende sommen',  prefix: 'verhaal-', pool: VERHAAL },
   ];
 
   for (const { label, prefix, pool } of onderdelen) {
@@ -333,7 +363,7 @@ function eindSessie() {
 
   const totaal = Object.values(data.beheersing).filter(b => b.status === 'beheerst').length;
   document.getElementById('resultaat-totaal').textContent =
-    `Totaal beheerst: ${totaal} van de 200 feiten.`;
+    `Totaal beheerst: ${totaal} feiten.`;
 
   toonScherm('scherm-resultaat');
 }
