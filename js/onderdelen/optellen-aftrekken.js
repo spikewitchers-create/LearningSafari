@@ -142,7 +142,8 @@ export function genereerItems() {
       antwoord: a + b,
       leerdoel: LEERDOEL,
       hints: hintsRijgenOpt(a, b),
-      hintSvg: getallenLijn(stappen),
+      hintSvg: getallenLijn(stappen, 1),
+      hintSvgVolledig: getallenLijn(stappen),
     });
   }
 
@@ -158,13 +159,15 @@ export function genereerItems() {
     const stappen = bH > 0 && bR > 0
       ? [{van:a, naar:a-bH, delta:`-${bH}`, positief:false}, {van:a-bH, naar:a-b, delta:`-${bR}`, positief:false}]
       : [{van:a, naar:a-b, delta:`-${b}`, positief:false}];
+    const stappenOmhoog = stappen.slice().reverse().map(s => ({van:s.naar, naar:s.van, delta:s.delta.replace('-','+'), positief:true}));
     items.push({
       id: `optaft-rijgen-aft-${a}-${b}`,
       vraag: `${a} - ${b} = ?`,
       antwoord: a - b,
       leerdoel: LEERDOEL,
       hints: hintsRijgenAft(a, b),
-      hintSvg: getallenLijn(stappen.slice().reverse().map(s => ({van: s.naar, naar: s.van, delta: s.delta.replace('-','+'), positief: true}))),
+      hintSvg: getallenLijn(stappenOmhoog, 1),
+      hintSvgVolledig: getallenLijn(stappenOmhoog),
     });
   }
 
@@ -226,7 +229,8 @@ export function genereerItems() {
         antwoord: a - b,
         leerdoel: LEERDOEL,
         hints: hintsAanvulAft(a, b),
-        hintSvg: getallenLijn(aanvulStappen),
+        hintSvg: getallenLijn(aanvulStappen, 1),
+        hintSvgVolledig: getallenLijn(aanvulStappen),
       });
     }
   }
@@ -246,7 +250,8 @@ export function genereerItems() {
       antwoord: a + b,
       leerdoel: LEERDOEL,
       hints: hintsTevelOpt(a, b),
-      hintSvg: getallenLijn([{van:a, naar:a+afgerond, delta:`+${afgerond}`, positief:true}, {van:a+afgerond, naar:a+b, delta:`-${correctie}`, positief:false}]),
+      hintSvg: getallenLijn([{van:a, naar:a+afgerond, delta:`+${afgerond}`, positief:true}, {van:a+afgerond, naar:a+b, delta:`-${correctie}`, positief:false}], 1),
+      hintSvgVolledig: getallenLijn([{van:a, naar:a+afgerond, delta:`+${afgerond}`, positief:true}, {van:a+afgerond, naar:a+b, delta:`-${correctie}`, positief:false}]),
     });
   }
 

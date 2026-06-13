@@ -643,6 +643,13 @@ document.getElementById('hint-knop').addEventListener('click', () => {
   if (hintIndex >= hints.length) {
     document.getElementById('hint-knop').textContent = 'Geen hints meer';
     document.getElementById('hint-knop').disabled = true;
+    // Laatste hint: upgrade naar volledige getallenlijn als die beschikbaar is
+    const volledig = sessie[index]?.hintSvgVolledig;
+    if (volledig) {
+      const visueel = document.getElementById('hint-visueel');
+      visueel.innerHTML = volledig;
+      visueel.hidden = false;
+    }
   }
   document.getElementById('antwoord-input').focus();
 });
