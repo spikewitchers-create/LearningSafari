@@ -175,8 +175,22 @@
             <div class="keuze-optie">
               <label class="optie-label" for="cb-lengtematen">
                 <input type="checkbox" id="cb-lengtematen">
-                <span class="optie-naam">Lengtematen (mm/cm/dm)</span>
+                <span class="optie-naam">Lengtematen (mm/cm/dm/m)</span>
                 <span id="lengtematen-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-gewichten">
+                <input type="checkbox" id="cb-gewichten">
+                <span class="optie-naam">Gewichten (g/kg)</span>
+                <span id="gewichten-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-inhoudsmaten">
+                <input type="checkbox" id="cb-inhoudsmaten">
+                <span class="optie-naam">Inhoudsmaten (ml/cl/dl/l)</span>
+                <span id="inhoudsmaten-voortgang" class="optie-voortgang"></span>
               </label>
             </div>
           </div>
@@ -198,6 +212,20 @@
                 <span id="handigreken-voortgang" class="optie-voortgang"></span>
               </label>
             </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-breuken">
+                <input type="checkbox" id="cb-breuken">
+                <span class="optie-naam">Breuken (½, ¼, ¾, ⅓, ⅔)</span>
+                <span id="breuken-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-oppervlakte">
+                <input type="checkbox" id="cb-oppervlakte">
+                <span class="optie-naam">Oppervlakte &amp; omtrek</span>
+                <span id="oppervlakte-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
           </div>
 
           <!-- Verhalend & spelling -->
@@ -215,6 +243,13 @@
                 <input type="checkbox" id="cb-staal">
                 <span class="optie-naam">Spelling (Staal blok 4–8)</span>
                 <span id="staal-voortgang" class="optie-voortgang"></span>
+              </label>
+            </div>
+            <div class="keuze-optie">
+              <label class="optie-label" for="cb-woordsoorten">
+                <input type="checkbox" id="cb-woordsoorten">
+                <span class="optie-naam">Woordsoorten (de/het, bjv.nw.)</span>
+                <span id="woordsoorten-voortgang" class="optie-voortgang"></span>
               </label>
             </div>
           </div>
@@ -274,20 +309,7 @@
             <button id="trap-knop" class="knop-trap" hidden>📏 Trappenschema</button>
           </div>
           <p id="hint-tekst" class="hint-tekst" hidden></p>
-          <div id="trap-schema" class="trap-schema" hidden>
-            <table class="trap-tabel">
-              <tr>
-                <th>m</th>
-                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
-                <th>dm</th>
-                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
-                <th>cm</th>
-                <td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
-                <th>mm</th>
-              </tr>
-            </table>
-            <p class="trap-uitleg">Naar rechts (kleiner) = ×10 &nbsp;|&nbsp; Naar links (groter) = ÷10</p>
-          </div>
+          <div id="trap-schema" class="trap-schema" hidden></div>
           <textarea id="kladblok" class="kladblok" hidden placeholder="Schrijf hier je tussenstappen..." rows="4"></textarea>
         </div>
         <button id="volgende-knop" class="knop-volgende" hidden>Volgende vraag →</button>

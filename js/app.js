@@ -16,6 +16,11 @@ import { genereerItems as lengteItems } from './onderdelen/lengtematen.js';
 import { genereerItems as handrekenItems } from './onderdelen/handig-rekenen.js';
 import { genereerItems as kalenderItems } from './onderdelen/kalender.js';
 import { genereerItems as staalItems } from './onderdelen/staal-spelling.js';
+import { genereerItems as breukItems } from './onderdelen/breuken.js';
+import { genereerItems as gewichtItems } from './onderdelen/gewichten.js';
+import { genereerItems as inhoudItems } from './onderdelen/inhoudsmaten.js';
+import { genereerItems as oppervlakteItems } from './onderdelen/oppervlakte.js';
+import { genereerItems as woordItems } from './onderdelen/woordsoorten.js';
 import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
          haalMijlpalen, nieuweMijlpaal,
          berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
@@ -36,6 +41,11 @@ const LENGTE       = lengteItems();
 const HANDIGREKEN  = handrekenItems();
 const KALENDER     = kalenderItems();
 const STAAL        = staalItems();
+const BREUKEN      = breukItems();
+const GEWICHTEN    = gewichtItems();
+const INHOUD       = inhoudItems();
+const OPPERVLAKTE  = oppervlakteItems();
+const WOORDSOORTEN = woordItems();
 
 // Staal-spelling gesplitst per blok voor correcte urgentieberekening
 const STAAL_BLOK4  = STAAL.filter(it => ['staal-apots-','staal-etje-','staal-eiij-plaat-','staal-pv-'].some(p => it.id.startsWith(p)));
@@ -64,7 +74,12 @@ const ALLE_POOLS = [
   { key: 'staal5', label: 'Spelling blok 5 (centwoord, meervoud)',        pool: STAAL_BLOK5, blok: 5 },
   { key: 'staal6', label: 'Spelling blok 6 (ei/ij, pech, tsie)',          pool: STAAL_BLOK6, blok: 6 },
   { key: 'staal7', label: 'Spelling blok 7 (cola, voltooid deelwoord)',   pool: STAAL_BLOK7, blok: 7 },
-  { key: 'staal8', label: 'Spelling blok 8 (isch, superlatief)',          pool: STAAL_BLOK8, blok: 8 },
+  { key: 'staal8',       label: 'Spelling blok 8 (isch, superlatief)',  pool: STAAL_BLOK8,   blok: 8  },
+  { key: 'breuken',     label: 'Breuken',                               pool: BREUKEN,       blok: 6  },
+  { key: 'gewichten',   label: 'Gewichten (g/kg)',                      pool: GEWICHTEN,     blok: 9  },
+  { key: 'inhoudsmaten',label: 'Inhoudsmaten (cl/dl/l)',                pool: INHOUD,        blok: 9  },
+  { key: 'oppervlakte', label: 'Oppervlakte & omtrek',                  pool: OPPERVLAKTE,   blok: 8  },
+  { key: 'woordsoorten',label: 'Woordsoorten',                          pool: WOORDSOORTEN,  blok: 5  },
 ];
 
 let data = laadData();
@@ -236,6 +251,31 @@ function toonKeuzescherm() {
   document.getElementById('staal-voortgang').textContent =
     `${beheerstVoorPool(STAAL)} / ${STAAL.length}`;
 
+  // Breuken
+  document.getElementById('cb-breuken').checked = data.profiel.breuken ?? false;
+  document.getElementById('breuken-voortgang').textContent =
+    `${beheerstVoorPool(BREUKEN)} / ${BREUKEN.length}`;
+
+  // Gewichten
+  document.getElementById('cb-gewichten').checked = data.profiel.gewichten ?? false;
+  document.getElementById('gewichten-voortgang').textContent =
+    `${beheerstVoorPool(GEWICHTEN)} / ${GEWICHTEN.length}`;
+
+  // Inhoudsmaten
+  document.getElementById('cb-inhoudsmaten').checked = data.profiel.inhoudsmaten ?? false;
+  document.getElementById('inhoudsmaten-voortgang').textContent =
+    `${beheerstVoorPool(INHOUD)} / ${INHOUD.length}`;
+
+  // Oppervlakte & omtrek
+  document.getElementById('cb-oppervlakte').checked = data.profiel.oppervlakte ?? false;
+  document.getElementById('oppervlakte-voortgang').textContent =
+    `${beheerstVoorPool(OPPERVLAKTE)} / ${OPPERVLAKTE.length}`;
+
+  // Woordsoorten
+  document.getElementById('cb-woordsoorten').checked = data.profiel.woordsoorten ?? false;
+  document.getElementById('woordsoorten-voortgang').textContent =
+    `${beheerstVoorPool(WOORDSOORTEN)} / ${WOORDSOORTEN.length}`;
+
   // Sessielengte
   document.getElementById('sessie-lengte').value = String(data.profiel.aantalSommen ?? 10);
 
@@ -339,10 +379,16 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metHandig      = document.getElementById('cb-handigreken').checked;
   const metKalender    = document.getElementById('cb-kalender').checked;
   const metStaal       = document.getElementById('cb-staal').checked;
+  const metBreuken     = document.getElementById('cb-breuken').checked;
+  const metGewichten   = document.getElementById('cb-gewichten').checked;
+  const metInhoud      = document.getElementById('cb-inhoudsmaten').checked;
+  const metOppervlakte = document.getElementById('cb-oppervlakte').checked;
+  const metWoord       = document.getElementById('cb-woordsoorten').checked;
 
   const erIsIets = tafelsSelectie.length > 0 || metDeelsommen || metOptAft ||
     metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal ||
-    metKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal;
+    metKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal ||
+    metBreuken || metGewichten || metInhoud || metOppervlakte || metWoord;
   if (!erIsIets) return;
 
   data.profiel.tafels       = metTafels;
@@ -361,6 +407,11 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   data.profiel.handigreken  = metHandig;
   data.profiel.kalender     = metKalender;
   data.profiel.staal        = metStaal;
+  data.profiel.breuken      = metBreuken;
+  data.profiel.gewichten    = metGewichten;
+  data.profiel.inhoudsmaten = metInhoud;
+  data.profiel.oppervlakte  = metOppervlakte;
+  data.profiel.woordsoorten = metWoord;
   data.profiel.autoLees     = document.getElementById('cb-autolees').checked;
   data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
   slaOp(data);
@@ -383,6 +434,11 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ...(metHandig      ? HANDIGREKEN : []),
     ...(metKalender    ? KALENDER    : []),
     ...(metStaal       ? STAAL       : []),
+    ...(metBreuken     ? BREUKEN     : []),
+    ...(metGewichten   ? GEWICHTEN   : []),
+    ...(metInhoud      ? INHOUD      : []),
+    ...(metOppervlakte ? OPPERVLAKTE : []),
+    ...(metWoord       ? WOORDSOORTEN: []),
     ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
@@ -430,8 +486,27 @@ function tekenKlok(uur, minuten) {
   </svg>`;
 }
 
-const KLADBLOK_PREFIXEN = ['optaft-','vermenigv-','deelanalog-','deelspl-','deelrest-','geld-','halverd-'];
-const LENGTE_PREFIX = 'lengte-';
+const KLADBLOK_PREFIXEN = ['optaft-','vermenigv-','deelanalog-','deelspl-','deelrest-','geld-','halverd-','opp-','breuk-driekwart-','breuk-tweederde-'];
+const TRAP_PREFIXEN = ['lengte-','gewicht-','inhoud-'];
+
+const TRAP_HTML = {
+  lengte: `<table class="trap-tabel"><tr>
+    <th>m</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>dm</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>cm</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>mm</th>
+  </tr></table><p class="trap-uitleg">Naar rechts (kleiner) = ×10 &nbsp;|&nbsp; Naar links (groter) = ÷10</p>`,
+  gewicht: `<table class="trap-tabel"><tr>
+    <th>kg</th><td class="trap-pijl">← ÷1000 &nbsp; ×1000 →</td>
+    <th>g</th>
+  </tr></table><p class="trap-uitleg">kg → g: × 1000 &nbsp;|&nbsp; g → kg: ÷ 1000</p>`,
+  inhoud: `<table class="trap-tabel"><tr>
+    <th>l</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>dl</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>cl</th><td class="trap-pijl">← ÷10 &nbsp; ×10 →</td>
+    <th>ml</th>
+  </tr></table><p class="trap-uitleg">Naar rechts (kleiner) = ×10 &nbsp;|&nbsp; Naar links (groter) = ÷10</p>`,
+};
 
 function toonOpgave() {
   const opgave = sessie[index];
@@ -459,10 +534,12 @@ function toonOpgave() {
   document.getElementById('kladblok').hidden = true;
   document.getElementById('kladblok').value = '';
 
-  // ── Trappenschema (lengtematen) ────────────────────────────────
-  const isTrap = opgave.id.startsWith(LENGTE_PREFIX);
+  // ── Trappenschema (lengtematen / gewichten / inhoudsmaten) ─────
+  const trapType = opgave.trapType ?? (opgave.id.startsWith('lengte-') ? 'lengte' : null);
+  const isTrap = !!trapType;
   document.getElementById('trap-knop').hidden = !isTrap;
   document.getElementById('trap-schema').hidden = true;
+  if (isTrap) document.getElementById('trap-schema').innerHTML = TRAP_HTML[trapType] ?? '';
 
   resetHint();
   beheersingsVerwerkt = false;
@@ -523,7 +600,8 @@ function toonHintKnop() {
   const opgave = sessie[index];
   const hints = opgave?.hints ?? [];
   const heeftExtras = KLADBLOK_PREFIXEN.some(p => opgave?.id?.startsWith(p))
-                   || opgave?.id?.startsWith(LENGTE_PREFIX);
+                   || !!opgave?.trapType
+                   || TRAP_PREFIXEN.some(p => opgave?.id?.startsWith(p));
   document.getElementById('hint-gebied').hidden = hints.length === 0 && !heeftExtras;
   document.getElementById('hint-knop').hidden = hints.length === 0;
 }
@@ -728,7 +806,12 @@ function eindSessie() {
     { label: 'Spelling blok 5',         prefix: null,          pool: STAAL_BLOK5, grootte: STAAL_BLOK5.length },
     { label: 'Spelling blok 6',         prefix: null,          pool: STAAL_BLOK6, grootte: STAAL_BLOK6.length },
     { label: 'Spelling blok 7',         prefix: null,          pool: STAAL_BLOK7, grootte: STAAL_BLOK7.length },
-    { label: 'Spelling blok 8',         prefix: null,          pool: STAAL_BLOK8, grootte: STAAL_BLOK8.length },
+    { label: 'Spelling blok 8',         prefix: null,          pool: STAAL_BLOK8,   grootte: STAAL_BLOK8.length   },
+    { label: 'Breuken',                 prefix: 'breuk-',      pool: BREUKEN,       grootte: BREUKEN.length       },
+    { label: 'Gewichten',               prefix: 'gewicht-',    pool: GEWICHTEN,     grootte: GEWICHTEN.length     },
+    { label: 'Inhoudsmaten',            prefix: 'inhoud-',     pool: INHOUD,        grootte: INHOUD.length        },
+    { label: 'Oppervlakte & omtrek',    prefix: 'opp-',        pool: OPPERVLAKTE,   grootte: OPPERVLAKTE.length   },
+    { label: 'Woordsoorten',            prefix: 'woord-',      pool: WOORDSOORTEN,  grootte: WOORDSOORTEN.length  },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
@@ -818,7 +901,12 @@ function toonVoortgang() {
     { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    totaal: HALVERD.length },
     { label: 'Handig rekenen',          prefix: 'handig-',     totaal: HANDIGREKEN.length },
     { label: 'Verhalende sommen',       prefix: 'verhaal-',    totaal: 100 },
-    { label: 'Spelling (Staal)',        prefix: 'staal-',      totaal: STAAL.length },
+    { label: 'Spelling (Staal)',        prefix: 'staal-',      totaal: STAAL.length       },
+    { label: 'Breuken',                prefix: 'breuk-',      totaal: BREUKEN.length     },
+    { label: 'Gewichten',              prefix: 'gewicht-',    totaal: GEWICHTEN.length   },
+    { label: 'Inhoudsmaten',           prefix: 'inhoud-',     totaal: INHOUD.length      },
+    { label: 'Oppervlakte & omtrek',   prefix: 'opp-',        totaal: OPPERVLAKTE.length },
+    { label: 'Woordsoorten',           prefix: 'woord-',      totaal: WOORDSOORTEN.length},
   ];
   const vgOnderdelen = document.getElementById('vg-onderdelen');
   vgOnderdelen.innerHTML = '';

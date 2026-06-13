@@ -10,7 +10,7 @@ function leegDierentuin() {
 function leegData() {
   return {
     versie: VERSIE,
-    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, klok: false, deelanalog: false, lengtematen: false, handigreken: false, kalender: false, staal: false, tafeldiploma: false, aantalSommen: 10, autoLees: false },
+    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, klok: false, deelanalog: false, lengtematen: false, handigreken: false, kalender: false, staal: false, breuken: false, gewichten: false, inhoudsmaten: false, oppervlakte: false, woordsoorten: false, tafeldiploma: false, aantalSommen: 10, autoLees: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
     oefenlog: [],     // [{ datum, sessies, nieuwBeheerst }]
     dierentuin: leegDierentuin(),
@@ -42,6 +42,11 @@ export function laadData() {
     if (data.profiel.handigreken === undefined) data.profiel.handigreken  = false;
     if (data.profiel.kalender     === undefined) data.profiel.kalender     = false;
     if (data.profiel.staal        === undefined) data.profiel.staal        = false;
+    if (data.profiel.breuken      === undefined) data.profiel.breuken      = false;
+    if (data.profiel.gewichten    === undefined) data.profiel.gewichten    = false;
+    if (data.profiel.inhoudsmaten === undefined) data.profiel.inhoudsmaten = false;
+    if (data.profiel.oppervlakte  === undefined) data.profiel.oppervlakte  = false;
+    if (data.profiel.woordsoorten === undefined) data.profiel.woordsoorten = false;
     if (data.profiel.tafeldiploma === undefined) data.profiel.tafeldiploma = false;
     if (!data.dierentuin) data.dierentuin = leegDierentuin();
     if (!data.dierentuin.weekDoelSleutel) data.dierentuin.weekDoelSleutel = '';
