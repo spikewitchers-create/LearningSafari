@@ -486,7 +486,7 @@ function tekenKlok(uur, minuten) {
   </svg>`;
 }
 
-const KLADBLOK_PREFIXEN = ['optaft-','vermenigv-','deelanalog-','deelspl-','deelrest-','geld-','halverd-','opp-','breuk-driekwart-','breuk-tweederde-'];
+const KLADBLOK_PREFIXEN = ['tafel-','optaft-','vermenigv-','deelanalog-','deelspl-','deelrest-','geld-','halverd-','opp-','breuk-driekwart-','breuk-tweederde-'];
 const TRAP_PREFIXEN = ['lengte-','gewicht-','inhoud-'];
 
 const TRAP_HTML = {
@@ -573,7 +573,7 @@ function toonOpgave() {
   const klokWrap = document.getElementById('klok-svg-wrap');
   if (opgave.klokTijd) {
     document.getElementById('klok-svg-inhoud').innerHTML = tekenKlok(opgave.klokTijd.uur, opgave.klokTijd.minuten);
-    document.getElementById('klok-label').textContent = opgave.klokLabel ?? '';
+    document.getElementById('klok-label').textContent = isMeerkeuze ? '' : (opgave.klokLabel ?? '');
     klokWrap.hidden = false;
   } else {
     klokWrap.hidden = true;
