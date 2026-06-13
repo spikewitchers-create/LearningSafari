@@ -541,6 +541,11 @@ function toonOpgave() {
   document.getElementById('trap-schema').hidden = true;
   if (isTrap) document.getElementById('trap-schema').innerHTML = TRAP_HTML[trapType] ?? '';
 
+  // Visuele hint resetten (getallenlijn / driehoek)
+  const visueelEl = document.getElementById('hint-visueel');
+  visueelEl.hidden = true;
+  visueelEl.innerHTML = '';
+
   resetHint();
   beheersingsVerwerkt = false;
   document.getElementById('volgende-knop').hidden = true;
@@ -622,6 +627,14 @@ document.getElementById('trap-knop').addEventListener('click', () => {
 document.getElementById('hint-knop').addEventListener('click', () => {
   const hints = sessie[index]?.hints ?? [];
   if (hintIndex >= hints.length) return;
+  // Toon visuele hint bij eerste hintklik
+  if (hintIndex === 0 && sessie[index]?.hintSvg) {
+    const visueel = document.getElementById('hint-visueel');
+    if (visueel.hidden) {
+      visueel.innerHTML = sessie[index].hintSvg;
+      visueel.hidden = false;
+    }
+  }
   const hintTekst = hints[hintIndex];
   document.getElementById('hint-tekst').textContent = hintTekst;
   document.getElementById('hint-tekst').hidden = false;
@@ -673,9 +686,15 @@ function verwerkInvoer() {
       toonGoed();
       return;
     }
-    // Fout op eerste poging — laat nog een keer proberen
+    // Fout op eerste poging — toon visuele hint en laat nog een keer proberen
     document.getElementById('feedback').textContent = `Niet helemaal — probeer nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
+    if (opgave.hintSvg) {
+      const visueel = document.getElementById('hint-visueel');
+      visueel.innerHTML = opgave.hintSvg;
+      visueel.hidden = false;
+      document.getElementById('hint-gebied').hidden = false;
+    }
     input.value = '';
     input.focus();
     return;

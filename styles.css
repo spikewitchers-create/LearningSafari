@@ -588,6 +588,21 @@ input[type="text"]:focus {
 .knop-hint:hover:not(:disabled) { background: var(--primair-licht); }
 .knop-hint:disabled { opacity: 0.45; cursor: default; }
 
+.hint-visueel {
+  background: var(--primair-licht);
+  border: 1.5px solid var(--rand);
+  border-radius: var(--straal);
+  padding: 0.6rem 0.8rem 0.4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.hint-svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 .hint-tekst {
   font-size: 0.9rem;
   color: var(--tekst);

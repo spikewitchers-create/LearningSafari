@@ -1,4 +1,5 @@
 // Optellen en aftrekken t/m 1000 — groep 5, Pluspunt-methodologie
+import { getallenLijn } from '../hint-svg.js';
 // Categorieën:
 //   1. Rijgen optellen (blok 5)
 //   2. Rijgen aftrekken (blok 5/6)
@@ -131,12 +132,17 @@ export function genereerItems() {
     [263, 534], [381, 216], [452, 347], [127, 468], [584, 213]
   ];
   for (const [a, b] of rijgenOptSommen) {
+    const bH = Math.floor(b / 100) * 100, bR = b - bH;
+    const stappen = bH > 0 && bR > 0
+      ? [{van:a, naar:a+bH, delta:`+${bH}`, positief:true}, {van:a+bH, naar:a+b, delta:`+${bR}`, positief:true}]
+      : [{van:a, naar:a+b, delta:`+${b}`, positief:true}];
     items.push({
       id: `optaft-rijgen-opt-${a}-${b}`,
       vraag: `${a} + ${b} = ?`,
       antwoord: a + b,
       leerdoel: LEERDOEL,
-      hints: hintsRijgenOpt(a, b)
+      hints: hintsRijgenOpt(a, b),
+      hintSvg: getallenLijn(stappen),
     });
   }
 
@@ -148,12 +154,17 @@ export function genereerItems() {
     [961, 347], [473, 261], [657, 324], [813, 452], [546, 213]
   ];
   for (const [a, b] of rijgenAftSommen) {
+    const bH = Math.floor(b / 100) * 100, bR = b - bH;
+    const stappen = bH > 0 && bR > 0
+      ? [{van:a, naar:a-bH, delta:`-${bH}`, positief:false}, {van:a-bH, naar:a-b, delta:`-${bR}`, positief:false}]
+      : [{van:a, naar:a-b, delta:`-${b}`, positief:false}];
     items.push({
       id: `optaft-rijgen-aft-${a}-${b}`,
       vraag: `${a} - ${b} = ?`,
       antwoord: a - b,
       leerdoel: LEERDOEL,
-      hints: hintsRijgenAft(a, b)
+      hints: hintsRijgenAft(a, b),
+      hintSvg: getallenLijn(stappen.slice().reverse().map(s => ({van: s.naar, naar: s.van, delta: s.delta.replace('-','+'), positief: true}))),
     });
   }
 
@@ -203,12 +214,19 @@ export function genereerItems() {
   ];
   for (const [a, b] of aanvulAftSommen) {
     if (a - b > 100) {
+      const volgendRond = Math.ceil(b / 100) * 100;
+      const stap1 = volgendRond - b;
+      const restNaarA = a - volgendRond;
+      const aanvulStappen = restNaarA > 0
+        ? [{van:b, naar:volgendRond, delta:`+${stap1}`, positief:true}, {van:volgendRond, naar:a, delta:`+${restNaarA}`, positief:true}]
+        : [{van:b, naar:a, delta:`+${stap1}`, positief:true}];
       items.push({
         id: `optaft-aanvul-aft-${a}-${b}`,
         vraag: `${a} - ${b} = ?`,
         antwoord: a - b,
         leerdoel: LEERDOEL,
-        hints: hintsAanvulAft(a, b)
+        hints: hintsAanvulAft(a, b),
+        hintSvg: getallenLijn(aanvulStappen),
       });
     }
   }
@@ -220,12 +238,15 @@ export function genereerItems() {
     [478, 299], [612, 198], [385, 399], [241, 199], [534, 298]
   ];
   for (const [a, b] of tevelOptSommen) {
+    const afgerond = Math.ceil(b / 10) * 10;
+    const correctie = afgerond - b;
     items.push({
       id: `optaft-tevel-opt-${a}-${b}`,
       vraag: `${a} + ${b} = ?`,
       antwoord: a + b,
       leerdoel: LEERDOEL,
-      hints: hintsTevelOpt(a, b)
+      hints: hintsTevelOpt(a, b),
+      hintSvg: getallenLijn([{van:a, naar:a+afgerond, delta:`+${afgerond}`, positief:true}, {van:a+afgerond, naar:a+b, delta:`-${correctie}`, positief:false}]),
     });
   }
 

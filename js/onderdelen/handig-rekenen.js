@@ -1,4 +1,5 @@
 // Handig rekenen — blok 10
+import { driehoek } from '../hint-svg.js';
 // Strategie: zoek twee getallen die samen een rond getal maken (bijv. 35+65=100)
 // Dan tel het derde getal erbij: 35 + 53 + 65 → (35+65) + 53 = 100 + 53 = 153
 
@@ -45,6 +46,7 @@ export function genereerItems() {
         antwoord: 100 + k,
         leerdoel: `Handig rekenen: zoek getallen die samen 100 geven`,
         hints: hintsVoor100(a, k, b),
+        hintSvg: driehoek(a, k, b, 100),
       });
     }
   }
@@ -59,6 +61,7 @@ export function genereerItems() {
         antwoord: 50 + k,
         leerdoel: `Handig rekenen: zoek getallen die samen 50 geven`,
         hints: hintsVoor50(a, k, b),
+        hintSvg: driehoek(a, k, b, 50),
       });
     }
   }
