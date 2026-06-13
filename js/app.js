@@ -521,11 +521,29 @@ function toonOpgave() {
   vraagEl.classList.toggle('vraag-lang',   vraagLengte > 55);
   vraagEl.classList.toggle('vraag-middel', vraagLengte > 20 && vraagLengte <= 55);
   const isTekst = opgave.invoerType === 'tekst';
+  const isMeerkeuze = opgave.invoerType === 'meerkeuze';
   const inp = document.getElementById('antwoord-input');
-  inp.inputMode   = isTekst ? 'text'    : 'numeric';
-  inp.pattern     = isTekst ? '.*'      : '[0-9]*';
-  inp.placeholder = isTekst ? 'typ hier…' : '?';
-  inp.value = '';
+  const antwoordKaart = inp.closest('.antwoord-kaart');
+  const meerkeuzeDiv = document.getElementById('meerkeuze-opties');
+
+  if (isMeerkeuze) {
+    antwoordKaart.hidden = true;
+    meerkeuzeDiv.hidden = false;
+    meerkeuzeDiv.innerHTML = (opgave.opties ?? []).map(opt =>
+      `<button class="knop-meerkeuze">${opt}</button>`
+    ).join('');
+    meerkeuzeDiv.querySelectorAll('.knop-meerkeuze').forEach(knop => {
+      knop.addEventListener('click', () => verwerkInvoer(knop.textContent.trim()));
+    });
+  } else {
+    antwoordKaart.hidden = false;
+    meerkeuzeDiv.hidden = true;
+    meerkeuzeDiv.innerHTML = '';
+    inp.inputMode   = isTekst ? 'text'    : 'numeric';
+    inp.pattern     = isTekst ? '.*'      : '[0-9]*';
+    inp.placeholder = isTekst ? 'typ hier…' : '?';
+    inp.value = '';
+  }
   document.getElementById('feedback').textContent = '';
   document.getElementById('feedback').className = 'feedback';
   // ── Kladblok-knop (vóór resetHint zodat toonHintKnop ze kan zien) ─
@@ -586,7 +604,7 @@ function toonOpgave() {
     if (ttsOk && data.profiel.autoLees) spreekUit(opgave.spreekUit ?? vraagTekst);
   }
 
-  document.getElementById('antwoord-input').focus();
+  if (!isMeerkeuze) document.getElementById('antwoord-input').focus();
 }
 
 let hintIndex = 0;
@@ -666,10 +684,17 @@ function volgende() {
 
 document.getElementById('volgende-knop').addEventListener('click', volgende);
 
-function verwerkInvoer() {
+function verwerkInvoer(override = null) {
   const input = document.getElementById('antwoord-input');
-  const gegeven = input.value.trim();
+  const gegeven = override ?? input.value.trim();
   if (!gegeven) return;
+  // Meerkeuze: markeer de geklikte knop en blokkeer de rest
+  if (override !== null) {
+    document.querySelectorAll('.knop-meerkeuze').forEach(k => {
+      k.disabled = true;
+      if (k.textContent.trim() === override) k.classList.add('meerkeuze-geselecteerd');
+    });
+  }
 
   const opgave = sessie[index];
 
@@ -693,17 +718,25 @@ function verwerkInvoer() {
       toonGoed();
       return;
     }
-    // Fout op eerste poging — toon visuele hint en laat nog een keer proberen
+    // Fout op eerste poging
     document.getElementById('feedback').textContent = `Niet helemaal — probeer nog eens.`;
     document.getElementById('feedback').className = 'feedback fout';
-    if (opgave.hintSvg) {
-      const visueel = document.getElementById('hint-visueel');
-      visueel.innerHTML = opgave.hintSvg;
-      visueel.hidden = false;
-      document.getElementById('hint-gebied').hidden = false;
+    // Meerkeuze: toon het juiste antwoord in groen
+    if (override !== null) {
+      document.querySelectorAll('.knop-meerkeuze').forEach(k => {
+        if (k.textContent.trim() === opgave.antwoord) k.classList.add('meerkeuze-correct');
+      });
+      document.getElementById('volgende-knop').hidden = false;
+    } else {
+      if (opgave.hintSvg) {
+        const visueel = document.getElementById('hint-visueel');
+        visueel.innerHTML = opgave.hintSvg;
+        visueel.hidden = false;
+        document.getElementById('hint-gebied').hidden = false;
+      }
+      input.value = '';
+      input.focus();
     }
-    input.value = '';
-    input.focus();
     return;
   }
 
@@ -726,7 +759,14 @@ function toonGoed() {
   document.getElementById('feedback').className = 'feedback goed';
   document.getElementById('hint-gebied').hidden = true;
   document.getElementById('volgende-knop').hidden = true;
-  setTimeout(volgende, 900);
+  // Meerkeuze: markeer correct antwoord groen
+  const opgave = sessie[index];
+  if (opgave?.invoerType === 'meerkeuze') {
+    document.querySelectorAll('.knop-meerkeuze').forEach(k => {
+      if (k.textContent.trim() === opgave.antwoord) k.classList.add('meerkeuze-correct');
+    });
+  }
+  setTimeout(volgende, 1100);
 }
 
 document.getElementById('antwoord-input').addEventListener('keydown', e => {

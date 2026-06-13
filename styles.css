@@ -588,6 +588,43 @@ input[type="text"]:focus {
 .knop-hint:hover:not(:disabled) { background: var(--primair-licht); }
 .knop-hint:disabled { opacity: 0.45; cursor: default; }
 
+/* ── Meerkeuze knoppen (klokkijken) ──────────────────── */
+.meerkeuze-opties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.knop-meerkeuze {
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0.75rem 0.5rem;
+  background: var(--kaart);
+  color: var(--tekst);
+  border: 2px solid var(--rand);
+  border-radius: var(--straal-groot);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  text-align: center;
+}
+.knop-meerkeuze:hover:not(:disabled) {
+  background: var(--primair-licht);
+  border-color: var(--primair);
+}
+.knop-meerkeuze:disabled { opacity: 0.7; cursor: default; }
+.knop-meerkeuze.meerkeuze-geselecteerd {
+  background: var(--fout-licht);
+  border-color: var(--fout);
+  color: var(--fout);
+}
+.knop-meerkeuze.meerkeuze-correct {
+  background: var(--goed-licht);
+  border-color: var(--goed);
+  color: var(--goed);
+}
+
 .hint-visueel {
   background: var(--primair-licht);
   border: 1.5px solid var(--rand);
