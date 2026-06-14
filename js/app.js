@@ -11,6 +11,7 @@ import { genereerItems as deelSplitsenItems } from './onderdelen/deelsommen-spli
 import { genereerItems as halverenItems } from './onderdelen/halveren-verdubbelen.js';
 import { genereerItems as geldItems } from './onderdelen/geld.js';
 import { genereerItems as klokItems } from './onderdelen/klokkijken.js';
+import { genereerItems as digKlokItems } from './onderdelen/klokkijken-digitaal.js';
 import { genereerItems as deelAnalogItems } from './onderdelen/deelsommen-analogie.js';
 import { genereerItems as lengteItems } from './onderdelen/lengtematen.js';
 import { genereerItems as handrekenItems } from './onderdelen/handig-rekenen.js';
@@ -36,6 +37,7 @@ const DEEL_SPLITS  = deelSplitsenItems();
 const HALVERD      = halverenItems();
 const GELD         = geldItems();
 const KLOK         = klokItems();
+const DIG_KLOK     = digKlokItems();
 const DEEL_ANALOG  = deelAnalogItems();
 const LENGTE       = lengteItems();
 const HANDIGREKEN  = handrekenItems();
@@ -61,6 +63,7 @@ const ALLE_POOLS = [
   { key: 'deelsommen',  label: 'Deelsommen',                pool: DEELSOMMEN,  blok: 5  },
   { key: 'optaft',      label: 'Optellen & aftrekken',      pool: OPT_AFT,     blok: 5  },
   { key: 'klok',        label: 'Klokkijken',                pool: KLOK,        blok: 5  },
+  { key: 'digklok',    label: 'Digitale klok',             pool: DIG_KLOK,    blok: 5  },
   { key: 'vermenigv',   label: 'Vermenigvuldigen',          pool: VERMENIGV,   blok: 6  },
   { key: 'deelrest',    label: 'Deelsommen met rest',       pool: DEEL_REST,   blok: 6  },
   { key: 'kalender',    label: 'Kalender & datums',         pool: KALENDER,    blok: 7  },
@@ -226,6 +229,11 @@ function toonKeuzescherm() {
   document.getElementById('klok-voortgang').textContent =
     `${beheerstVoorPool(KLOK)} / ${KLOK.length}`;
 
+  // Digitale klok
+  document.getElementById('cb-digklok').checked = data.profiel.digklok ?? false;
+  document.getElementById('digklok-voortgang').textContent =
+    `${beheerstVoorPool(DIG_KLOK)} / ${DIG_KLOK.length}`;
+
   // Deelsommen naar analogie
   document.getElementById('cb-deelanalog').checked = data.profiel.deelanalog ?? false;
   document.getElementById('deelanalog-voortgang').textContent =
@@ -328,7 +336,8 @@ document.getElementById('zwak-start-knop').addEventListener('click', () => {
   const pools = ALLE_POOLS.filter(p => keys.includes(p.key));
   const items = pools.flatMap(p => p.pool);
   if (items.length === 0) return;
-  startSessie(items, data.profiel.aantalSommen ?? 10);
+  const aantalUi = Number(document.getElementById('sessie-lengte').value) || data.profiel.aantalSommen || 10;
+  startSessie(items, aantalUi);
 });
 
 function bouwTafelSub() {
@@ -374,6 +383,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metGeld        = document.getElementById('cb-geld').checked;
   const metVerhaal     = document.getElementById('cb-verhaal').checked;
   const metKlok        = document.getElementById('cb-klok').checked;
+  const metDigKlok     = document.getElementById('cb-digklok').checked;
   const metDeelAnalog  = document.getElementById('cb-deelanalog').checked;
   const metLengte      = document.getElementById('cb-lengtematen').checked;
   const metHandig      = document.getElementById('cb-handigreken').checked;
@@ -387,7 +397,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
 
   const erIsIets = tafelsSelectie.length > 0 || metDeelsommen || metOptAft ||
     metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal ||
-    metKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal ||
+    metKlok || metDigKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal ||
     metBreuken || metGewichten || metInhoud || metOppervlakte || metWoord;
   if (!erIsIets) return;
 
@@ -402,6 +412,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   data.profiel.geld         = metGeld;
   data.profiel.verhaal      = metVerhaal;
   data.profiel.klok         = metKlok;
+  data.profiel.digklok      = metDigKlok;
   data.profiel.deelanalog   = metDeelAnalog;
   data.profiel.lengtematen  = metLengte;
   data.profiel.handigreken  = metHandig;
@@ -429,6 +440,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ...(metHalverd     ? HALVERD     : []),
     ...(metGeld        ? GELD        : []),
     ...(metKlok        ? KLOK        : []),
+    ...(metDigKlok     ? DIG_KLOK   : []),
     ...(metDeelAnalog  ? DEEL_ANALOG : []),
     ...(metLengte      ? LENGTE      : []),
     ...(metHandig      ? HANDIGREKEN : []),
@@ -574,6 +586,10 @@ function toonOpgave() {
   if (opgave.klokTijd) {
     document.getElementById('klok-svg-inhoud').innerHTML = tekenKlok(opgave.klokTijd.uur, opgave.klokTijd.minuten);
     document.getElementById('klok-label').textContent = isMeerkeuze ? '' : (opgave.klokLabel ?? '');
+    klokWrap.hidden = false;
+  } else if (opgave.digitaalSvg) {
+    document.getElementById('klok-svg-inhoud').innerHTML = opgave.digitaalSvg;
+    document.getElementById('klok-label').textContent = '';
     klokWrap.hidden = false;
   } else {
     klokWrap.hidden = true;
@@ -957,6 +973,7 @@ function toonVoortgang() {
     { label: 'Deelsommen',              prefix: 'deelsom-',    totaal: 100 },
     { label: 'Optellen & aftrekken',    prefix: 'optaft-',     totaal: OPT_AFT.length },
     { label: 'Klokkijken',              prefix: 'klok-',       totaal: KLOK.length },
+    { label: 'Digitale klok',           prefix: 'digklok-',    totaal: DIG_KLOK.length },
     { label: 'Vermenigvuldigen',        prefix: 'vermenigv-',  totaal: VERMENIGV.length },
     { label: 'Deelsommen met rest',     prefix: 'deelrest-',   totaal: DEEL_REST.length },
     { label: 'Kalender & datums',       prefix: 'kalender-',   totaal: KALENDER.length },
@@ -1038,7 +1055,129 @@ function toonVoortgang() {
     mgrid.appendChild(cel);
   }
 
+  toonPatroonAnalyse(beh);
+
   toonScherm('scherm-voortgang');
+}
+
+function toonPatroonAnalyse(beh) {
+  const kaart = document.getElementById('vg-analyse-kaart');
+  const inhoud = document.getElementById('vg-analyse-inhoud');
+  const bevindingen = [];
+
+  function pct(items) {
+    if (!items.length) return 0;
+    return Math.round(items.filter(it => beh[it.id]?.status === 'beheerst').length / items.length * 100);
+  }
+  function gezien(items) {
+    return items.some(it => beh[it.id]);
+  }
+
+  // Tafels: per tafel
+  for (let n = 1; n <= 10; n++) {
+    const groep = TAFELS.filter(it => tafelVanItem(it.id) === n);
+    if (!gezien(groep)) continue;
+    const p = pct(groep);
+    if (p < 50) bevindingen.push({ ernst: 'zwak', tekst: `Tafel van ${n}: slechts ${p}% beheerst — extra oefening nodig.` });
+    else if (p < 80) bevindingen.push({ ernst: 'mid', tekst: `Tafel van ${n}: ${p}% beheerst — bijna goed, nog wat herhalen.` });
+  }
+
+  // Klokkijken: types
+  const klokGroepen = [
+    { naam: 'kwart over', items: KLOK.filter(it => it.id.startsWith('klok-kwartover-')) },
+    { naam: 'het halfuur', items: KLOK.filter(it => it.id.startsWith('klok-half-')) },
+    { naam: 'kwart voor', items: KLOK.filter(it => it.id.startsWith('klok-kwartvoor-')) },
+    { naam: 'minuten over het uur', items: KLOK.filter(it => it.id.startsWith('klok-over-')) },
+    { naam: 'minuten voor het uur', items: KLOK.filter(it => it.id.startsWith('klok-voor-')) },
+    { naam: 'minuten over het halfuur', items: KLOK.filter(it => it.id.startsWith('klok-halfuur-')) },
+  ];
+  for (const g of klokGroepen) {
+    if (!g.items.length || !gezien(g.items)) continue;
+    const p = pct(g.items);
+    if (p < 60) bevindingen.push({ ernst: 'zwak', tekst: `Klokkijken — ${g.naam}: ${p}% beheerst.` });
+  }
+
+  // Digitale klok: types
+  const digGroepen = [
+    { naam: 'precies het uur', items: DIG_KLOK.filter(it => it._min === 0) },
+    { naam: 'kwart over', items: DIG_KLOK.filter(it => it._min === 15) },
+    { naam: 'halfuur', items: DIG_KLOK.filter(it => it._min === 30) },
+    { naam: 'kwart voor', items: DIG_KLOK.filter(it => it._min === 45) },
+    { naam: 'minuten over', items: DIG_KLOK.filter(it => it._min > 0 && it._min < 30 && it._min !== 15) },
+    { naam: 'minuten voor', items: DIG_KLOK.filter(it => it._min > 30 && it._min !== 45) },
+  ];
+  for (const g of digGroepen) {
+    if (!g.items.length || !gezien(g.items)) continue;
+    const p = pct(g.items);
+    if (p < 60) bevindingen.push({ ernst: 'zwak', tekst: `Digitale klok — ${g.naam}: ${p}% beheerst.` });
+  }
+
+  // Optellen & aftrekken: per strategie
+  const optGroepen = [
+    { naam: 'rijgen optellen', items: OPT_AFT.filter(it => it.id.startsWith('optaft-rijgen-opt-')) },
+    { naam: 'rijgen aftrekken', items: OPT_AFT.filter(it => it.id.startsWith('optaft-rijgen-aft-')) },
+    { naam: 'splitsen optellen', items: OPT_AFT.filter(it => it.id.startsWith('optaft-splits-opt-')) },
+    { naam: 'splitsen aftrekken', items: OPT_AFT.filter(it => it.id.startsWith('optaft-splits-aft-')) },
+    { naam: 'aanvullen', items: OPT_AFT.filter(it => it.id.startsWith('optaft-aanvul-')) },
+    { naam: 'rijgen met te veel (optellen)', items: OPT_AFT.filter(it => it.id.startsWith('optaft-tevel-opt-')) },
+    { naam: 'rijgen met te veel (aftrekken)', items: OPT_AFT.filter(it => it.id.startsWith('optaft-tevel-aft-')) },
+  ];
+  for (const g of optGroepen) {
+    if (!g.items.length || !gezien(g.items)) continue;
+    const p = pct(g.items);
+    if (p < 60) bevindingen.push({ ernst: 'zwak', tekst: `Optellen & aftrekken — ${g.naam}: ${p}% beheerst.` });
+  }
+
+  // Breuken: per type
+  const breukGroepen = [
+    { naam: 'de helft (½)', items: BREUKEN.filter(it => it.id.startsWith('breuk-half-')) },
+    { naam: 'een kwart (¼)', items: BREUKEN.filter(it => it.id.startsWith('breuk-kwart-') && !it.id.startsWith('breuk-driekwart-')) },
+    { naam: 'driekwart (¾)', items: BREUKEN.filter(it => it.id.startsWith('breuk-driekwart-')) },
+    { naam: 'een derde (⅓)', items: BREUKEN.filter(it => it.id.startsWith('breuk-derde-') && !it.id.startsWith('breuk-tweederde-')) },
+    { naam: 'twee derde (⅔)', items: BREUKEN.filter(it => it.id.startsWith('breuk-tweederde-')) },
+  ];
+  for (const g of breukGroepen) {
+    if (!g.items.length || !gezien(g.items)) continue;
+    const p = pct(g.items);
+    if (p < 60) bevindingen.push({ ernst: 'zwak', tekst: `Breuken — ${g.naam}: ${p}% beheerst.` });
+  }
+
+  // Spelling: per categorie
+  const staalGroepen = [
+    { naam: 'apostrof', items: STAAL.filter(it => it.id.startsWith('staal-apots-')) },
+    { naam: 'verkleinwoorden (-etje)', items: STAAL.filter(it => it.id.startsWith('staal-etje-')) },
+    { naam: 'ei/ij (plaatjes)', items: STAAL.filter(it => it.id.startsWith('staal-eiij-plaat-')) },
+    { naam: 'persoonsvorm', items: STAAL.filter(it => it.id.startsWith('staal-pv-')) },
+    { naam: 'centwoord', items: STAAL.filter(it => it.id.startsWith('staal-cent-')) },
+    { naam: 'meervoud', items: STAAL.filter(it => it.id.startsWith('staal-apomv-')) },
+    { naam: 'ei/ij (woorden)', items: STAAL.filter(it => it.id.startsWith('staal-eiij-') && !it.id.startsWith('staal-eiij-plaat-')) },
+    { naam: 'voltooid deelwoord', items: STAAL.filter(it => it.id.startsWith('staal-vd-')) },
+  ];
+  for (const g of staalGroepen) {
+    if (!g.items.length || !gezien(g.items)) continue;
+    const p = pct(g.items);
+    if (p < 60) bevindingen.push({ ernst: 'zwak', tekst: `Spelling — ${g.naam}: ${p}% beheerst.` });
+  }
+
+  // Positief bericht als alles goed gaat
+  const gescoordePools = ALLE_POOLS.filter(p => gezien(p.pool));
+  if (bevindingen.length === 0 && gescoordePools.length > 0) {
+    const algPct = Math.round(gescoordePools.reduce((s, p) => s + pct(p.pool), 0) / gescoordePools.length);
+    bevindingen.push({ ernst: 'goed', tekst: `Geweldig! Gemiddeld ${algPct}% beheerst over alle onderdelen. Zo te zien gaat het heel goed!` });
+  }
+
+  if (bevindingen.length === 0) {
+    kaart.hidden = true;
+    return;
+  }
+  kaart.hidden = false;
+  inhoud.innerHTML = '';
+  for (const b of bevindingen) {
+    const div = document.createElement('div');
+    div.className = `vg-analyse-item vg-analyse-${b.ernst}`;
+    div.textContent = b.tekst;
+    inhoud.appendChild(div);
+  }
 }
 
 // ── Start ─────────────────────────────────────────────

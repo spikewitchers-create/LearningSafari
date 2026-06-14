@@ -965,6 +965,18 @@ input[type="text"]:focus {
   padding: 0.4rem 1rem;
 }
 
+/* ── Patroon-analyse panel ──────────────────────────────── */
+.vg-analyse-inhoud { display: flex; flex-direction: column; gap: 0.5rem; }
+.vg-analyse-item {
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+.vg-analyse-zwak { background: var(--fout-licht); border-left: 4px solid var(--fout); }
+.vg-analyse-mid  { background: #fff7e0; border-left: 4px solid #f0c040; }
+.vg-analyse-goed { background: var(--goed-licht); border-left: 4px solid var(--goed); }
+
 /* ── Weekdoel-stippen (keuze-scherm suggestie) ──────────── */
 .week-stippen { display: inline-flex; gap: 0.3rem; vertical-align: middle; margin-right: 0.3rem; }
 .week-stip {
