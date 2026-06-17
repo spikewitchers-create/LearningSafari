@@ -941,8 +941,92 @@ function eindSessie() {
 document.getElementById('opnieuw-knop').addEventListener('click', toonKeuzescherm);
 
 // ── 5. Voortgang-scherm ───────────────────────────────
+const BLOK_NAMEN = {
+  1:  'Blok 1 — Tafels & basisrekenen',
+  4:  'Blok 4 — Spelling (apostrof, ei/ij)',
+  5:  'Blok 5 — Optellen, aftrekken & klok',
+  6:  'Blok 6 — Vermenigvuldigen & breuken',
+  7:  'Blok 7 — Kalender & splitsen',
+  8:  'Blok 8 — Geld, analogie & oppervlakte',
+  9:  'Blok 9 — Maten, inhoud & deelsplitsen',
+  10: 'Blok 10 — Halveren, verdubbelen & handig rekenen',
+};
+
+function toonGeschattNiveau(beh) {
+  const kaart  = document.getElementById('vg-niveau-kaart');
+  const label  = document.getElementById('vg-niveau-label');
+  const sub    = document.getElementById('vg-niveau-sub');
+  const balkWr = document.getElementById('vg-niveau-balk-wrap');
+
+  const DREMPEL_DATA = 4;   // minimaal geziene items per blok om mee te tellen
+  const DREMPEL_BEHEERST_PCT = 0.65; // ≥65% → blok als beheerst beschouwen
+
+  const blokNummers = [...new Set(ALLE_POOLS.map(p => p.blok))].sort((a, b) => a - b);
+
+  // Per blok: hoeveel items gezien en hoeveel beheerst
+  const blokInfo = blokNummers.map(nr => {
+    const items = ALLE_POOLS.filter(p => p.blok === nr).flatMap(p => p.pool);
+    const gezien = items.filter(it => beh[it.id]);
+    const beheerst = gezien.filter(it => beh[it.id].status === 'beheerst').length;
+    return { nr, gezien: gezien.length, beheerst, totaal: items.length,
+             pct: gezien.length >= DREMPEL_DATA ? beheerst / gezien.length : null };
+  });
+
+  // Blokken met genoeg data
+  const metData = blokInfo.filter(b => b.pct !== null);
+  if (metData.length === 0) { kaart.hidden = true; return; }
+
+  // Frontier = eerste blok (in volgorde) dat NIET als beheerst geldt
+  const frontier = blokInfo.find(b => b.pct !== null && b.pct < DREMPEL_BEHEERST_PCT)
+                ?? blokInfo.filter(b => b.pct !== null).at(-1); // alles beheerst → laatste
+
+  const alleBeheerstTotNu = blokInfo
+    .filter(b => b.nr < frontier.nr && b.pct !== null)
+    .every(b => b.pct >= DREMPEL_BEHEERST_PCT);
+
+  // Label & omschrijving
+  const naam = BLOK_NAMEN[frontier.nr] ?? `Blok ${frontier.nr}`;
+  label.textContent = naam;
+
+  const pctTekst = frontier.pct !== null
+    ? `${Math.round(frontier.pct * 100)}% van de geoefende items beheerst`
+    : '';
+  sub.textContent = alleBeheerstTotNu && frontier.pct >= DREMPEL_BEHEERST_PCT
+    ? `Alle blokken t/m ${frontier.nr} zijn goed beheerst! 🎉`
+    : pctTekst;
+
+  // Minibalken: één streep per blok
+  balkWr.innerHTML = '';
+  for (const b of blokInfo) {
+    const wrap = document.createElement('div');
+    wrap.className = 'vg-niveau-stap';
+    wrap.title = `Blok ${b.nr}: ${b.pct !== null ? Math.round(b.pct*100)+'%' : 'nog niet gezien'}`;
+
+    let klasse = 'vg-ns-leeg';
+    if (b.pct === null)                       klasse = 'vg-ns-leeg';
+    else if (b.pct >= DREMPEL_BEHEERST_PCT)   klasse = 'vg-ns-beheerst';
+    else if (b.pct > 0)                       klasse = 'vg-ns-bezig';
+    else                                       klasse = 'vg-ns-leeg';
+
+    const bal = document.createElement('div');
+    bal.className = `vg-niveau-stap-vul ${klasse}${b.nr === frontier.nr ? ' vg-ns-huidig' : ''}`;
+    wrap.appendChild(bal);
+
+    const lbl = document.createElement('span');
+    lbl.className = 'vg-ns-label';
+    lbl.textContent = b.nr;
+    wrap.appendChild(lbl);
+    balkWr.appendChild(wrap);
+  }
+
+  kaart.hidden = false;
+}
+
 function toonVoortgang() {
   const beh = data.beheersing;
+
+  // ── Geschat niveau ────────────────────────────────────
+  toonGeschattNiveau(beh);
 
   // Totaalregel
   const totaal = Object.values(beh).filter(b => b.status === 'beheerst').length;
