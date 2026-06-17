@@ -351,6 +351,9 @@ function toonSuggestie() {
   const kaart   = document.getElementById('suggestie-kaart');
   const nu      = Date.now();
 
+  // Kaart is altijd zichtbaar zodra toonSuggestie wordt aangeroepen
+  kaart.hidden = false;
+
   const stippen = Array.from({ length: weekVg.doel }, (_, i) =>
     `<span class="week-stip${i < weekVg.gedaan ? ' gedaan' : ''}"></span>`
   ).join('');
@@ -409,18 +412,15 @@ function toonSuggestie() {
 
   // ── Zwakke punten ────────────────────────────────────
   if (zwak.length === 0) {
-    kaart.hidden = false;
     document.getElementById('suggestie-tekst').textContent = '';
     document.getElementById('zwak-start-knop').hidden = true;
     kaart.dataset.zwakKeys = '[]';
-    return;
+  } else {
+    const labels = zwak.map(o => o.label).join(', ');
+    document.getElementById('suggestie-tekst').textContent = `Tip: oefen extra aan ${labels}.`;
+    document.getElementById('zwak-start-knop').hidden = false;
+    kaart.dataset.zwakKeys = JSON.stringify(zwak.map(o => o.key));
   }
-
-  const labels = zwak.map(o => o.label).join(', ');
-  document.getElementById('suggestie-tekst').textContent = `Tip: oefen extra aan ${labels}.`;
-  document.getElementById('zwak-start-knop').hidden = false;
-  kaart.hidden = false;
-  kaart.dataset.zwakKeys = JSON.stringify(zwak.map(o => o.key));
 }
 
 document.getElementById('zwak-start-knop').addEventListener('click', () => {
