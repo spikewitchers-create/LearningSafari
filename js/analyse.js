@@ -13,9 +13,10 @@ export function analyseerOnderdelen(pools, beheersing) {
     const pctBeheerst = Math.round((beheerst / items.length) * 100);
 
     const nogNietGezien = items.length - gezien.length;
-    // Eerder blok = hogere urgentie (blok 5 → gewicht 6, blok 10 → gewicht 1)
+    // Eerder blok = hogere urgentie voor BEWEZEN zwakheid (fouten/oefenen).
+    // Ongeziene items tellen gelijk mee voor alle blokken: onbekend ≠ zwak.
     const blokGewicht = blok ? Math.max(1, 11 - blok) : 3;
-    const zwakheid = (nogNietGezien * 2 + oefenen * 3 + totFout) * blokGewicht;
+    const zwakheid = nogNietGezien * 2 + (oefenen * 3 + totFout) * blokGewicht;
 
     return { key, label, pool, beheerst, oefenen, gezien: gezien.length,
              totaal: items.length, pctBeheerst, zwakheid };
