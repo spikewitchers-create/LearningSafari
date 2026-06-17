@@ -49,7 +49,8 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
   const aantalHints = opgave.hints?.length ?? 0;
   const antwoordGezien = hintsGebruikt >= aantalHints && aantalHints > 0;
   const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
-  const correctIngepykt = norm(gegeven) === norm(opgave.antwoord);
+  const correctIngepykt = norm(gegeven) === norm(opgave.antwoord)
+    || (opgave.extraAntwoorden ?? []).some(a => norm(a) === norm(gegeven));
   const correct  = !antwoordGezien && correctIngepykt;
   const metHulp  = !antwoordGezien && hintsGebruikt > 0;
   const vandaag  = new Date().toISOString().slice(0, 10);

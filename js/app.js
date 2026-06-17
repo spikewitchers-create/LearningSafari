@@ -22,6 +22,7 @@ import { genereerItems as gewichtItems } from './onderdelen/gewichten.js';
 import { genereerItems as inhoudItems } from './onderdelen/inhoudsmaten.js';
 import { genereerItems as oppervlakteItems } from './onderdelen/oppervlakte.js';
 import { genereerItems as woordItems } from './onderdelen/woordsoorten.js';
+import { genereerItems as engelsU4Items } from './onderdelen/engels-unit4.js';
 import { analyseerOnderdelen, zwaksteOnderdelen, berekenSterren,
          haalMijlpalen, nieuweMijlpaal,
          berekenWeekVoortgang, huidigeWeekSleutel } from './analyse.js';
@@ -48,6 +49,7 @@ const GEWICHTEN    = gewichtItems();
 const INHOUD       = inhoudItems();
 const OPPERVLAKTE  = oppervlakteItems();
 const WOORDSOORTEN = woordItems();
+const ENGELS_U4   = engelsU4Items();
 
 // Staal-spelling gesplitst per blok voor correcte urgentieberekening
 const STAAL_BLOK4  = STAAL.filter(it => ['staal-apots-','staal-etje-','staal-eiij-plaat-','staal-pv-'].some(p => it.id.startsWith(p)));
@@ -83,6 +85,7 @@ const ALLE_POOLS = [
   { key: 'inhoudsmaten',label: 'Inhoudsmaten (cl/dl/l)',                pool: INHOUD,        blok: 9  },
   { key: 'oppervlakte', label: 'Oppervlakte & omtrek',                  pool: OPPERVLAKTE,   blok: 8  },
   { key: 'woordsoorten',label: 'Woordsoorten',                          pool: WOORDSOORTEN,  blok: 5  },
+  { key: 'engels-u4',  label: 'Engels Unit 4 (woordenschat)',          pool: ENGELS_U4,     blok: 5  },
 ];
 
 let data = laadData();
@@ -284,6 +287,11 @@ function toonKeuzescherm() {
   document.getElementById('woordsoorten-voortgang').textContent =
     `${beheerstVoorPool(WOORDSOORTEN)} / ${WOORDSOORTEN.length}`;
 
+  // Engels Unit 4
+  document.getElementById('cb-engels-u4').checked = data.profiel.engelsu4 ?? false;
+  document.getElementById('engels-u4-voortgang').textContent =
+    `${beheerstVoorPool(ENGELS_U4)} / ${ENGELS_U4.length}`;
+
   // Sessielengte
   document.getElementById('sessie-lengte').value = String(data.profiel.aantalSommen ?? 10);
 
@@ -394,11 +402,12 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   const metInhoud      = document.getElementById('cb-inhoudsmaten').checked;
   const metOppervlakte = document.getElementById('cb-oppervlakte').checked;
   const metWoord       = document.getElementById('cb-woordsoorten').checked;
+  const metEngelsU4   = document.getElementById('cb-engels-u4').checked;
 
   const erIsIets = tafelsSelectie.length > 0 || metDeelsommen || metOptAft ||
     metVermenigv || metDeelRest || metDeelSplits || metHalverd || metGeld || metVerhaal ||
     metKlok || metDigKlok || metDeelAnalog || metLengte || metHandig || metKalender || metStaal ||
-    metBreuken || metGewichten || metInhoud || metOppervlakte || metWoord;
+    metBreuken || metGewichten || metInhoud || metOppervlakte || metWoord || metEngelsU4;
   if (!erIsIets) return;
 
   data.profiel.tafels       = metTafels;
@@ -423,6 +432,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
   data.profiel.inhoudsmaten = metInhoud;
   data.profiel.oppervlakte  = metOppervlakte;
   data.profiel.woordsoorten = metWoord;
+  data.profiel.engelsu4    = metEngelsU4;
   data.profiel.autoLees     = document.getElementById('cb-autolees').checked;
   data.profiel.aantalSommen = Number(document.getElementById('sessie-lengte').value) || 10;
   slaOp(data);
@@ -451,6 +461,7 @@ document.getElementById('keuze-start-knop').addEventListener('click', () => {
     ...(metInhoud      ? INHOUD      : []),
     ...(metOppervlakte ? OPPERVLAKTE : []),
     ...(metWoord       ? WOORDSOORTEN: []),
+    ...(metEngelsU4    ? ENGELS_U4   : []),
     ...(verhaalDezesSessie.filter(it => {
       const a = Number(it.id.split('-')[1].split('x')[0]);
       return tafelsSelectie.length === 0 || tafelsSelectie.includes(a);
@@ -758,7 +769,8 @@ function verwerkInvoer(override = null) {
 
   // Herpoging (beheersing al verwerkt): alleen correctheid controleren
   const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
-  const correct = norm(gegeven) === norm(opgave.antwoord);
+  const correct = norm(gegeven) === norm(opgave.antwoord)
+    || (opgave.extraAntwoorden ?? []).some(a => norm(a) === norm(gegeven));
   if (correct) {
     toonGoed();
   } else {
@@ -894,6 +906,7 @@ function eindSessie() {
     { label: 'Inhoudsmaten',            prefix: 'inhoud-',     pool: INHOUD,        grootte: INHOUD.length        },
     { label: 'Oppervlakte & omtrek',    prefix: 'opp-',        pool: OPPERVLAKTE,   grootte: OPPERVLAKTE.length   },
     { label: 'Woordsoorten',            prefix: 'woord-',      pool: WOORDSOORTEN,  grootte: WOORDSOORTEN.length  },
+    { label: 'Engels Unit 4',          prefix: 'engels-u4-',  pool: ENGELS_U4,     grootte: ENGELS_U4.length     },
   ];
 
   for (const { label, prefix, pool, grootte } of onderdelen) {
@@ -990,6 +1003,7 @@ function toonVoortgang() {
     { label: 'Inhoudsmaten',           prefix: 'inhoud-',     totaal: INHOUD.length      },
     { label: 'Oppervlakte & omtrek',   prefix: 'opp-',        totaal: OPPERVLAKTE.length },
     { label: 'Woordsoorten',           prefix: 'woord-',      totaal: WOORDSOORTEN.length},
+    { label: 'Engels Unit 4',          prefix: 'engels-u4-',  totaal: ENGELS_U4.length   },
   ];
   const vgOnderdelen = document.getElementById('vg-onderdelen');
   vgOnderdelen.innerHTML = '';

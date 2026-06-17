@@ -10,7 +10,7 @@ function leegDierentuin() {
 function leegData() {
   return {
     versie: VERSIE,
-    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, klok: false, digklok: false, deelanalog: false, lengtematen: false, handigreken: false, kalender: false, staal: false, breuken: false, gewichten: false, inhoudsmaten: false, oppervlakte: false, woordsoorten: false, tafeldiploma: false, aantalSommen: 10, autoLees: false },
+    profiel: { naam: '', leerjaar: 5, tafels: true, tafelselectie: [1,2,3,4,5,6,7,8,9,10], deelsommen: false, optaft: false, vermenigv: false, deelrest: false, deelsplits: false, halverd: false, geld: false, verhaal: false, klok: false, digklok: false, deelanalog: false, lengtematen: false, handigreken: false, kalender: false, staal: false, breuken: false, gewichten: false, inhoudsmaten: false, oppervlakte: false, woordsoorten: false, engelsu4: false, tafeldiploma: false, aantalSommen: 10, autoLees: false },
     beheersing: {},   // id → { goed, fout, rij, status, laatstGeoefend }
     oefenlog: [],     // [{ datum, sessies, nieuwBeheerst }]
     dierentuin: leegDierentuin(),
@@ -48,6 +48,7 @@ export function laadData() {
     if (data.profiel.oppervlakte  === undefined) data.profiel.oppervlakte  = false;
     if (data.profiel.woordsoorten === undefined) data.profiel.woordsoorten = false;
     if (data.profiel.digklok      === undefined) data.profiel.digklok      = false;
+    if (data.profiel.engelsu4     === undefined) data.profiel.engelsu4     = false;
     if (data.profiel.tafeldiploma === undefined) data.profiel.tafeldiploma = false;
     if (!data.dierentuin) data.dierentuin = leegDierentuin();
     if (!data.dierentuin.weekDoelSleutel) data.dierentuin.weekDoelSleutel = '';

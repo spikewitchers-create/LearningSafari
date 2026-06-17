@@ -26,7 +26,7 @@
   --fout-licht:    #fee2e2;
 
   --balk-bg:       #bae6fd;
-  --nav-br:        160px;
+  --nav-br:        190px;
   --straal:        12px;
   --straal-groot:  18px;
   --schaduw:       0 1px 3px rgba(0,0,0,0.06), 0 6px 20px rgba(2,132,199,0.08);
@@ -155,20 +155,40 @@ body {
 
 /* ── Pagina (centrering binnen hoofd) ────────────────── */
 .pagina {
-  padding: 1.75rem 1.5rem 3rem;
+  padding: 1.75rem 2rem 3rem;
   width: 100%;
-  max-width: 460px;
+  max-width: 680px;
 }
 
-/* Keuze-scherm mag breder */
-#scherm-keuze {
-  max-width: 820px;
+/* Keuze- en voortgangsscherm mogen breder */
+#scherm-keuze,
+#scherm-voortgang {
+  max-width: 900px;
+}
+
+/* Sessie-scherm: niet te breed voor leesbaarheid */
+#scherm-sessie {
+  max-width: 600px;
 }
 
 .scherm {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+}
+
+/* ── Breed scherm: extra ruimte benutten ─────────────── */
+@media (min-width: 760px) {
+  /* Voortgang onderdelen: 2 kolommen */
+  .vg-onderdelen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+  }
+  /* Voortgang blokken: meer kolommen */
+  .vg-blokken-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 /* ── Mobiel: nav wordt topbalk ───────────────────────── */
