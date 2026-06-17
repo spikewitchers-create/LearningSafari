@@ -46,5 +46,6 @@ export function genereerItems() {
     leerdoel: `Engels woordenschat Unit 4`,
     hints: [w.hint1, w.hint2],
     invoerType: 'tekst',
+    spellingCheck: true,
   }));
 }

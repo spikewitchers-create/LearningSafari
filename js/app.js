@@ -613,6 +613,7 @@ function toonOpgave() {
 
   resetHint();
   beheersingsVerwerkt = false;
+  spellingHulpGegeven = false;
   document.getElementById('volgende-knop').hidden = true;
   toonHintKnop();
 
@@ -735,6 +736,33 @@ function volgende() {
 
 document.getElementById('volgende-knop').addEventListener('click', volgende);
 
+// ── Spellingdetectie ──────────────────────────────────
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m + 1}, (_, i) =>
+    Array.from({length: n + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function isSpellingFout(gegeven, opgave) {
+  if (!opgave.spellingCheck) return false;
+  const norm = s => s.trim().toLowerCase();
+  const g = norm(gegeven);
+  const antwoorden = [norm(opgave.antwoord), ...(opgave.extraAntwoorden ?? []).map(norm)];
+  if (antwoorden.includes(g)) return false; // correct
+  return antwoorden.some(a => {
+    const maxDist = Math.max(1, Math.floor(a.length / 6) + 1); // 1 voor kort, 2 voor lang
+    const dist = levenshtein(g, a);
+    return dist > 0 && dist <= maxDist && g.length >= a.length - 2;
+  });
+}
+
+let spellingHulpGegeven = false;
+
 function verwerkInvoer(override = null) {
   const input = document.getElementById('antwoord-input');
   const gegeven = override ?? input.value.trim();
@@ -749,10 +777,24 @@ function verwerkInvoer(override = null) {
 
   const opgave = sessie[index];
 
+  // ── Spellingfout: woord herkend maar verkeerd gespeld ──
+  if (!beheersingsVerwerkt && isSpellingFout(gegeven, opgave)) {
+    spellingHulpGegeven = true;
+    const correct = opgave.antwoord;
+    document.getElementById('feedback').innerHTML =
+      `Bijna! Je bedoelt: <strong>${correct}</strong> — probeer de spelling nog eens.`;
+    document.getElementById('feedback').className = 'feedback neutraal';
+    input.value = '';
+    input.focus();
+    return;
+  }
+
   // Beheersing alleen bij de eerste poging bijwerken
   if (!beheersingsVerwerkt) {
+    // Als spellingHulp gegeven was, telt een correcte invoer als "met hulp" (rij bevroren)
+    const effectieveHints = spellingHulpGegeven ? Math.max(hintIndex, 1) : hintIndex;
     const { correct, antwoordGezien, nieuwBeheerst: nb, entry } = verwerkAntwoord(
-      opgave.id, gegeven, opgave, data.beheersing, hintIndex
+      opgave.id, gegeven, opgave, data.beheersing, effectieveHints
     );
     data.beheersing[opgave.id] = entry;
     slaOp(data);
@@ -1088,39 +1130,45 @@ function toonVoortgang() {
     blokkenEl.appendChild(cel);
   }
 
-  // Onderdelen-overzicht
-  const onderdelen = [
-    { label: 'Tafels',                  prefix: 'tafel-',      totaal: 100 },
-    { label: 'Deelsommen',              prefix: 'deelsom-',    totaal: 100 },
-    { label: 'Optellen & aftrekken',    prefix: 'optaft-',     totaal: OPT_AFT.length },
-    { label: 'Klokkijken',              prefix: 'klok-',       totaal: KLOK.length },
-    { label: 'Digitale klok',           prefix: 'digklok-',    totaal: DIG_KLOK.length },
-    { label: 'Vermenigvuldigen',        prefix: 'vermenigv-',  totaal: VERMENIGV.length },
-    { label: 'Deelsommen met rest',     prefix: 'deelrest-',   totaal: DEEL_REST.length },
-    { label: 'Kalender & datums',       prefix: 'kalender-',   totaal: KALENDER.length },
-    { label: 'Deels. naar analogie',    prefix: 'deelanalog-', totaal: DEEL_ANALOG.length },
-    { label: 'Geld',                    prefix: 'geld-',       totaal: GELD.length },
-    { label: 'Deelsommen splitsen',     prefix: 'deelspl-',    totaal: DEEL_SPLITS.length },
-    { label: 'Lengtematen',             prefix: 'lengte-',     totaal: LENGTE.length },
-    { label: 'Halveren & verdubbelen',  prefix: 'halverd-',    totaal: HALVERD.length },
-    { label: 'Handig rekenen',          prefix: 'handig-',     totaal: HANDIGREKEN.length },
-    { label: 'Verhalende sommen',       prefix: 'verhaal-',    totaal: 100 },
-    { label: 'Spelling (Staal)',        prefix: 'staal-',      totaal: STAAL.length       },
-    { label: 'Breuken',                prefix: 'breuk-',      totaal: BREUKEN.length     },
-    { label: 'Gewichten',              prefix: 'gewicht-',    totaal: GEWICHTEN.length   },
-    { label: 'Inhoudsmaten',           prefix: 'inhoud-',     totaal: INHOUD.length      },
-    { label: 'Oppervlakte & omtrek',   prefix: 'opp-',        totaal: OPPERVLAKTE.length },
-    { label: 'Woordsoorten',           prefix: 'woord-',      totaal: WOORDSOORTEN.length},
-    { label: 'Engels Unit 4',          prefix: 'engels-u4-',  totaal: ENGELS_U4.length   },
+  // Onderdelen-overzicht — gegroepeerd en uitklapbaar
+  const onderdeelGroepen = [
+    { titel: '📖 Tafels & deling', items: [
+      { label: 'Tafels',               prefix: 'tafel-',      totaal: 100 },
+      { label: 'Deelsommen',           prefix: 'deelsom-',    totaal: 100 },
+      { label: 'Deelsommen met rest',  prefix: 'deelrest-',   totaal: DEEL_REST.length },
+      { label: 'Deelsommen splitsen',  prefix: 'deelspl-',    totaal: DEEL_SPLITS.length },
+      { label: 'Deels. naar analogie', prefix: 'deelanalog-', totaal: DEEL_ANALOG.length },
+    ]},
+    { titel: '➕ Rekenen', items: [
+      { label: 'Optellen & aftrekken',   prefix: 'optaft-',    totaal: OPT_AFT.length },
+      { label: 'Vermenigvuldigen',       prefix: 'vermenigv-', totaal: VERMENIGV.length },
+      { label: 'Halveren & verdubbelen', prefix: 'halverd-',   totaal: HALVERD.length },
+      { label: 'Handig rekenen',         prefix: 'handig-',    totaal: HANDIGREKEN.length },
+      { label: 'Breuken',               prefix: 'breuk-',     totaal: BREUKEN.length },
+      { label: 'Oppervlakte & omtrek',  prefix: 'opp-',       totaal: OPPERVLAKTE.length },
+    ]},
+    { titel: '⏰ Meten & tijd', items: [
+      { label: 'Klokkijken',       prefix: 'klok-',      totaal: KLOK.length },
+      { label: 'Digitale klok',    prefix: 'digklok-',   totaal: DIG_KLOK.length },
+      { label: 'Kalender & datums',prefix: 'kalender-',  totaal: KALENDER.length },
+      { label: 'Lengtematen',      prefix: 'lengte-',    totaal: LENGTE.length },
+      { label: 'Gewichten',        prefix: 'gewicht-',   totaal: GEWICHTEN.length },
+      { label: 'Inhoudsmaten',     prefix: 'inhoud-',    totaal: INHOUD.length },
+      { label: 'Geld',             prefix: 'geld-',      totaal: GELD.length },
+    ]},
+    { titel: '📝 Taal & verhaal', items: [
+      { label: 'Verhalende sommen',  prefix: 'verhaal-',   totaal: 100 },
+      { label: 'Spelling (Staal)',   prefix: 'staal-',     totaal: STAAL.length },
+      { label: 'Woordsoorten',       prefix: 'woord-',     totaal: WOORDSOORTEN.length },
+      { label: 'Engels Unit 4',      prefix: 'engels-u4-', totaal: ENGELS_U4.length },
+    ]},
   ];
-  const vgOnderdelen = document.getElementById('vg-onderdelen');
-  vgOnderdelen.innerHTML = '';
-  for (const o of onderdelen) {
-    const match = o.pool
-      ? ([id]) => o.pool.some(it => it.id === id)
-      : ([id]) => id.startsWith(o.prefix);
+
+  function maakOnderdeelRij(o) {
+    const match = ([id]) => id.startsWith(o.prefix);
     const beheerst = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
     const oefenen  = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen').length;
+    const gezien = beheerst + oefenen + Object.entries(beh).filter(e => match(e) && e[1].status === 'nieuw').length;
     const pct = Math.round((beheerst / o.totaal) * 100);
     const div = document.createElement('div');
     div.className = 'vg-onderdeel';
@@ -1133,7 +1181,24 @@ function toonVoortgang() {
         <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
       </div>
       <p class="vg-sub">${beheerst} beheerst · ${oefenen} in oefening · ${o.totaal - beheerst - oefenen} nog niet gezien</p>`;
-    vgOnderdelen.appendChild(div);
+    return div;
+  }
+
+  const vgOnderdelen = document.getElementById('vg-onderdelen');
+  vgOnderdelen.innerHTML = '';
+  for (const groep of onderdeelGroepen) {
+    const details = document.createElement('details');
+    details.className = 'vg-groep';
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.className = 'vg-groep-titel';
+    summary.textContent = groep.titel;
+    details.appendChild(summary);
+    const inhoud = document.createElement('div');
+    inhoud.className = 'vg-groep-inhoud';
+    for (const o of groep.items) inhoud.appendChild(maakOnderdeelRij(o));
+    details.appendChild(inhoud);
+    vgOnderdelen.appendChild(details);
   }
 
   // Tafels-grid: één cel per tafel (1–10) met kleur naar beheersing

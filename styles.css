@@ -179,12 +179,6 @@ body {
 
 /* ── Breed scherm: extra ruimte benutten ─────────────── */
 @media (min-width: 760px) {
-  /* Voortgang onderdelen: 2 kolommen */
-  .vg-onderdelen {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.9rem;
-  }
   /* Voortgang blokken: meer kolommen */
   .vg-blokken-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -942,6 +936,52 @@ input[type="text"]:focus {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+}
+
+/* Uitklapgroepen in voortgang */
+.vg-groep {
+  border: 1.5px solid var(--rand);
+  border-radius: var(--straal);
+  overflow: hidden;
+}
+.vg-groep-titel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: var(--tekst-zacht);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  list-style: none;
+  background: var(--achtergrond);
+  user-select: none;
+}
+.vg-groep-titel::-webkit-details-marker { display: none; }
+.vg-groep-titel::after {
+  content: '▸';
+  margin-left: auto;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+.vg-groep[open] > .vg-groep-titel::after { transform: rotate(90deg); }
+.vg-groep[open] > .vg-groep-titel { border-bottom: 1.5px solid var(--rand); }
+.vg-groep-inhoud {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  padding: 0.5rem 0.9rem 0.75rem;
+}
+.vg-groep-inhoud .vg-onderdeel { padding: 0.4rem 0; border-bottom: 1px solid var(--rand); }
+.vg-groep-inhoud .vg-onderdeel:last-child { border-bottom: none; }
+
+/* Op breed scherm: onderdelen in 2 kolommen per groep */
+@media (min-width: 760px) {
+  .vg-onderdelen-groepen .vg-groep-inhoud {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .vg-onderdeel-kop {
