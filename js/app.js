@@ -305,8 +305,32 @@ function toonKeuzescherm() {
   // Slimme suggestie
   toonSuggestie();
 
+  // Uitklap-groepen: open als geselecteerd, chip bijwerken
+  bijwerkenGroepChips();
+
   toonScherm('scherm-keuze');
 }
+
+function bijwerkenGroepChips() {
+  document.querySelectorAll('#scherm-keuze details.keuze-groep-kaart').forEach(details => {
+    _updateChip(details);
+    if ([...details.querySelectorAll('input[type="checkbox"]')].some(cb => cb.checked))
+      details.open = true;
+  });
+}
+
+function _updateChip(details) {
+  const n = [...details.querySelectorAll('input[type="checkbox"]')].filter(cb => cb.checked).length;
+  const chip = details.querySelector('.groep-chip');
+  if (chip) chip.textContent = n > 0 ? `${n} geselecteerd` : '';
+}
+
+// Live chip update bij elke checkbox-wijziging
+document.getElementById('scherm-keuze').addEventListener('change', e => {
+  if (e.target.type !== 'checkbox') return;
+  const details = e.target.closest('details.keuze-groep-kaart');
+  if (details) _updateChip(details);
+});
 
 function toonSuggestie() {
   const analyse = analyseerOnderdelen(ALLE_POOLS, data.beheersing);
