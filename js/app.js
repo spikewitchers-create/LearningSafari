@@ -1007,6 +1007,56 @@ function eindSessie() {
 document.getElementById('opnieuw-knop').addEventListener('click', toonKeuzescherm);
 
 // ── 5. Voortgang-scherm ───────────────────────────────
+
+function toonHuiswerkBalk(beh) {
+  const kaart  = document.getElementById('vg-huiswerk-kaart');
+  const inhoud = document.getElementById('vg-huiswerk-inhoud');
+
+  const nu = Date.now();
+  const huiswerkPools = ALLE_POOLS
+    .filter(p => p.pool.length > 0 && p.pool[0].toetsDatum)
+    .map(p => {
+      const toetsDatum = p.pool[0].toetsDatum;
+      const dagenOver  = Math.ceil((new Date(toetsDatum).getTime() - nu) / 86400000);
+      const beheerst   = p.pool.filter(it => beh[it.id]?.status === 'beheerst').length;
+      return { label: p.label, toetsDatum, dagenOver, beheerst, totaal: p.pool.length };
+    });
+
+  if (huiswerkPools.length === 0) { kaart.hidden = true; return; }
+
+  inhoud.innerHTML = '';
+  for (const hw of huiswerkPools) {
+    const pct      = Math.round(hw.beheerst / hw.totaal * 100);
+    const datumNl  = new Date(hw.toetsDatum).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' });
+    let klasse, dagenTekst;
+    if (hw.dagenOver < 0) {
+      dagenTekst = 'toets voorbij'; klasse = 'hw-voorbij';
+    } else if (hw.dagenOver === 0) {
+      dagenTekst = 'vandaag!'; klasse = 'hw-urgent';
+    } else if (hw.dagenOver <= 3) {
+      dagenTekst = `nog ${hw.dagenOver} dag${hw.dagenOver === 1 ? '' : 'en'}`; klasse = 'hw-urgent';
+    } else if (hw.dagenOver <= 7) {
+      dagenTekst = `nog ${hw.dagenOver} dagen`; klasse = 'hw-snel';
+    } else {
+      dagenTekst = `nog ${hw.dagenOver} dagen`; klasse = 'hw-normaal';
+    }
+
+    const div = document.createElement('div');
+    div.className = 'vg-huiswerk-rij';
+    div.innerHTML = `
+      <div class="hw-kop">
+        <span class="hw-label">${hw.label}</span>
+        <span class="hw-datum-chip ${klasse}">${datumNl} &mdash; ${dagenTekst}</span>
+      </div>
+      <div class="vg-balk-wrap">
+        <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
+      </div>
+      <p class="vg-sub">${hw.beheerst} van ${hw.totaal} woorden beheerst (${pct}%)</p>`;
+    inhoud.appendChild(div);
+  }
+  kaart.hidden = false;
+}
+
 const BLOK_NAMEN = {
   1:  'Blok 1 — Tafels & basisrekenen',
   4:  'Blok 4 — Spelling (apostrof, ei/ij)',
@@ -1090,6 +1140,9 @@ function toonGeschattNiveau(beh) {
 
 function toonVoortgang() {
   const beh = data.beheersing;
+
+  // ── Huiswerk & toetsen ────────────────────────────────
+  toonHuiswerkBalk(beh);
 
   // ── Geschat niveau ────────────────────────────────────
   toonGeschattNiveau(beh);

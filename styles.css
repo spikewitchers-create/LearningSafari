@@ -853,6 +853,33 @@ input[type="text"]:focus {
 }
 
 /* ── Voortgang-scherm ────────────────────────────────── */
+/* ── Huiswerk & toetsen kaart ───────────────────────── */
+.vg-huiswerk-kaart {
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, var(--accent-licht) 0%, #fff 60%);
+}
+.vg-huiswerk-inhoud { display: flex; flex-direction: column; gap: 0.8rem; }
+.vg-huiswerk-rij {}
+.hw-kop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+.hw-label { font-weight: 700; font-size: 0.95rem; }
+.hw-datum-chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 99px;
+}
+.hw-normaal { background: var(--goed-licht);  color: #15803d; }
+.hw-snel    { background: #fff7e0;             color: #92400e; }
+.hw-urgent  { background: var(--fout-licht);   color: var(--fout); }
+.hw-voorbij { background: #f1f5f9;             color: var(--tekst-zacht); }
+
 /* ── Geschat niveau kaart ────────────────────────────── */
 .vg-niveau-kaart {
   border-color: var(--primair);
