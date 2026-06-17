@@ -32,7 +32,8 @@ export function genereerItems() {
         antwoord: String(a * b),
         leerdoel: LEERDOEL,
         hints: hints(a, b),
-        keuzes: []
+        keuzes: [],
+        toetsDatum: '2026-07-05'
       });
     }
   }

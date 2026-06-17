@@ -61,7 +61,7 @@ const STAAL_BLOK8  = STAAL.filter(it => ['staal-isch-','staal-sup-'].some(p => i
 
 // Alle vaste pools voor analyse — blok = curriculumblok (lager = hogere urgentie)
 const ALLE_POOLS = [
-  { key: 'tafels',      label: 'Tafels',                   pool: TAFELS,      blok: 1  },
+  { key: 'tafels',      label: 'Tafels',  huiswerkLabel: 'Tafeldiploma', pool: TAFELS, blok: 1 },
   { key: 'deelsommen',  label: 'Deelsommen',                pool: DEELSOMMEN,  blok: 5  },
   { key: 'optaft',      label: 'Optellen & aftrekken',      pool: OPT_AFT,     blok: 5  },
   { key: 'klok',        label: 'Klokkijken',                pool: KLOK,        blok: 5  },
@@ -1019,7 +1019,7 @@ function toonHuiswerkBalk(beh) {
       const toetsDatum = p.pool[0].toetsDatum;
       const dagenOver  = Math.ceil((new Date(toetsDatum).getTime() - nu) / 86400000);
       const beheerst   = p.pool.filter(it => beh[it.id]?.status === 'beheerst').length;
-      return { label: p.label, toetsDatum, dagenOver, beheerst, totaal: p.pool.length };
+      return { label: p.huiswerkLabel ?? p.label, toetsDatum, dagenOver, beheerst, totaal: p.pool.length };
     });
 
   if (huiswerkPools.length === 0) { kaart.hidden = true; return; }
@@ -1051,7 +1051,7 @@ function toonHuiswerkBalk(beh) {
       <div class="vg-balk-wrap">
         <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
       </div>
-      <p class="vg-sub">${hw.beheerst} van ${hw.totaal} woorden beheerst (${pct}%)</p>`;
+      <p class="vg-sub">${hw.beheerst} van ${hw.totaal} beheerst (${pct}%)</p>`;
     inhoud.appendChild(div);
   }
   kaart.hidden = false;
