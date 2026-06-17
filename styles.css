@@ -1106,6 +1106,61 @@ input[type="text"]:focus {
 }
 .knop-zwak:hover { background: var(--accent-dark); }
 
+.deadline-suggesties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.deadline-rij {
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.deadline-rij-kop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.deadline-rij-label { font-weight: 700; font-size: 0.88rem; }
+.deadline-rij-urgchip { font-size: 0.75rem; font-weight: 600; }
+.deadline-rij-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--tekst-zacht);
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+.deadline-belang { font-weight: 700; }
+.knop-deadline-oefen {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: filter 0.12s;
+}
+.knop-deadline-oefen:hover { filter: brightness(0.9); }
+.urg-rood   { background: #fee2e2; }
+.urg-rood   .knop-deadline-oefen { background: var(--fout);  color: #fff; }
+.urg-rood   .deadline-belang     { color: var(--fout); }
+.urg-oranje { background: #fff0d0; }
+.urg-oranje .knop-deadline-oefen { background: #d97706; color: #fff; }
+.urg-oranje .deadline-belang     { color: #92400e; }
+.urg-geel   { background: #fefce8; }
+.urg-geel   .knop-deadline-oefen { background: #ca8a04; color: #fff; }
+.urg-geel   .deadline-belang     { color: #713f12; }
+.urg-groen  { background: var(--goed-licht); }
+.urg-groen  .knop-deadline-oefen { background: var(--goed); color: #fff; }
+.urg-groen  .deadline-belang     { color: var(--goed); }
+
 /* ── Sterren & beloningen in resultaat-scherm ───────────── */
 .resultaat-sterren {
   font-size: 1.8rem;

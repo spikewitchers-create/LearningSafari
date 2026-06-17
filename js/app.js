@@ -332,11 +332,24 @@ document.getElementById('scherm-keuze').addEventListener('change', e => {
   if (details) _updateChip(details);
 });
 
+function deadlineUrgentie(dagenOver, mastery) {
+  // Boost op basis van tijd (zelfde schaal als session.js)
+  let tijdBoost;
+  if (dagenOver < 0)       tijdBoost = 0;
+  else if (dagenOver <= 3) tijdBoost = 6;
+  else if (dagenOver <= 7) tijdBoost = 4;
+  else if (dagenOver <= 14) tijdBoost = 2;
+  else                     tijdBoost = 1;
+  // Gecombineerd: hoe verder van beheerst + hoe dichter bij deadline
+  return tijdBoost * (1 - mastery);
+}
+
 function toonSuggestie() {
   const analyse = analyseerOnderdelen(ALLE_POOLS, data.beheersing);
   const zwak    = zwaksteOnderdelen(analyse, 3);
   const weekVg  = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   const kaart   = document.getElementById('suggestie-kaart');
+  const nu      = Date.now();
 
   const stippen = Array.from({ length: weekVg.doel }, (_, i) =>
     `<span class="week-stip${i < weekVg.gedaan ? ' gedaan' : ''}"></span>`
@@ -347,6 +360,54 @@ function toonSuggestie() {
   document.getElementById('streak-tekst').innerHTML =
     `<span class="week-stippen">${stippen}</span> ${weekTekst}`;
 
+  // ── Deadline-suggesties ───────────────────────────────
+  const deadlineEl = document.getElementById('deadline-suggesties');
+  const deadlinePools = ALLE_POOLS
+    .filter(p => p.pool.length > 0 && p.pool[0].toetsDatum)
+    .map(p => {
+      const toetsDatum = p.pool[0].toetsDatum;
+      const dagenOver  = Math.ceil((new Date(toetsDatum).getTime() - nu) / 86400000);
+      const beheerst   = p.pool.filter(it => data.beheersing[it.id]?.status === 'beheerst').length;
+      const mastery    = beheerst / p.pool.length;
+      const urgentie   = deadlineUrgentie(dagenOver, mastery);
+      return { key: p.key, label: p.huiswerkLabel ?? p.label, pool: p.pool,
+               dagenOver, beheerst, totaal: p.pool.length, mastery, urgentie };
+    })
+    .filter(d => d.dagenOver >= 0)              // voorbij = niet tonen
+    .sort((a, b) => b.urgentie - a.urgentie);   // meest urgent eerst
+
+  if (deadlinePools.length > 0) {
+    deadlineEl.innerHTML = '';
+    for (const d of deadlinePools) {
+      const pct = Math.round(d.mastery * 100);
+      let urgKlasse, urgLabel;
+      if (d.dagenOver <= 3)       { urgKlasse = 'urg-rood';   urgLabel = '🔴 Heel urgent'; }
+      else if (d.dagenOver <= 7)  { urgKlasse = 'urg-oranje'; urgLabel = '🟠 Urgent'; }
+      else if (d.dagenOver <= 14) { urgKlasse = 'urg-geel';   urgLabel = '🟡 Binnenkort'; }
+      else                        { urgKlasse = 'urg-groen';  urgLabel = '🟢 Op schema'; }
+
+      const belang = d.urgentie > 3 ? 'Heel belangrijk' : d.urgentie > 1.5 ? 'Belangrijk' : 'Let op';
+
+      const rij = document.createElement('div');
+      rij.className = `deadline-rij ${urgKlasse}`;
+      rij.innerHTML = `
+        <div class="deadline-rij-kop">
+          <span class="deadline-rij-label">${d.label}</span>
+          <span class="deadline-rij-urgchip">${urgLabel}</span>
+        </div>
+        <div class="deadline-rij-meta">
+          <span>${pct}% beheerst · nog ${d.dagenOver} dag${d.dagenOver === 1 ? '' : 'en'}</span>
+          <span class="deadline-belang">${belang}</span>
+        </div>
+        <button class="knop-deadline-oefen" data-key="${d.key}">Oefen ${d.label} →</button>`;
+      deadlineEl.appendChild(rij);
+    }
+    deadlineEl.hidden = false;
+  } else {
+    deadlineEl.hidden = true;
+  }
+
+  // ── Zwakke punten ────────────────────────────────────
   if (zwak.length === 0) {
     kaart.hidden = false;
     document.getElementById('suggestie-tekst').textContent = '';
@@ -364,12 +425,20 @@ function toonSuggestie() {
 
 document.getElementById('zwak-start-knop').addEventListener('click', () => {
   const keys = JSON.parse(document.getElementById('suggestie-kaart').dataset.zwakKeys ?? '[]');
-  // Start sessie direct op zwakste pools — profiel blijft ongewijzigd
   const pools = ALLE_POOLS.filter(p => keys.includes(p.key));
   const items = pools.flatMap(p => p.pool);
   if (items.length === 0) return;
   const aantalUi = Number(document.getElementById('sessie-lengte').value) || data.profiel.aantalSommen || 10;
   startSessie(items, aantalUi);
+});
+
+document.getElementById('deadline-suggesties').addEventListener('click', e => {
+  const knop = e.target.closest('.knop-deadline-oefen');
+  if (!knop) return;
+  const pool = ALLE_POOLS.find(p => p.key === knop.dataset.key);
+  if (!pool) return;
+  const aantalUi = Number(document.getElementById('sessie-lengte').value) || data.profiel.aantalSommen || 10;
+  startSessie(pool.pool, aantalUi);
 });
 
 function bouwTafelSub() {
