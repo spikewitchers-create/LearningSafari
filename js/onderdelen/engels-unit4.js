@@ -47,5 +47,6 @@ export function genereerItems() {
     hints: [w.hint1, w.hint2],
     invoerType: 'tekst',
     spellingCheck: true,
+    toetsDatum: '2026-06-24',
   }));
 }
