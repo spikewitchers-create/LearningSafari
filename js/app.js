@@ -655,6 +655,7 @@ function toonOpgave() {
     antwoordKaart.hidden = false;
     meerkeuzeDiv.hidden = true;
     meerkeuzeDiv.innerHTML = '';
+    inp.disabled    = false;
     inp.inputMode   = isTekst ? 'text'    : 'numeric';
     inp.pattern     = isTekst ? '.*'      : '[0-9]*';
     inp.placeholder = isTekst ? 'typ hier…' : '?';
@@ -922,6 +923,10 @@ function toonGoed() {
   document.getElementById('feedback').className = 'feedback goed';
   document.getElementById('hint-gebied').hidden = true;
   document.getElementById('volgende-knop').hidden = true;
+  // Input blokkeren zodat een extra Enter/tap niet dubbel doortelt
+  const inp = document.getElementById('antwoord-input');
+  inp.disabled = true;
+  inp.value = '';
   // Meerkeuze: markeer correct antwoord groen
   const opgave = sessie[index];
   if (opgave?.invoerType === 'meerkeuze') {
@@ -932,7 +937,8 @@ function toonGoed() {
   setTimeout(volgende, 1100);
 }
 
-document.getElementById('antwoord-input').addEventListener('keydown', e => {
+// keyup is betrouwbaarder dan keydown op mobiele browsers
+document.getElementById('antwoord-input').addEventListener('keyup', e => {
   if (e.key === 'Enter') verwerkInvoer();
 });
 document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
