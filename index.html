@@ -310,14 +310,14 @@
           <p id="vraag" class="vraag"></p>
           <button id="lees-knop" class="knop-lees" title="Lees voor" hidden>🔊</button>
         </div>
-        <form id="antwoord-form" class="kaart antwoord-kaart">
+        <div class="kaart antwoord-kaart">
           <label for="antwoord-input" class="sr-only">Jouw antwoord</label>
           <input id="antwoord-input" type="text" inputmode="numeric"
                  pattern="[0-9]*" placeholder="?" autocomplete="off"
                  autocorrect="off" autocapitalize="off" spellcheck="false"
                  enterkeyhint="go">
-          <button id="controleer-knop" class="knop-groot" type="submit">OK</button>
-        </form>
+          <button id="controleer-knop" class="knop-groot" type="button">OK</button>
+        </div>
         <div id="meerkeuze-opties" class="meerkeuze-opties" hidden></div>
         <p id="feedback" class="feedback"></p>
         <div id="hint-gebied" class="hint-gebied" hidden>

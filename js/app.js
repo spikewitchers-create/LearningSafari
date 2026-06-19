@@ -936,12 +936,16 @@ function toonGoed() {
   setTimeout(volgende, 1100);
 }
 
-// Form-submit vangt zowel Enter/Go (mobiel + desktop) als OK-knop in één event.
-// Browsers garanderen dit voor alle platformen via het <form>-element.
-document.getElementById('antwoord-form').addEventListener('submit', e => {
-  e.preventDefault();
-  verwerkInvoer();
+// enterkeyhint="go" zorgt op Android Chrome dat de Go-toets key='Enter' stuurt.
+// Dedup-vlag voorkomt dubbele aanroep als keydown én keyup beide vuren (desktop).
+let _enterKeydown = false;
+document.getElementById('antwoord-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { _enterKeydown = true; verwerkInvoer(); }
 });
+document.getElementById('antwoord-input').addEventListener('keyup', e => {
+  if (e.key === 'Enter') { if (!_enterKeydown) verwerkInvoer(); _enterKeydown = false; }
+});
+document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
 
 // ── 4. Resultaat-scherm ───────────────────────────────
 function eindSessie() {
