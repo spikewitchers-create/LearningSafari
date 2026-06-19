@@ -906,7 +906,7 @@ function verwerkInvoer(override = null) {
   }
 
   // Herpoging (beheersing al verwerkt): alleen correctheid controleren
-  const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
+  const norm = s => String(s).replace(/[\u00AD\u200B-\u200F\u202A-\u202E\uFEFF\u180E]/g, '').trim().toLowerCase().replace(/[\u2018\u2019`]/g, "'");
   const correct = norm(gegeven) === norm(opgave.antwoord)
     || (opgave.extraAntwoorden ?? []).some(a => norm(a) === norm(gegeven));
   if (correct) {
@@ -936,14 +936,23 @@ function toonGoed() {
   setTimeout(volgende, 1100);
 }
 
-// Beide events: keydown (desktop) + keyup (sommige mobiele browsers)
-// Dedup-vlag voorkomt dubbele aanroep als beide vuren.
+// Drie manieren om Enter/Go te vangen, want mobiele browsers zijn inconsistent:
+// 1. keydown (desktop + sommige mobiel)
+// 2. keyup  (andere mobiele browsers)
+// 3. input met insertLineBreak (Android IME "Go"-toets)
 let _enterKeydown = false;
 document.getElementById('antwoord-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') { _enterKeydown = true; verwerkInvoer(); }
 });
 document.getElementById('antwoord-input').addEventListener('keyup', e => {
   if (e.key === 'Enter') { if (!_enterKeydown) verwerkInvoer(); _enterKeydown = false; }
+});
+document.getElementById('antwoord-input').addEventListener('input', e => {
+  if (e.inputType === 'insertLineBreak') {
+    // Android "Go"-toets: verwijder de newline en verwerk
+    e.target.value = e.target.value.replace(/\n/g, '');
+    verwerkInvoer();
+  }
 });
 document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
 

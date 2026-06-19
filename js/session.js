@@ -67,7 +67,9 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
 export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt = 0) {
   const aantalHints = opgave.hints?.length ?? 0;
   const antwoordGezien = hintsGebruikt >= aantalHints && aantalHints > 0;
-  const norm = s => String(s).trim().toLowerCase().replace(/[''`]/g, "'");
+  const norm = s => String(s)
+    .replace(/[­​-‏‪-‮﻿᠎]/g, '') // onzichtbare Unicode
+    .trim().toLowerCase().replace(/[''`]/g, "'");
   const correctIngepykt = norm(gegeven) === norm(opgave.antwoord)
     || (opgave.extraAntwoorden ?? []).some(a => norm(a) === norm(gegeven));
   const correct  = !antwoordGezien && correctIngepykt;
