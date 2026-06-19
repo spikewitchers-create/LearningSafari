@@ -953,7 +953,7 @@ document.getElementById('antwoord-input').addEventListener('keydown', e => {
 document.getElementById('antwoord-input').addEventListener('keyup', e => {
   if (e.key === 'Enter') { if (!_enterKeydown) verwerkInvoer(); _enterKeydown = false; }
 });
-document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
+document.getElementById('controleer-knop').addEventListener('click', () => verwerkInvoer());
 
 // ── 4. Resultaat-scherm ───────────────────────────────
 function eindSessie() {
