@@ -85,15 +85,18 @@ function renderZoo(data) {
 
   const locHTML = locaties.map(loc => {
     const locDieren = dieren.filter(d => d.locatie === loc.id);
-    const dierIcons = locDieren.length > 0
-      ? locDieren.map(d => `<span class="dzt-dier-icoon" title="${d.naam}">${d.icoon}</span>`).join('')
-      : '<span class="dzt-dier-leeg">?</span>';
     return `
-      <div class="dzt-locatie-kaart">
-        <div class="dzt-loc-icoon">${loc.icoon}</div>
-        <div class="dzt-loc-naam">${loc.naam}</div>
-        <div class="dzt-dieren-rij">${dierIcons}</div>
-      </div>`;
+  <div class="dzt-locatie-kaart" style="background: ${loc.kleur}">
+    <div class="dzt-loc-header">
+      <span class="dzt-loc-icoon">${loc.icoon}</span>
+      <span class="dzt-loc-naam">${loc.naam}</span>
+    </div>
+    <div class="dzt-dieren-grid">
+      ${locDieren.length > 0
+        ? locDieren.map(d => `<span class="dzt-dier-icoon" title="${d.naam}">${d.icoon}</span>`).join('')
+        : '<span class="dzt-dier-leeg">?</span>'}
+    </div>
+  </div>`;
   }).join('');
 
   const accHTML = accessoires.length > 0
@@ -139,7 +142,7 @@ function itemHTML(item, ontgrendeld, punten) {
 
   let statusHTML;
   if (bezit) {
-    statusHTML = `<span class="dzt-bezit">✓ Jouw</span>`;
+    statusHTML = `<span class="dzt-bezit">✓ In jouw tuin</span>`;
   } else if (item.locatie && !ontgrendeld.has(item.locatie)) {
     const loc = ITEMS.find(i => i.id === item.locatie);
     statusHTML = `<span class="dzt-vergrendeld">🔒 ${loc?.naam ?? 'Locatie'} nodig</span>`;

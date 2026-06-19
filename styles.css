@@ -1270,36 +1270,59 @@ input[type="text"]:focus {
 
 .dzt-zoo {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
 }
 
 .dzt-locatie-kaart {
-  background: var(--primair-licht);
-  border: 1.5px solid var(--rand);
-  border-radius: var(--straal);
-  padding: 0.75rem 0.5rem;
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.13);
+  padding: 0.75rem 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   text-align: center;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.dzt-loc-icoon { font-size: 1.8rem; line-height: 1; }
-.dzt-loc-naam  { font-size: 0.7rem; font-weight: bold; color: var(--primair-dark); }
-.dzt-dieren-rij { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.15rem; }
-.dzt-dier-icoon { font-size: 1.4rem; cursor: default; }
-.dzt-dier-leeg  { font-size: 1rem; color: var(--tekst-zacht); }
+.dzt-locatie-kaart:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+.dzt-loc-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+.dzt-loc-icoon { font-size: 2.2rem; line-height: 1; }
+.dzt-loc-naam  {
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: rgba(0,0,0,0.65);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+}
+.dzt-dieren-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2rem;
+}
+.dzt-dier-icoon { font-size: 1.8rem; cursor: default; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
+.dzt-dier-leeg  { font-size: 1.5rem; opacity: 0.35; }
 
 .dzt-acc-balk {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.25rem;
-  font-size: 1.6rem;
-  border-top: 1.5px dashed var(--rand);
-  margin-top: 0.25rem;
+  padding: 0.6rem;
+  background: linear-gradient(135deg, #e9f5e1 0%, #f0fdf4 100%);
+  border-radius: 12px;
+  font-size: 1.8rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .dzt-leeg-tekst {
@@ -1363,7 +1386,7 @@ input[type="text"]:focus {
   transition: background 0.1s;
 }
 .dzt-winkel-item:hover { background: var(--achtergrond); }
-.dzt-winkel-item.bezit { opacity: 0.65; }
+.dzt-winkel-item.bezit { opacity: 1; background: #f0fdf4; border-left: 3px solid #4ade80; }
 
 .dzt-item-icoon { font-size: 1.5rem; flex-shrink: 0; }
 .dzt-item-info  { flex: 1; display: flex; flex-direction: column; }
@@ -1391,10 +1414,12 @@ input[type="text"]:focus {
   cursor: not-allowed;
 }
 .dzt-bezit {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: bold;
-  color: var(--goed);
-  white-space: nowrap;
+  color: #16a34a;
+  background: #dcfce7;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
   flex-shrink: 0;
 }
 .dzt-vergrendeld {
