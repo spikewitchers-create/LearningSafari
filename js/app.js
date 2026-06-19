@@ -684,6 +684,7 @@ function toonOpgave() {
   beheersingsVerwerkt = false;
   spellingHulpGegeven = false;
   antwoordVergrendeld = false;
+  _cachedInputValue = '';
   document.getElementById('volgende-knop').hidden = true;
   toonHintKnop();
 
@@ -833,11 +834,18 @@ function isSpellingFout(gegeven, opgave) {
 }
 
 let spellingHulpGegeven = false;
+let _cachedInputValue = ''; // Android IME commit-fallback
+
+document.getElementById('antwoord-input').addEventListener('input', e => {
+  // Sla elke toetsaanslag op; Android committ IME soms niet bij blur
+  const v = e.target.value.replace(/\n/g, '');
+  if (v) _cachedInputValue = v;
+});
 
 function verwerkInvoer(override = null) {
   if (antwoordVergrendeld) return;
   const input = document.getElementById('antwoord-input');
-  const gegeven = override ?? input.value.trim();
+  const gegeven = override ?? (input.value || _cachedInputValue).trim();
   if (!gegeven) return;
   // Meerkeuze: markeer de geklikte knop en blokkeer de rest
   if (override !== null) {
