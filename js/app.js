@@ -936,25 +936,12 @@ function toonGoed() {
   setTimeout(volgende, 1100);
 }
 
-// Drie manieren om Enter/Go te vangen, want mobiele browsers zijn inconsistent:
-// 1. keydown (desktop + sommige mobiel)
-// 2. keyup  (andere mobiele browsers)
-// 3. input met insertLineBreak (Android IME "Go"-toets)
-let _enterKeydown = false;
-document.getElementById('antwoord-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { _enterKeydown = true; verwerkInvoer(); }
+// Form-submit vangt zowel Enter/Go (mobiel + desktop) als OK-knop in één event.
+// Browsers garanderen dit voor alle platformen via het <form>-element.
+document.getElementById('antwoord-form').addEventListener('submit', e => {
+  e.preventDefault();
+  verwerkInvoer();
 });
-document.getElementById('antwoord-input').addEventListener('keyup', e => {
-  if (e.key === 'Enter') { if (!_enterKeydown) verwerkInvoer(); _enterKeydown = false; }
-});
-document.getElementById('antwoord-input').addEventListener('input', e => {
-  if (e.inputType === 'insertLineBreak') {
-    // Android "Go"-toets: verwijder de newline en verwerk
-    e.target.value = e.target.value.replace(/\n/g, '');
-    verwerkInvoer();
-  }
-});
-document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
 
 // ── 4. Resultaat-scherm ───────────────────────────────
 function eindSessie() {
