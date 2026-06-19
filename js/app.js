@@ -655,7 +655,6 @@ function toonOpgave() {
     antwoordKaart.hidden = false;
     meerkeuzeDiv.hidden = true;
     meerkeuzeDiv.innerHTML = '';
-    inp.disabled    = false;
     inp.inputMode   = isTekst ? 'text'    : 'numeric';
     inp.pattern     = isTekst ? '.*'      : '[0-9]*';
     inp.placeholder = isTekst ? 'typ hier…' : '?';
@@ -684,6 +683,7 @@ function toonOpgave() {
   resetHint();
   beheersingsVerwerkt = false;
   spellingHulpGegeven = false;
+  antwoordVergrendeld = false;
   document.getElementById('volgende-knop').hidden = true;
   toonHintKnop();
 
@@ -731,6 +731,7 @@ function toonOpgave() {
 
 let hintIndex = 0;
 let beheersingsVerwerkt = false; // voorkomt dubbel bijwerken bij herpogingen
+let antwoordVergrendeld = false; // blokkeert invoer na correct antwoord tot volgende vraag
 
 function resetHint() {
   hintIndex = 0;
@@ -834,6 +835,7 @@ function isSpellingFout(gegeven, opgave) {
 let spellingHulpGegeven = false;
 
 function verwerkInvoer(override = null) {
+  if (antwoordVergrendeld) return;
   const input = document.getElementById('antwoord-input');
   const gegeven = override ?? input.value.trim();
   if (!gegeven) return;
@@ -919,14 +921,11 @@ function verwerkInvoer(override = null) {
 }
 
 function toonGoed() {
+  antwoordVergrendeld = true;
   document.getElementById('feedback').textContent = hintIndex > 0 ? '✓ Goed, met een hint!' : '✓ Goed!';
   document.getElementById('feedback').className = 'feedback goed';
   document.getElementById('hint-gebied').hidden = true;
   document.getElementById('volgende-knop').hidden = true;
-  // Input blokkeren zodat een extra Enter/tap niet dubbel doortelt
-  const inp = document.getElementById('antwoord-input');
-  inp.disabled = true;
-  inp.value = '';
   // Meerkeuze: markeer correct antwoord groen
   const opgave = sessie[index];
   if (opgave?.invoerType === 'meerkeuze') {
@@ -937,9 +936,14 @@ function toonGoed() {
   setTimeout(volgende, 1100);
 }
 
-// keyup is betrouwbaarder dan keydown op mobiele browsers
+// Beide events: keydown (desktop) + keyup (sommige mobiele browsers)
+// Dedup-vlag voorkomt dubbele aanroep als beide vuren.
+let _enterKeydown = false;
+document.getElementById('antwoord-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { _enterKeydown = true; verwerkInvoer(); }
+});
 document.getElementById('antwoord-input').addEventListener('keyup', e => {
-  if (e.key === 'Enter') verwerkInvoer();
+  if (e.key === 'Enter') { if (!_enterKeydown) verwerkInvoer(); _enterKeydown = false; }
 });
 document.getElementById('controleer-knop').addEventListener('click', verwerkInvoer);
 
