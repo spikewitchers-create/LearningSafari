@@ -23,15 +23,31 @@ const PADEN = [
   [346, 504, 585, 504],  // dolfijn → reptiel
 ];
 
-// Posities voor accessoires als decoraties op open plekken
+// Posities voor accessoires in open gebieden tussen zones
 const ACC_POSITIES = [
-  [55, 205], [310, 200], [560, 225],
-  [168, 388], [430, 393], [55, 383],
-  [618, 388], [300, 393],
+  [218, 65],  // tussen leeuw en giraf (boven)
+  [455, 65],  // tussen giraf en vogel (boven)
+  [20,  240], // links naast olifant
+  [322, 268], // tussen olifant en gorilla
+  [594, 260], // rechts naast gorilla
+  [218, 458], // tussen pinguïn en dolfijn
+  [457, 458], // tussen dolfijn en reptiel
+  [20,  385], // links, boven pinguïn
 ];
+
+// ── Kaart schalen naar container-breedte ──────────────────────
+function schaalKaart() {
+  const outer = document.querySelector('.dzt-kaart-outer');
+  const wrap  = document.querySelector('.dzt-kaart-wrap');
+  if (!outer || !wrap) return;
+  const schaal = outer.clientWidth / KAART_W;
+  wrap.style.transform = `scale(${schaal})`;
+  outer.style.height   = Math.round(KAART_H * schaal) + 'px';
+}
 
 // ── Init (éénmalig) ───────────────────────────────────────────
 export function initialiseerDierentuin() {
+  window.addEventListener('resize', schaalKaart);
   document.getElementById('dzt-tabs').addEventListener('click', e => {
     const tab = e.target.closest('.dzt-tab');
     if (!tab) return;
@@ -74,6 +90,7 @@ export function toonDierentuin(data) {
   renderHeader(data);
   renderKaart(data);
   renderWinkelInhoud();
+  requestAnimationFrame(schaalKaart);
 }
 
 // ── Header ────────────────────────────────────────────────────
@@ -143,11 +160,13 @@ function renderKaart(data) {
     return `
       <div class="dzt-zone" data-loc="${loc.id}"
         style="left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;background:${loc.kleur};">
-        <div class="dzt-zone-kop">
-          <span class="dzt-zone-icoon">${loc.icoon}</span>
+        <div class="dzt-zone-hemel">
           <span class="dzt-zone-naam">${loc.naam}</span>
+          <span class="dzt-zone-badge">${loc.icoon}</span>
         </div>
-        <div class="dzt-zone-dieren">${dierHTML}</div>
+        <div class="dzt-zone-grond">
+          <div class="dzt-zone-dieren">${dierHTML}</div>
+        </div>
       </div>`;
   }).join('');
 
@@ -158,21 +177,23 @@ function renderKaart(data) {
   }).join('');
 
   el.innerHTML = `
-    <div class="dzt-kaart-wrap">
-      <svg class="dzt-kaart-svg" width="${KAART_W}" height="${KAART_H}" viewBox="0 0 ${KAART_W} ${KAART_H}">
-        <defs>
-          <pattern id="gras" patternUnits="userSpaceOnUse" width="30" height="30">
-            <rect width="30" height="30" fill="#5a9e38"/>
-            <circle cx="5"  cy="5"  r="2"   fill="#4a8e2a" opacity="0.4"/>
-            <circle cx="20" cy="18" r="1.5" fill="#6aae48" opacity="0.3"/>
-            <circle cx="14" cy="25" r="1"   fill="#4a8e2a" opacity="0.25"/>
-          </pattern>
-        </defs>
-        <rect width="${KAART_W}" height="${KAART_H}" fill="url(#gras)" rx="14"/>
-        ${padenSVG}
-      </svg>
-      ${zonesHTML}
-      ${accHTML}
+    <div class="dzt-kaart-outer">
+      <div class="dzt-kaart-wrap">
+        <svg class="dzt-kaart-svg" width="${KAART_W}" height="${KAART_H}" viewBox="0 0 ${KAART_W} ${KAART_H}">
+          <defs>
+            <pattern id="gras" patternUnits="userSpaceOnUse" width="30" height="30">
+              <rect width="30" height="30" fill="#5a9e38"/>
+              <circle cx="5"  cy="5"  r="2"   fill="#4a8e2a" opacity="0.4"/>
+              <circle cx="20" cy="18" r="1.5" fill="#6aae48" opacity="0.3"/>
+              <circle cx="14" cy="25" r="1"   fill="#4a8e2a" opacity="0.25"/>
+            </pattern>
+          </defs>
+          <rect width="${KAART_W}" height="${KAART_H}" fill="url(#gras)" rx="14"/>
+          ${padenSVG}
+        </svg>
+        ${accHTML}
+        ${zonesHTML}
+      </div>
     </div>`;
 }
 
