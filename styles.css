@@ -51,8 +51,9 @@ body {
 /* ── App-layout: nav links, hoofd rechts ─────────────── */
 .app-layout {
   display: flex;
-  width: 100%;
+  width: 100vw;
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* ── Zijnavigatie ────────────────────────────────────── */
