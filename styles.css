@@ -1248,7 +1248,7 @@ input[type="text"]:focus {
   }
   .dzt-header      { grid-column: 1 / -1; }
   .dzt-zoo-kaart   { grid-column: 1; grid-row: 2; }
-  .dzt-winkel-kaart { grid-column: 2; grid-row: 2; width: 320px; }
+  .dzt-winkel-kaart { grid-column: 2; grid-row: 2; width: 300px; align-self: stretch; display: flex; flex-direction: column; }
   .dzt-detail-overlay { grid-column: 1 / -1; }
 }
 
@@ -1490,7 +1490,7 @@ input[type="text"]:focus {
 }
 
 /* Winkel */
-.dzt-winkel-kaart { }
+.dzt-winkel-kaart { display: flex; flex-direction: column; }
 .dzt-tabs {
   display: flex;
   gap: 0.35rem;
@@ -1515,8 +1515,8 @@ input[type="text"]:focus {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  max-height: 360px;
   overflow-y: auto;
+  flex: 1;
   padding-right: 0.25rem;
 }
 
