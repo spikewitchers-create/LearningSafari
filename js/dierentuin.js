@@ -36,18 +36,21 @@ const ACC_POSITIES = [
 ];
 
 // ── Kaart schalen naar container-breedte via CSS zoom ────────
+let _resizeObserver = null;
+
 function schaalKaart() {
   const outer = document.querySelector('.dzt-kaart-outer');
   const wrap  = document.querySelector('.dzt-kaart-wrap');
   if (!outer || !wrap) return;
-  const schaal = outer.clientWidth / KAART_W;
-  wrap.style.zoom = schaal;
+  const beschikbaar = outer.clientWidth;
+  if (beschikbaar === 0) return;
+  const schaal = beschikbaar / KAART_W;
+  wrap.style.zoom   = schaal;
   outer.style.height = Math.round(KAART_H * schaal) + 'px';
 }
 
 // ── Init (éénmalig) ───────────────────────────────────────────
 export function initialiseerDierentuin() {
-  window.addEventListener('resize', schaalKaart);
   document.getElementById('dzt-tabs').addEventListener('click', e => {
     const tab = e.target.closest('.dzt-tab');
     if (!tab) return;
@@ -90,7 +93,15 @@ export function toonDierentuin(data) {
   renderHeader(data);
   renderKaart(data);
   renderWinkelInhoud();
-  requestAnimationFrame(schaalKaart);
+  // Schaal nadat browser layout heeft berekend
+  setTimeout(schaalKaart, 0);
+  // Herschaal bij venstergrootte-wijziging via ResizeObserver
+  if (_resizeObserver) _resizeObserver.disconnect();
+  const outer = document.querySelector('.dzt-kaart-outer');
+  if (outer && window.ResizeObserver) {
+    _resizeObserver = new ResizeObserver(schaalKaart);
+    _resizeObserver.observe(outer);
+  }
 }
 
 // ── Header ────────────────────────────────────────────────────

@@ -1228,6 +1228,7 @@ input[type="text"]:focus {
 .dzt-scherm {
   padding: 1.75rem 2rem 3rem;
   width: 100%;
+  max-width: 1000px;
   box-sizing: border-box;
 }
 
