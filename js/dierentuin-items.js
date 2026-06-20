@@ -5,14 +5,14 @@ export const WEEK_BONUS      = 25;  // bonus bij weekdoel gehaald
 
 export const ITEMS = [
   // ── Locaties ─────────────────────────────────────────────────
-  { id: 'loc-leeuw',   naam: 'Leeuwenverblijf',   icoon: '🏕️', type: 'locatie', kosten: 0,   beschrijving: 'Begin je safari!',           kleur: 'linear-gradient(135deg, #f9c74f 0%, #f4845f 100%)' },
-  { id: 'loc-olifant', naam: 'Olifantenpaddock',   icoon: '🪨', type: 'locatie', kosten: 40,  beschrijving: 'Voor de grootste dieren',     kleur: 'linear-gradient(135deg, #c9b99a 0%, #a07850 100%)' },
-  { id: 'loc-giraf',   naam: 'Giraffenweide',       icoon: '🌿', type: 'locatie', kosten: 65,  beschrijving: 'Kijk omhoog — ze zijn enorm!', kleur: 'linear-gradient(135deg, #b7e4c7 0%, #f9c74f 100%)' },
-  { id: 'loc-pinguïn', naam: 'Pinguïnbad',          icoon: '❄️', type: 'locatie', kosten: 95,  beschrijving: 'Koud en heerlijk!',           kleur: 'linear-gradient(135deg, #caf0f8 0%, #90e0ef 100%)' },
-  { id: 'loc-dolfijn', naam: 'Dolfijnenbad',        icoon: '🌊', type: 'locatie', kosten: 130, beschrijving: 'Zie ze springen!',             kleur: 'linear-gradient(135deg, #48cae4 0%, #0077b6 100%)' },
-  { id: 'loc-gorilla', naam: 'Gorillabos',           icoon: '🌳', type: 'locatie', kosten: 165, beschrijving: 'Diep in de jungle',            kleur: 'linear-gradient(135deg, #40916c 0%, #1b4332 100%)' },
-  { id: 'loc-vogel',   naam: 'Vogelvolière',         icoon: '🪺', type: 'locatie', kosten: 200, beschrijving: 'Vol met kleurrijke vogels',    kleur: 'linear-gradient(135deg, #a8dadc 0%, #457b9d 100%)' },
-  { id: 'loc-reptiel', naam: 'Reptielenhuis',        icoon: '🪵', type: 'locatie', kosten: 250, beschrijving: 'Spannend en geheimzinnig',     kleur: 'linear-gradient(135deg, #606c38 0%, #283618 100%)' },
+  { id: 'loc-leeuw',   naam: 'Leeuwenverblijf',   icoon: '🏕️', type: 'locatie', kosten: 0,   beschrijving: 'Begin je safari!',            kleur: 'linear-gradient(135deg, #f9c74f 0%, #f4845f 100%)', mapPos: {x:15,  y:15,  w:195, h:170} },
+  { id: 'loc-olifant', naam: 'Olifantenpaddock',   icoon: '🪨', type: 'locatie', kosten: 40,  beschrijving: 'Voor de grootste dieren',      kleur: 'linear-gradient(135deg, #c9b99a 0%, #a07850 100%)', mapPos: {x:100, y:210, w:215, h:175} },
+  { id: 'loc-giraf',   naam: 'Giraffenweide',       icoon: '🌿', type: 'locatie', kosten: 65,  beschrijving: 'Kijk omhoog — ze zijn enorm!', kleur: 'linear-gradient(135deg, #b7e4c7 0%, #f9c74f 100%)', mapPos: {x:248, y:10,  w:200, h:175} },
+  { id: 'loc-pinguïn', naam: 'Pinguïnbad',          icoon: '❄️', type: 'locatie', kosten: 95,  beschrijving: 'Koud en heerlijk!',            kleur: 'linear-gradient(135deg, #caf0f8 0%, #90e0ef 100%)', mapPos: {x:15,  y:415, w:195, h:178} },
+  { id: 'loc-dolfijn', naam: 'Dolfijnenbad',        icoon: '🌊', type: 'locatie', kosten: 130, beschrijving: 'Zie ze springen!',              kleur: 'linear-gradient(135deg, #48cae4 0%, #0077b6 100%)', mapPos: {x:238, y:412, w:216, h:185} },
+  { id: 'loc-gorilla', naam: 'Gorillabos',           icoon: '🌳', type: 'locatie', kosten: 165, beschrijving: 'Diep in de jungle',             kleur: 'linear-gradient(135deg, #40916c 0%, #1b4332 100%)', mapPos: {x:375, y:208, w:210, h:178} },
+  { id: 'loc-vogel',   naam: 'Vogelvolière',         icoon: '🪺', type: 'locatie', kosten: 200, beschrijving: 'Vol met kleurrijke vogels',     kleur: 'linear-gradient(135deg, #a8dadc 0%, #457b9d 100%)', mapPos: {x:488, y:15,  w:195, h:170} },
+  { id: 'loc-reptiel', naam: 'Reptielenhuis',        icoon: '🪵', type: 'locatie', kosten: 250, beschrijving: 'Spannend en geheimzinnig',      kleur: 'linear-gradient(135deg, #606c38 0%, #283618 100%)', mapPos: {x:488, y:415, w:195, h:178} },
 
   // ── Dieren: leeuwenverblijf ───────────────────────────────────
   { id: 'dier-leeuw',     naam: 'Leeuw',        icoon: '🦁', type: 'dier', kosten: 0,  locatie: 'loc-leeuw',   beschrijving: 'De koning van de savanne' },

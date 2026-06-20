@@ -1,6 +1,4 @@
 // Dierentuin — rendering en logica
-// Importeer items-data apart zodat uitbreiden simpel is
-
 import { ITEMS, START_ITEMS, WEEK_DOEL } from './dierentuin-items.js';
 import { slaOp } from './storage.js';
 import { berekenWeekVoortgang } from './analyse.js';
@@ -8,9 +6,32 @@ import { berekenWeekVoortgang } from './analyse.js';
 let _data = null;
 let actiefTab = 'locaties';
 
-// ── Initialiseer event handlers (éénmalig) ────────────────────
+// Kaart-afmetingen (pixels binnen het canvas)
+const KAART_W = 700;
+const KAART_H = 610;
+
+// Zandpaden: [x1,y1, x2,y2] verbindingen tussen locatie-centra
+const PADEN = [
+  [112, 100, 348,  97],  // leeuw → giraf
+  [348,  97, 585, 100],  // giraf → vogel
+  [112, 100, 207, 297],  // leeuw → olifant
+  [348,  97, 480, 297],  // giraf → gorilla
+  [207, 297, 480, 297],  // olifant → gorilla
+  [207, 297, 112, 504],  // olifant → pinguïn
+  [480, 297, 585, 504],  // gorilla → reptiel
+  [112, 504, 346, 504],  // pinguïn → dolfijn
+  [346, 504, 585, 504],  // dolfijn → reptiel
+];
+
+// Posities voor accessoires als decoraties op open plekken
+const ACC_POSITIES = [
+  [55, 205], [310, 200], [560, 225],
+  [168, 388], [430, 393], [55, 383],
+  [618, 388], [300, 393],
+];
+
+// ── Init (éénmalig) ───────────────────────────────────────────
 export function initialiseerDierentuin() {
-  // Tab-knoppen
   document.getElementById('dzt-tabs').addEventListener('click', e => {
     const tab = e.target.closest('.dzt-tab');
     if (!tab) return;
@@ -20,7 +41,6 @@ export function initialiseerDierentuin() {
     renderWinkelInhoud();
   });
 
-  // Koop-knoppen via event delegation
   document.getElementById('dzt-winkel-inhoud').addEventListener('click', e => {
     const knop = e.target.closest('[data-koop]');
     if (!knop || !_data) return;
@@ -33,17 +53,30 @@ export function initialiseerDierentuin() {
     slaOp(_data);
     toonDierentuin(_data);
   });
+
+  // Klik op kaartzone → detail
+  document.getElementById('dzt-zoo').addEventListener('click', e => {
+    const zone = e.target.closest('.dzt-zone[data-loc]');
+    if (!zone || !_data) return;
+    toonLocatieDetail(zone.dataset.loc);
+  });
+
+  // Detail-paneel sluiten
+  document.getElementById('dzt-detail-sluit').addEventListener('click', sluitDetail);
+  document.getElementById('dzt-detail-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) sluitDetail();
+  });
 }
 
-// ── Hoofdfunctie: render het hele scherm ──────────────────────
+// ── Hoofdrender ───────────────────────────────────────────────
 export function toonDierentuin(data) {
   _data = data;
   renderHeader(data);
-  renderZoo(data);
+  renderKaart(data);
   renderWinkelInhoud();
 }
 
-// ── Header: punten + weekdoel ─────────────────────────────────
+// ── Header ────────────────────────────────────────────────────
 function renderHeader(data) {
   const vg = berekenWeekVoortgang(data.oefenlog, WEEK_DOEL);
   const el = document.getElementById('dzt-header');
@@ -69,46 +102,124 @@ function renderHeader(data) {
   `;
 }
 
-// ── Zoo-grid: alle ontgrendelde locaties met dieren ───────────
-function renderZoo(data) {
+// ── Interactieve kaart ────────────────────────────────────────
+function renderKaart(data) {
   const ontgrendeld = new Set(data.dierentuin.ontgrendeld);
-  const locaties    = ITEMS.filter(i => i.type === 'locatie'    && ontgrendeld.has(i.id));
   const dieren      = ITEMS.filter(i => i.type === 'dier'       && ontgrendeld.has(i.id));
   const accessoires = ITEMS.filter(i => i.type === 'accessoire' && ontgrendeld.has(i.id));
+  const locaties    = ITEMS.filter(i => i.type === 'locatie');
+  const el          = document.getElementById('dzt-zoo');
 
-  const grid = document.getElementById('dzt-zoo');
-
-  if (locaties.length === 0) {
-    grid.innerHTML = '<p class="dzt-leeg-tekst">Je dierentuin is nog leeg. Verdien sterren door te oefenen!</p>';
+  if (ontgrendeld.size === 0) {
+    el.innerHTML = '<p class="dzt-leeg-tekst">Je dierentuin is nog leeg. Verdien sterren door te oefenen!</p>';
     return;
   }
 
-  const locHTML = locaties.map(loc => {
+  // SVG zandpaden
+  const padenSVG = PADEN.map(([x1,y1,x2,y2]) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+      stroke="#c9a96e" stroke-width="20" stroke-linecap="round" opacity="0.75"/>`
+  ).join('');
+
+  // Verblijf-zones
+  const zonesHTML = locaties.map(loc => {
+    const p = loc.mapPos;
+    const bezit = ontgrendeld.has(loc.id);
+
+    if (!bezit) {
+      return `
+        <div class="dzt-zone dzt-zone-slot"
+          style="left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;">
+          <span class="dzt-zone-slot-icoon">🔒</span>
+          <span class="dzt-zone-slot-kosten">⭐ ${loc.kosten}</span>
+        </div>`;
+    }
+
     const locDieren = dieren.filter(d => d.locatie === loc.id);
+    const dierHTML = locDieren.length > 0
+      ? locDieren.map(d => `<span class="dzt-zone-dier" title="${d.naam}">${d.icoon}</span>`).join('')
+      : '<span class="dzt-zone-leeg">?</span>';
+
     return `
-  <div class="dzt-locatie-kaart" style="background: ${loc.kleur}">
-    <div class="dzt-loc-header">
-      <span class="dzt-loc-icoon">${loc.icoon}</span>
-      <span class="dzt-loc-naam">${loc.naam}</span>
-    </div>
-    <div class="dzt-dieren-grid">
-      ${locDieren.length > 0
-        ? locDieren.map(d => `<span class="dzt-dier-icoon" title="${d.naam}">${d.icoon}</span>`).join('')
-        : '<span class="dzt-dier-leeg">?</span>'}
-    </div>
-  </div>`;
+      <div class="dzt-zone" data-loc="${loc.id}"
+        style="left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px;background:${loc.kleur};">
+        <div class="dzt-zone-kop">
+          <span class="dzt-zone-icoon">${loc.icoon}</span>
+          <span class="dzt-zone-naam">${loc.naam}</span>
+        </div>
+        <div class="dzt-zone-dieren">${dierHTML}</div>
+      </div>`;
   }).join('');
 
-  const accHTML = accessoires.length > 0
-    ? `<div class="dzt-acc-balk">
-        ${accessoires.map(a => `<span title="${a.naam}">${a.icoon}</span>`).join('')}
-       </div>`
-    : '';
+  // Accessoires als decoraties op open plekken
+  const accHTML = accessoires.slice(0, ACC_POSITIES.length).map((a, i) => {
+    const [ax, ay] = ACC_POSITIES[i];
+    return `<span class="dzt-kaart-acc" style="left:${ax}px;top:${ay}px;" title="${a.naam}">${a.icoon}</span>`;
+  }).join('');
 
-  grid.innerHTML = locHTML + accHTML;
+  el.innerHTML = `
+    <div class="dzt-kaart-wrap">
+      <svg class="dzt-kaart-svg" width="${KAART_W}" height="${KAART_H}" viewBox="0 0 ${KAART_W} ${KAART_H}">
+        <defs>
+          <pattern id="gras" patternUnits="userSpaceOnUse" width="30" height="30">
+            <rect width="30" height="30" fill="#5a9e38"/>
+            <circle cx="5"  cy="5"  r="2"   fill="#4a8e2a" opacity="0.4"/>
+            <circle cx="20" cy="18" r="1.5" fill="#6aae48" opacity="0.3"/>
+            <circle cx="14" cy="25" r="1"   fill="#4a8e2a" opacity="0.25"/>
+          </pattern>
+        </defs>
+        <rect width="${KAART_W}" height="${KAART_H}" fill="url(#gras)" rx="14"/>
+        ${padenSVG}
+      </svg>
+      ${zonesHTML}
+      ${accHTML}
+    </div>`;
 }
 
-// ── Winkel: tab-inhoud ────────────────────────────────────────
+// ── Detail-paneel ─────────────────────────────────────────────
+function toonLocatieDetail(locId) {
+  const loc       = ITEMS.find(i => i.id === locId);
+  const ontg      = new Set(_data.dierentuin.ontgrendeld);
+  const locDieren = ITEMS.filter(i => i.type === 'dier' && i.locatie === locId);
+
+  const dierenHTML = locDieren.map(d => {
+    const bezit = ontg.has(d.id);
+    return `
+      <div class="dzt-dd-dier${bezit ? ' bezit' : ''}">
+        <span class="dzt-dd-icoon">${d.icoon}</span>
+        <div class="dzt-dd-info">
+          <strong>${d.naam}</strong>
+          <span>${d.beschrijving}</span>
+        </div>
+        ${bezit
+          ? `<span class="dzt-dd-bezit">✓</span>`
+          : `<span class="dzt-dd-kosten">⭐ ${d.kosten}</span>`}
+      </div>`;
+  }).join('');
+
+  document.getElementById('dzt-detail-inhoud').innerHTML = `
+    <div class="dzt-dd-header" style="background:${loc.kleur};">
+      <span class="dzt-dd-header-icoon">${loc.icoon}</span>
+      <div class="dzt-dd-header-tekst">
+        <strong>${loc.naam}</strong>
+        <p>${loc.beschrijving}</p>
+      </div>
+    </div>
+    <p class="dzt-dd-subtitel">Dieren in dit verblijf</p>
+    <div class="dzt-dd-dieren">${dierenHTML}</div>`;
+
+  const overlay = document.getElementById('dzt-detail-overlay');
+  overlay.hidden = false;
+  requestAnimationFrame(() => overlay.classList.add('zichtbaar'));
+}
+
+function sluitDetail() {
+  const overlay = document.getElementById('dzt-detail-overlay');
+  overlay.classList.remove('zichtbaar');
+  overlay.addEventListener('transitionend', () => { overlay.hidden = true; }, { once: true });
+}
+
+// ── Winkel ────────────────────────────────────────────────────
 function renderWinkelInhoud() {
   if (!_data) return;
   const ontgrendeld = new Set(_data.dierentuin.ontgrendeld);
@@ -119,7 +230,6 @@ function renderWinkelInhoud() {
   const type    = typeMap[actiefTab];
   const items   = ITEMS.filter(i => i.type === type);
 
-  // Voor dieren: groepeer per locatie
   if (type === 'dier') {
     const locaties = ITEMS.filter(i => i.type === 'locatie');
     el.innerHTML = locaties.map(loc => {

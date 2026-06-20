@@ -1257,7 +1257,7 @@ input[type="text"]:focus {
 .dzt-stip.gedaan { background: var(--goed); border-color: var(--goed); }
 .dzt-weekdoel-tekst { font-size: 0.82rem; font-weight: bold; color: var(--tekst-zacht); }
 
-/* Zoo-grid */
+/* Zoo-kaart & plattegrond */
 .dzt-zoo-kaart { }
 .dzt-sectie-titel {
   font-size: 0.78rem;
@@ -1269,60 +1269,85 @@ input[type="text"]:focus {
 }
 
 .dzt-zoo {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.75rem;
-}
-
-.dzt-locatie-kaart {
+  overflow-x: auto;
+  overflow-y: hidden;
   border-radius: 14px;
-  border: none;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.13);
-  padding: 0.75rem 0.6rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  text-align: center;
-  transition: transform 0.15s, box-shadow 0.15s;
+  -webkit-overflow-scrolling: touch;
 }
-.dzt-locatie-kaart:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-}
-.dzt-loc-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-}
-.dzt-loc-icoon { font-size: 2.2rem; line-height: 1; }
-.dzt-loc-naam  {
-  font-size: 0.65rem;
-  font-weight: bold;
-  color: rgba(0,0,0,0.65);
-  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
-}
-.dzt-dieren-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.2rem;
-}
-.dzt-dier-icoon { font-size: 1.8rem; cursor: default; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15)); }
-.dzt-dier-leeg  { font-size: 1.5rem; opacity: 0.35; }
 
-.dzt-acc-balk {
-  grid-column: 1 / -1;
+/* Kaart-canvas wrapper */
+.dzt-kaart-wrap {
+  position: relative;
+  width: 700px;
+  height: 610px;
+  user-select: none;
+}
+
+.dzt-kaart-svg {
+  position: absolute;
+  top: 0; left: 0;
+  border-radius: 14px;
+  display: block;
+}
+
+/* Verblijf-zones */
+.dzt-zone {
+  position: absolute;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.4rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+.dzt-zone:hover {
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+  z-index: 10;
+}
+.dzt-zone-slot {
+  background: rgba(0,0,0,0.28) !important;
+  cursor: default;
+  backdrop-filter: blur(1px);
+}
+.dzt-zone-slot:hover { transform: none; box-shadow: 0 4px 16px rgba(0,0,0,0.22); }
+.dzt-zone-slot-icoon  { font-size: 2rem; opacity: 0.55; }
+.dzt-zone-slot-kosten { font-size: 0.7rem; color: rgba(255,255,255,0.65); font-weight: bold; }
+
+.dzt-zone-kop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+.dzt-zone-icoon { font-size: 1.8rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
+.dzt-zone-naam  {
+  font-size: 0.58rem;
+  font-weight: bold;
+  color: rgba(0,0,0,0.6);
+  text-shadow: 0 1px 2px rgba(255,255,255,0.55);
+  text-align: center;
+  line-height: 1.2;
+}
+.dzt-zone-dieren {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem;
-  background: linear-gradient(135deg, #e9f5e1 0%, #f0fdf4 100%);
-  border-radius: 12px;
-  font-size: 1.8rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  gap: 0.1rem;
+}
+.dzt-zone-dier { font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+.dzt-zone-leeg  { font-size: 1.4rem; opacity: 0.3; }
+
+.dzt-kaart-acc {
+  position: absolute;
+  font-size: 1.6rem;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
 }
 
 .dzt-leeg-tekst {
@@ -1331,6 +1356,83 @@ input[type="text"]:focus {
   font-style: italic;
   text-align: center;
   padding: 1rem;
+}
+
+/* Detail-overlay */
+.dzt-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.dzt-detail-overlay.zichtbaar { opacity: 1; }
+
+.dzt-detail-paneel {
+  width: min(520px, 100vw);
+  background: var(--kaart);
+  border-radius: 20px 20px 0 0;
+  padding: 1.25rem 1rem 1rem;
+  box-shadow: 0 -6px 32px rgba(0,0,0,0.2);
+  max-height: 70vh;
+  overflow-y: auto;
+  transform: translateY(40px);
+  transition: transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.dzt-detail-overlay.zichtbaar .dzt-detail-paneel { transform: translateY(0); }
+
+.dzt-dd-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.9rem;
+}
+.dzt-dd-header-icoon { font-size: 2.8rem; line-height: 1; }
+.dzt-dd-header-tekst strong { display: block; font-size: 1.05rem; color: rgba(0,0,0,0.8); }
+.dzt-dd-header-tekst p { font-size: 0.8rem; color: rgba(0,0,0,0.6); margin: 0.15rem 0 0; }
+
+.dzt-dd-subtitel {
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: var(--tekst-zacht);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.dzt-dd-dieren { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem; }
+.dzt-dd-dier {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: var(--achtergrond);
+}
+.dzt-dd-dier.bezit { background: #f0fdf4; }
+.dzt-dd-icoon  { font-size: 2rem; }
+.dzt-dd-info   { flex: 1; display: flex; flex-direction: column; font-size: 0.82rem; }
+.dzt-dd-info strong { font-size: 0.88rem; }
+.dzt-dd-bezit  { font-size: 1.1rem; color: #16a34a; font-weight: bold; }
+.dzt-dd-kosten { font-size: 0.75rem; color: var(--tekst-zacht); white-space: nowrap; }
+
+.dzt-detail-sluit {
+  display: block;
+  width: 100%;
+  padding: 0.55rem;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: bold;
+  background: var(--balk-bg);
+  border: 1px solid var(--rand);
+  border-radius: 99px;
+  cursor: pointer;
+  color: var(--tekst-zacht);
 }
 
 /* Winkel */
