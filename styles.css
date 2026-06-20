@@ -169,6 +169,7 @@ body {
   width: 100%;
   max-width: 860px;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
 /* Keuze- en voortgangsscherm mogen breder */
@@ -1521,6 +1522,7 @@ input[type="text"]:focus {
   flex-direction: column;
   gap: 0.3rem;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
   padding-right: 0.25rem;
 }
