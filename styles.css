@@ -143,9 +143,11 @@ body {
 /* ── Hoofdinhoud ─────────────────────────────────────── */
 .hoofd {
   flex: 1;
+  width: 0; /* flex: 1 geeft de groei, width: 0 voorkomt dat content de breedte bepaalt */
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 /* ── Titelbalk ───────────────────────────────────────── */
@@ -166,6 +168,7 @@ body {
   padding: 1.75rem 2rem 3rem;
   width: 100%;
   max-width: 860px;
+  box-sizing: border-box;
 }
 
 /* Keuze- en voortgangsscherm mogen breder */
@@ -1231,11 +1234,12 @@ input[type="text"]:focus {
 .dzt-scherm {
   padding: 1.75rem 1.5rem 3rem;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  align-self: stretch;
 }
 
 /* Breed scherm: kaart en winkel naast elkaar */
