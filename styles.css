@@ -1226,10 +1226,27 @@ input[type="text"]:focus {
 /* ── Dierentuin-scherm ──────────────────────────────────── */
 /* Staat buiten .pagina zodat het de volle breedte van .hoofd krijgt */
 .dzt-scherm {
-  padding: 1.75rem 2rem 3rem;
+  padding: 1.75rem 1.5rem 3rem;
   width: 100%;
-  max-width: 1000px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* Breed scherm: kaart en winkel naast elkaar */
+@media (min-width: 900px) {
+  .dzt-scherm {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    column-gap: 1.25rem;
+    align-items: start;
+  }
+  .dzt-header      { grid-column: 1 / -1; }
+  .dzt-zoo-kaart   { grid-column: 1; grid-row: 2; }
+  .dzt-winkel-kaart { grid-column: 2; grid-row: 2; width: 320px; }
+  .dzt-detail-overlay { grid-column: 1 / -1; }
 }
 
 .dzt-header {
