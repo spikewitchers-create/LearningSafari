@@ -33,6 +33,12 @@
   --font:          'Verdana', 'Geneva', sans-serif;
 }
 
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: var(--font);
   font-size: 1rem;
@@ -45,6 +51,7 @@ body {
 /* ── App-layout: nav links, hoofd rechts ─────────────── */
 .app-layout {
   display: flex;
+  width: 100%;
   min-height: 100dvh;
 }
 
