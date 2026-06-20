@@ -150,7 +150,7 @@ document.getElementById('nav-voortgang').addEventListener('click', () => {
 
 // Nav-knop "Dierentuin"
 document.getElementById('nav-dierentuin').addEventListener('click', () => {
-  if (data.profiel.naam) { toonDierentuin(data); toonScherm('scherm-dierentuin'); }
+  if (data.profiel.naam) { toonScherm('scherm-dierentuin'); toonDierentuin(data); }
   else toonScherm('scherm-welkom');
 });
 
