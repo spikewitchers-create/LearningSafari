@@ -35,14 +35,14 @@ const ACC_POSITIES = [
   [20,  385], // links, boven pinguïn
 ];
 
-// ── Kaart schalen naar container-breedte ──────────────────────
+// ── Kaart schalen naar container-breedte via CSS zoom ────────
 function schaalKaart() {
   const outer = document.querySelector('.dzt-kaart-outer');
   const wrap  = document.querySelector('.dzt-kaart-wrap');
   if (!outer || !wrap) return;
   const schaal = outer.clientWidth / KAART_W;
-  wrap.style.transform = `scale(${schaal})`;
-  outer.style.height   = Math.round(KAART_H * schaal) + 'px';
+  wrap.style.zoom = schaal;
+  outer.style.height = Math.round(KAART_H * schaal) + 'px';
 }
 
 // ── Init (éénmalig) ───────────────────────────────────────────

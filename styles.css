@@ -166,10 +166,9 @@ body {
   max-width: 900px;
 }
 
-/* Dierentuin: volle breedte voor de kaart */
-#scherm-dierentuin {
-  max-width: 100%;
-  width: 100%;
+/* Dierentuin: volle breedte — pagina-container tijdelijk opgeheven */
+.pagina-breed {
+  max-width: 100% !important;
 }
 
 /* Sessie-scherm: niet te breed voor leesbaarheid */
@@ -1282,12 +1281,11 @@ input[type="text"]:focus {
   border-radius: 14px;
 }
 
-/* Intern canvas: altijd 700×610, geschaald via JS transform */
+/* Intern canvas: altijd 700×610, geschaald via JS zoom */
 .dzt-kaart-wrap {
   position: relative;
   width: 700px;
   height: 610px;
-  transform-origin: top left;
   user-select: none;
 }
 

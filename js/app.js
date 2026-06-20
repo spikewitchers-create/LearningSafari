@@ -120,6 +120,8 @@ function toonScherm(id) {
   document.querySelectorAll('.nav-knop').forEach(k => k.classList.remove('nav-actief'));
   const actief = NAV_ACTIEF[id];
   if (actief) document.getElementById(actief)?.classList.add('nav-actief');
+  // Dierentuin heeft volle breedte nodig; alle andere schermen zijn smal
+  document.querySelector('.pagina').classList.toggle('pagina-breed', id === 'scherm-dierentuin');
 }
 
 // ── Hulpfuncties beheersing ───────────────────────────
