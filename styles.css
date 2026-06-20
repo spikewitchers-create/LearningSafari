@@ -1224,6 +1224,12 @@ input[type="text"]:focus {
 .week-stip.gedaan { background: var(--goed); border-color: var(--goed); }
 
 /* ── Dierentuin-scherm ──────────────────────────────────── */
+/* Staat buiten .pagina zodat het de volle breedte van .hoofd krijgt */
+.dzt-scherm {
+  padding: 1.75rem 2rem 3rem;
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .dzt-header {
   background: var(--kaart);

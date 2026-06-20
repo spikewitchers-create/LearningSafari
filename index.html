@@ -389,40 +389,41 @@
         <button id="opnieuw-knop" class="knop-groot">Opnieuw kiezen →</button>
       </section>
 
-      <!-- 6. Dierentuin-scherm -->
-      <section id="scherm-dierentuin" class="scherm" hidden>
-
-        <!-- Punten + weekdoel -->
-        <div id="dzt-header" class="dzt-header"></div>
-
-        <!-- Zoo-weergave -->
-        <div class="kaart dzt-zoo-kaart">
-          <p class="dzt-sectie-titel">Mijn dierentuin</p>
-          <div id="dzt-zoo" class="dzt-zoo"></div>
-        </div>
-
-        <!-- Detail-overlay (schuift omhoog bij klik op verblijf) -->
-        <div id="dzt-detail-overlay" class="dzt-detail-overlay" hidden>
-          <div class="dzt-detail-paneel">
-            <div id="dzt-detail-inhoud"></div>
-            <button id="dzt-detail-sluit" class="dzt-detail-sluit">✕ Sluiten</button>
-          </div>
-        </div>
-
-        <!-- Winkel -->
-        <div class="kaart dzt-winkel-kaart">
-          <p class="dzt-sectie-titel">Winkel — koop met ⭐ punten</p>
-          <div id="dzt-tabs" class="dzt-tabs" role="tablist">
-            <button class="dzt-tab actief" data-tab="locaties">🏕️ Locaties</button>
-            <button class="dzt-tab" data-tab="dieren">🐾 Dieren</button>
-            <button class="dzt-tab" data-tab="accessoires">🌿 Accessoires</button>
-          </div>
-          <div id="dzt-winkel-inhoud" class="dzt-winkel-inhoud"></div>
-        </div>
-
-      </section>
-
     </main>
+
+    <!-- 6. Dierentuin-scherm — buiten .pagina zodat het volle breedte krijgt -->
+    <section id="scherm-dierentuin" class="scherm dzt-scherm" hidden>
+
+      <!-- Punten + weekdoel -->
+      <div id="dzt-header" class="dzt-header"></div>
+
+      <!-- Zoo-weergave -->
+      <div class="kaart dzt-zoo-kaart">
+        <p class="dzt-sectie-titel">Mijn dierentuin</p>
+        <div id="dzt-zoo" class="dzt-zoo"></div>
+      </div>
+
+      <!-- Detail-overlay (schuift omhoog bij klik op verblijf) -->
+      <div id="dzt-detail-overlay" class="dzt-detail-overlay" hidden>
+        <div class="dzt-detail-paneel">
+          <div id="dzt-detail-inhoud"></div>
+          <button id="dzt-detail-sluit" class="dzt-detail-sluit">✕ Sluiten</button>
+        </div>
+      </div>
+
+      <!-- Winkel -->
+      <div class="kaart dzt-winkel-kaart">
+        <p class="dzt-sectie-titel">Winkel — koop met ⭐ punten</p>
+        <div id="dzt-tabs" class="dzt-tabs" role="tablist">
+          <button class="dzt-tab actief" data-tab="locaties">🏕️ Locaties</button>
+          <button class="dzt-tab" data-tab="dieren">🐾 Dieren</button>
+          <button class="dzt-tab" data-tab="accessoires">🌿 Accessoires</button>
+        </div>
+        <div id="dzt-winkel-inhoud" class="dzt-winkel-inhoud"></div>
+      </div>
+
+    </section>
+
   </div><!-- .hoofd -->
 </div><!-- .app-layout -->
 
