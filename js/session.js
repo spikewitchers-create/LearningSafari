@@ -4,7 +4,7 @@ const SESSIE_GROOTTE = 10;
 const DREMPEL_BEHEERST = 3;
 const RECENT_GROOTTE = 3; // vermijd herhaling binnen laatste N vragen
 
-const GEWICHT = { nieuw: 2, oefenen: 4, beheerst: 1 };
+const GEWICHT = { nieuw: 3, oefenen: 4, beheerst: 1 };
 
 function gewichtVan(id, beheersing) {
   const b = beheersing[id];
@@ -12,17 +12,28 @@ function gewichtVan(id, beheersing) {
   return GEWICHT[b.status] ?? GEWICHT.nieuw;
 }
 
-// Deadline-boost: hoe dichter bij de toetsdatum, hoe hoger de vermenigvuldiger.
-// Na de datum: beheerste items krijgen gewicht 0 (worden weggelaten).
-function deadlineBoost(item) {
+// Deadline-boost: status-aware zodat ongeziene items vóór de deadline altijd
+// een kans krijgen — ook als er veel "oefenen"-items zijn.
+function deadlineBoost(item, status) {
   if (!item.toetsDatum) return 1;
-  const nu = Date.now();
-  const toets = new Date(item.toetsDatum).getTime();
-  const dagenOver = (toets - nu) / 86400000;
-  if (dagenOver < 0) return 0;   // toets voorbij: niet meer aanbieden
-  if (dagenOver <= 3)  return 6; // laatste 3 dagen: heel urgent
-  if (dagenOver <= 7)  return 4; // week voor toets
-  if (dagenOver <= 14) return 2; // twee weken voor toets
+  const dagenOver = (new Date(item.toetsDatum).getTime() - Date.now()) / 86400000;
+  if (dagenOver < 0) return status === 'beheerst' ? 0 : 1;
+  if (status === 'nieuw') {
+    if (dagenOver <= 1)  return 20; // dag voor toets: ongezien = topprioriteit
+    if (dagenOver <= 3)  return 12;
+    if (dagenOver <= 7)  return 7;
+    if (dagenOver <= 14) return 3;
+    return 1;
+  }
+  if (status === 'oefenen') {
+    if (dagenOver <= 3)  return 6;
+    if (dagenOver <= 7)  return 4;
+    if (dagenOver <= 14) return 2;
+    return 1;
+  }
+  // beheerst: kleine boost vlak voor toets, anders laag houden
+  if (dagenOver <= 3)  return 3;
+  if (dagenOver <= 7)  return 2;
   return 1;
 }
 
@@ -32,11 +43,12 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   if (items.length === 0) return [];
 
   const gewogen = items.flatMap(item => {
-    const basis = gewichtVan(item.id, beheersing);
-    const boost = deadlineBoost(item);
-    // Na deadline: beheerste items weglaten (boost=0), rest normaal
-    if (boost === 0 && beheersing[item.id]?.status === 'beheerst') return [];
-    const w = Math.round(basis * Math.max(boost, 1));
+    const status = beheersing[item.id]?.status ?? 'nieuw';
+    const basis = GEWICHT[status] ?? GEWICHT.nieuw;
+    const boost = deadlineBoost(item, status);
+    // Na deadline: beheerste items weglaten
+    if (boost === 0) return [];
+    const w = Math.round(basis * boost);
     return Array(w).fill(item);
   });
 

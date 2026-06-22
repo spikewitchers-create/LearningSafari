@@ -1366,21 +1366,27 @@ function toonVoortgang() {
 
       const sorter = (a, b) => itemPrioriteit(b).score - itemPrioriteit(a).score;
 
+      function maakRij(it) {
+        const p = itemPrioriteit(it);
+        return `<div class="vg-item-rij prio-${p.chip}">
+          <span class="vg-item-chip prio-chip-${p.chip}">${p.label}</span>
+          <span class="vg-item-vraag">${it.vraag}</span>
+        </div>`;
+      }
+
       function sectie(items, titel, maxToon = 12) {
         if (items.length === 0) return '';
         const gesorteerd = [...items].sort(sorter);
-        const rijen = gesorteerd.slice(0, maxToon).map(it => {
-          const p = itemPrioriteit(it);
-          return `<div class="vg-item-rij prio-${p.chip}">
-            <span class="vg-item-chip prio-chip-${p.chip}">${p.label}</span>
-            <span class="vg-item-vraag">${it.vraag}</span>
-          </div>`;
-        }).join('');
-        const meer = items.length > maxToon
-          ? `<p class="vg-item-meer">+ ${items.length - maxToon} meer</p>` : '';
+        const zichtbaar = gesorteerd.slice(0, maxToon);
+        const rest = gesorteerd.slice(maxToon);
+        const meerHTML = rest.length > 0
+          ? `<div class="vg-meer-items" hidden>${rest.map(maakRij).join('')}</div>
+             <button class="vg-toon-meer-knop" onclick="this.previousElementSibling.hidden=false;this.hidden=true">
+               Toon alle ${items.length} ▾
+             </button>` : '';
         return `<div class="vg-items-sectie">
           <p class="vg-items-sectie-titel">${titel} <span class="vg-items-aantal">(${items.length})</span></p>
-          ${rijen}${meer}
+          ${zichtbaar.map(maakRij).join('')}${meerHTML}
         </div>`;
       }
 

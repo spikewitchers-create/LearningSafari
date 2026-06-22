@@ -1114,7 +1114,13 @@ input[type="text"]:focus {
   flex-shrink: 0;
 }
 .vg-item-vraag { flex: 1; color: var(--tekst); }
-.vg-item-meer  { font-size: 0.72rem; color: var(--tekst-zacht); font-style: italic; padding: 0.1rem 0.5rem; }
+.vg-toon-meer-knop {
+  display: block; width: 100%; margin-top: 0.3rem;
+  padding: 0.3rem 0.5rem; border: 1px dashed var(--rand);
+  background: transparent; color: var(--tekst-zacht);
+  font-size: 0.75rem; border-radius: 6px; cursor: pointer; text-align: center;
+}
+.vg-toon-meer-knop:hover { background: var(--achtergrond-zacht); color: var(--tekst); }
 
 /* Prioriteit-kleuren */
 .prio-urgent { background: #fef2f2; }
