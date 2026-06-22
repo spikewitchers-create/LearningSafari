@@ -403,14 +403,6 @@
         <div id="dzt-zoo" class="dzt-zoo"></div>
       </div>
 
-      <!-- Item-detail overlay (voortgangspagina) -->
-      <div id="vg-item-detail-overlay" class="vg-item-detail-overlay" hidden>
-        <div class="vg-item-detail-paneel">
-          <button id="vg-item-detail-sluit" class="vg-item-detail-sluit">✕</button>
-          <div id="vg-item-detail-inhoud"></div>
-        </div>
-      </div>
-
       <!-- Detail-overlay (schuift omhoog bij klik op verblijf) -->
       <div id="dzt-detail-overlay" class="dzt-detail-overlay" hidden>
         <div class="dzt-detail-paneel">
@@ -434,6 +426,14 @@
 
   </div><!-- .hoofd -->
 </div><!-- .app-layout -->
+
+<!-- Item-detail overlay (voortgangspagina) — buiten alle schermen zodat position:fixed werkt -->
+<div id="vg-item-detail-overlay" class="vg-item-detail-overlay" hidden>
+  <div class="vg-item-detail-paneel">
+    <button id="vg-item-detail-sluit" class="vg-item-detail-sluit">✕</button>
+    <div id="vg-item-detail-inhoud"></div>
+  </div>
+</div>
 
 <script type="module" src="js/app.js"></script>
 </body>
