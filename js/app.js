@@ -1368,9 +1368,10 @@ function toonVoortgang() {
 
       function maakRij(it) {
         const p = itemPrioriteit(it);
-        return `<div class="vg-item-rij prio-${p.chip}">
+        return `<div class="vg-item-rij prio-${p.chip}" data-item-id="${it.id}" role="button" tabindex="0" title="Klik voor details">
           <span class="vg-item-chip prio-chip-${p.chip}">${p.label}</span>
           <span class="vg-item-vraag">${it.vraag}</span>
+          <span class="vg-item-info-knop">ℹ</span>
         </div>`;
       }
 
@@ -1461,7 +1462,90 @@ function toonVoortgang() {
 
   toonPatroonAnalyse(beh);
 
+  // Click-to-detail op items in voortgangspanelen
+  vgOnderdelen.onclick = e => {
+    const rij = e.target.closest('[data-item-id]');
+    if (!rij) return;
+    toonItemDetail(rij.dataset.itemId);
+  };
+  vgOnderdelen.onkeydown = e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const rij = e.target.closest('[data-item-id]');
+      if (rij) { e.preventDefault(); toonItemDetail(rij.dataset.itemId); }
+    }
+  };
+
   toonScherm('scherm-voortgang');
+}
+
+function toonItemDetail(itemId) {
+  const b = data.beheersing[itemId];
+  // Zoek het item in alle pools
+  const item = ALLE_POOLS.flatMap(p => p.pool).find(it => it.id === itemId);
+  if (!item) return;
+
+  const status = b?.status ?? 'nieuw';
+  const goed   = b?.goed   ?? 0;
+  const fout   = b?.fout   ?? 0;
+  const rij    = b?.rij    ?? 0;
+  const metHint = b?.metHint ?? 0;
+  const gezien  = b?.gezien  ?? 0;
+  const fouten  = b?.fouteAntwoorden ?? [];
+  const totaal  = goed + fout;
+  const pct     = totaal > 0 ? Math.round((goed / totaal) * 100) : null;
+
+  const statusLabel = { nieuw: '🔴 Nog niet gezien', oefenen: '🟡 In oefening', beheerst: '🟢 Beheerst' }[status] ?? status;
+  const datumTekst  = b?.laatstGeoefend ? `Laatste keer: ${b.laatstGeoefend}` : 'Nog niet geoefend';
+
+  const overlay = document.getElementById('vg-item-detail-overlay');
+  document.getElementById('vg-item-detail-inhoud').innerHTML = `
+    <div class="vid-kop">
+      <span class="vid-vraag">${item.vraag}</span>
+      <span class="vid-antwoord">→ ${item.antwoord}</span>
+    </div>
+    <div class="vid-status">${statusLabel}</div>
+    <div class="vid-stats">
+      <div class="vid-stat">
+        <span class="vid-getal">${totaal}</span>
+        <span class="vid-lbl">keer geoefend</span>
+      </div>
+      <div class="vid-stat goed">
+        <span class="vid-getal">${goed}</span>
+        <span class="vid-lbl">goed</span>
+      </div>
+      <div class="vid-stat fout">
+        <span class="vid-getal">${fout}</span>
+        <span class="vid-lbl">fout</span>
+      </div>
+      ${pct !== null ? `<div class="vid-stat">
+        <span class="vid-getal">${pct}%</span>
+        <span class="vid-lbl">raak</span>
+      </div>` : ''}
+    </div>
+    ${metHint > 0 || gezien > 0 ? `<div class="vid-hulp-rij">
+      ${metHint > 0 ? `<span class="vid-hulp-chip">💡 ${metHint}× met hint</span>` : ''}
+      ${gezien  > 0 ? `<span class="vid-hulp-chip">👁 ${gezien}× antwoord gezien</span>` : ''}
+    </div>` : ''}
+    ${rij > 0 ? `<p class="vid-rij">Huidige goede reeks: ${rij} ✓</p>` : ''}
+    ${fouten.length > 0 ? `
+      <p class="vid-fouten-titel">Eerdere foute antwoorden:</p>
+      <div class="vid-fouten">${fouten.map(f => `<span class="vid-fout-chip">${f}</span>`).join('')}</div>
+    ` : ''}
+    <p class="vid-datum">${datumTekst}</p>
+  `;
+  overlay.hidden = false;
+  requestAnimationFrame(() => overlay.classList.add('zichtbaar'));
+}
+
+// Init detail-overlay sluitknoppen (éénmalig in module scope)
+document.getElementById('vg-item-detail-sluit')?.addEventListener('click', () => sluitItemDetail());
+document.getElementById('vg-item-detail-overlay')?.addEventListener('click', e => {
+  if (e.target === e.currentTarget) sluitItemDetail();
+});
+function sluitItemDetail() {
+  const overlay = document.getElementById('vg-item-detail-overlay');
+  overlay.classList.remove('zichtbaar');
+  overlay.addEventListener('transitionend', () => { overlay.hidden = true; }, { once: true });
 }
 
 function toonPatroonAnalyse(beh) {

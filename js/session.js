@@ -88,7 +88,11 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
   const metHulp  = !antwoordGezien && hintsGebruikt > 0;
   const vandaag  = new Date().toISOString().slice(0, 10);
 
-  const b = beheersing[id] ?? { goed: 0, fout: 0, rij: 0, status: 'nieuw', laatstGeoefend: null };
+  const b = beheersing[id] ?? { goed: 0, fout: 0, rij: 0, status: 'nieuw', laatstGeoefend: null,
+    metHint: 0, gezien: 0, fouteAntwoorden: [] };
+  b.metHint         ??= 0;
+  b.gezien          ??= 0;
+  b.fouteAntwoorden ??= [];
   b.laatstGeoefend = vandaag;
 
   let nieuwBeheerst = 0;
@@ -104,17 +108,25 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
     }
   } else if (correct && metHulp) {
     // Goed mét hint: rij bevroren, geen achteruitgang
-    b.goed += 1;
+    b.goed   += 1;
+    b.metHint += 1;
     if (b.status === 'nieuw') b.status = 'oefenen';
   } else if (antwoordGezien && correctIngepykt) {
     // Antwoord voorgezegd maar toch correct overgetypt: neutraal, geen straf
-    b.goed += 1;
+    b.goed  += 1;
+    b.gezien += 1;
     if (b.status === 'nieuw') b.status = 'oefenen';
   } else {
     // Echt fout: rij reset
     b.fout += 1;
     b.rij   = 0;
     b.status = 'oefenen';
+    // Bewaar unieke foute antwoorden (max 5, meest recent eerst)
+    const normGegeven = String(gegeven).trim();
+    if (normGegeven && !b.fouteAntwoorden.includes(normGegeven)) {
+      b.fouteAntwoorden.unshift(normGegeven);
+      if (b.fouteAntwoorden.length > 5) b.fouteAntwoorden.pop();
+    }
   }
 
   return { correct, antwoordGezien, correctIngepykt, nieuwBeheerst, entry: b };
