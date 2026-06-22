@@ -1307,14 +1307,18 @@ function toonVoortgang() {
   const nu = Date.now();
 
   function itemPrioriteit(item) {
-    const status = beh[item.id]?.status ?? 'nieuw';
+    const b      = beh[item.id];
+    const status = b?.status ?? 'nieuw';
+    const rij    = b?.rij    ?? 0;
     const toets  = item.toetsDatum ? new Date(item.toetsDatum).getTime() : null;
     const dagen  = toets ? (toets - nu) / 86400000 : 999;
     if (status === 'beheerst') return { score: 1, chip: 'laag',    label: 'Beheerst' };
     if (status === 'oefenen') {
-      if (dagen <= 3)  return { score: 5, chip: 'urgent', label: 'Deadline!' };
-      if (dagen <= 7)  return { score: 4, chip: 'hoog',   label: 'Deadline nadert' };
-      return               { score: 3, chip: 'midden',  label: 'In oefening' };
+      const foutGedaan = rij === 0; // rij gereset door fout antwoord
+      if (dagen <= 3)  return { score: foutGedaan ? 6 : 5, chip: 'urgent', label: 'Deadline!' };
+      if (dagen <= 7)  return { score: foutGedaan ? 5 : 4, chip: 'hoog',   label: 'Deadline nadert' };
+      if (foutGedaan)  return { score: 4, chip: 'fout',   label: 'Fout gemaakt' };
+      return               { score: 3, chip: 'midden',  label: 'Goed bezig' };
     }
     // nieuw
     if (dagen <= 3)  return { score: 8, chip: 'urgent', label: 'Deadline — ongezien!' };
@@ -1361,7 +1365,8 @@ function toonVoortgang() {
       inhoud.className = 'vg-items-inhoud';
 
       const nognietItems  = poolItems.filter(it => { const s = beh[it.id]?.status; return !s || s === 'nieuw'; });
-      const oefenenItems  = poolItems.filter(it => beh[it.id]?.status === 'oefenen');
+      const foutItems     = poolItems.filter(it => beh[it.id]?.status === 'oefenen' && (beh[it.id]?.rij ?? 0) === 0);
+      const goedBezigItems= poolItems.filter(it => beh[it.id]?.status === 'oefenen' && (beh[it.id]?.rij ?? 0)  > 0);
       const beheerstItems = poolItems.filter(it => beh[it.id]?.status === 'beheerst');
 
       const sorter = (a, b) => itemPrioriteit(b).score - itemPrioriteit(a).score;
@@ -1392,9 +1397,10 @@ function toonVoortgang() {
       }
 
       inhoud.innerHTML =
-        sectie(nognietItems,  '🔴 Nog niet gezien') +
-        sectie(oefenenItems,  '🟡 In oefening') +
-        sectie(beheerstItems, '🟢 Beheerst', 8);
+        sectie(nognietItems,   '🔴 Nog niet gezien') +
+        sectie(foutItems,      '🟠 Fout gemaakt — herhalen') +
+        sectie(goedBezigItems, '🟡 Goed bezig — bijna beheerst') +
+        sectie(beheerstItems,  '🟢 Beheerst', 8);
 
       el.appendChild(inhoud);
     }

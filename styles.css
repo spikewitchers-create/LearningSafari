@@ -1125,11 +1125,13 @@ input[type="text"]:focus {
 /* Prioriteit-kleuren */
 .prio-urgent { background: #fef2f2; }
 .prio-hoog   { background: #fffbeb; }
+.prio-fout   { background: #fff7ed; }
 .prio-midden { background: #f0fdf4; }
 .prio-laag   { background: var(--achtergrond); opacity: 0.8; }
 
 .prio-chip-urgent { background: #fecaca; color: #b91c1c; }
 .prio-chip-hoog   { background: #fde68a; color: #92400e; }
+.prio-chip-fout   { background: #fed7aa; color: #9a3412; }
 .prio-chip-midden { background: #bbf7d0; color: #166534; }
 .prio-chip-laag   { background: #e5e7eb; color: #6b7280; }
 
