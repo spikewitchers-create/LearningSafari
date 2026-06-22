@@ -1311,12 +1311,14 @@ function toonVoortgang() {
     const b = beh[id];
     if (!b || b.status === 'nieuw') return 'grijs';
     if (b.status === 'beheerst')    return 'donkergroen';
-    const rij  = b.rij  ?? 0;
-    const fout = b.fout ?? 0;
-    if (fout === 0)  return 'lichtgroen';  // nooit fout, maar nog niet beheerst
-    if (rij === 0)   return 'rood';        // laatste antwoord was fout
-    if (rij === 1)   return 'oranje';      // 1 goed na een fout
-    return                  'geel';        // 2+ goed maar eerder fout
+    const rij     = b.rij     ?? 0;
+    const fout    = b.fout    ?? 0;
+    const metHint = b.metHint ?? 0;
+    if (fout === 0 && metHint === 0) return 'lichtgroen'; // zelfstandig, nooit fout
+    if (fout === 0 && metHint  > 0)  return 'geel';       // nooit fout, maar leunde op hints
+    if (rij === 0)                   return 'rood';        // laatste antwoord fout
+    if (rij === 1)                   return 'oranje';      // 1 goed na een fout
+    return                                  'geel';        // 2+ goed maar eerder fout
   }
 
   // Prioriteitsscore + chip-klasse voor sorteren en labels
@@ -1329,8 +1331,8 @@ function toonVoortgang() {
       grijs:       { score: 4, chip: 'grijs',      label: 'Nog niet gezien' },
       rood:        { score: 5, chip: 'rood',        label: 'Fout gemaakt' },
       oranje:      { score: 4, chip: 'oranje',      label: 'Laatste goed, eerder fout' },
-      geel:        { score: 3, chip: 'geel',        label: 'Bijna hersteld' },
-      lichtgroen:  { score: 2, chip: 'lichtgroen',  label: 'Goed bezig' },
+      geel:        { score: 3, chip: 'geel',        label: 'Hint gebruikt / bijna hersteld' },
+      lichtgroen:  { score: 2, chip: 'lichtgroen',  label: 'Goed bezig — zelfstandig' },
       donkergroen: { score: 1, chip: 'donkergroen', label: 'Beheerst' },
     };
     const info = { ...STAAT_INFO[staat] };
@@ -1437,8 +1439,8 @@ function toonVoortgang() {
         sectie(groepenItems.grijs,       'Nog niet gezien',               12, 'vg-sectie-grijs') +
         sectie(groepenItems.rood,        'Fout gemaakt — herhalen',       12, 'vg-sectie-rood') +
         sectie(groepenItems.oranje,      'Laatste goed, eerder fout',     12, 'vg-sectie-oranje') +
-        sectie(groepenItems.geel,        '2–3 goed, eerder fout',         12, 'vg-sectie-geel') +
-        sectie(groepenItems.lichtgroen,  'Goed bezig — nooit fout',       12, 'vg-sectie-lichtgroen') +
+        sectie(groepenItems.geel,        '2–3 goed, eerder fout of hint gebruikt', 12, 'vg-sectie-geel') +
+        sectie(groepenItems.lichtgroen,  'Goed bezig — zelfstandig, nooit fout', 12, 'vg-sectie-lichtgroen') +
         sectie(groepenItems.donkergroen, 'Beheerst',                       8, 'vg-sectie-donkergroen');
 
       el.appendChild(inhoud);
