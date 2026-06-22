@@ -1306,37 +1306,74 @@ function toonVoortgang() {
 
   const nu = Date.now();
 
+  // Bepaal 1 van 6 visuele staten op basis van rij + fouthistorie
+  function itemStaat(id) {
+    const b = beh[id];
+    if (!b || b.status === 'nieuw') return 'grijs';
+    if (b.status === 'beheerst')    return 'donkergroen';
+    const rij  = b.rij  ?? 0;
+    const fout = b.fout ?? 0;
+    if (fout === 0)  return 'lichtgroen';  // nooit fout, maar nog niet beheerst
+    if (rij === 0)   return 'rood';        // laatste antwoord was fout
+    if (rij === 1)   return 'oranje';      // 1 goed na een fout
+    return                  'geel';        // 2+ goed maar eerder fout
+  }
+
+  // Prioriteitsscore + chip-klasse voor sorteren en labels
   function itemPrioriteit(item) {
-    const b      = beh[item.id];
-    const status = b?.status ?? 'nieuw';
-    const rij    = b?.rij    ?? 0;
-    const toets  = item.toetsDatum ? new Date(item.toetsDatum).getTime() : null;
-    const dagen  = toets ? (toets - nu) / 86400000 : 999;
-    if (status === 'beheerst') return { score: 1, chip: 'laag',    label: 'Beheerst' };
-    if (status === 'oefenen') {
-      const foutGedaan = rij === 0; // rij gereset door fout antwoord
-      if (dagen <= 3)  return { score: foutGedaan ? 6 : 5, chip: 'urgent', label: 'Deadline!' };
-      if (dagen <= 7)  return { score: foutGedaan ? 5 : 4, chip: 'hoog',   label: 'Deadline nadert' };
-      if (foutGedaan)  return { score: 4, chip: 'fout',   label: 'Fout gemaakt' };
-      return               { score: 3, chip: 'midden',  label: 'Goed bezig' };
-    }
-    // nieuw
-    if (dagen <= 3)  return { score: 8, chip: 'urgent', label: 'Deadline — ongezien!' };
-    if (dagen <= 7)  return { score: 7, chip: 'urgent', label: 'Deadline nadert' };
-    if (dagen <= 14) return { score: 6, chip: 'hoog',   label: 'Nog niet gezien' };
-    return               { score: 4, chip: 'hoog',   label: 'Nog niet gezien' };
+    const staat = itemStaat(item.id);
+    const toets = item.toetsDatum ? new Date(item.toetsDatum).getTime() : null;
+    const dagen = toets ? (toets - nu) / 86400000 : 999;
+
+    const STAAT_INFO = {
+      grijs:       { score: 4, chip: 'grijs',      label: 'Nog niet gezien' },
+      rood:        { score: 5, chip: 'rood',        label: 'Fout gemaakt' },
+      oranje:      { score: 4, chip: 'oranje',      label: 'Laatste goed, eerder fout' },
+      geel:        { score: 3, chip: 'geel',        label: 'Bijna hersteld' },
+      lichtgroen:  { score: 2, chip: 'lichtgroen',  label: 'Goed bezig' },
+      donkergroen: { score: 1, chip: 'donkergroen', label: 'Beheerst' },
+    };
+    const info = { ...STAAT_INFO[staat] };
+
+    // Deadlineboost: verhoog score bij naderende toets
+    if (staat !== 'donkergroen' && dagen <= 3)  { info.score += 3; info.label = 'Deadline!'; info.chip = 'rood'; }
+    else if (staat !== 'donkergroen' && dagen <= 7) { info.score += 2; info.label = 'Deadline nadert'; }
+    return info;
   }
 
   function maakOnderdeelRij(o) {
-    const match      = ([id]) => id.startsWith(o.prefix);
-    const beheerst   = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
-    const fout       = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen' && (e[1].rij ?? 0) === 0).length;
-    const goedBezig  = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen' && (e[1].rij ?? 0)  > 0).length;
-    const nogniet    = o.totaal - beheerst - fout - goedBezig;
+    const match = ([id]) => id.startsWith(o.prefix);
+    // Tel per staat
+    const tellen = s => Object.entries(beh).filter(e => match(e) && itemStaat(e[0]) === s).length;
+    const n_donkergroen = tellen('donkergroen');
+    const n_lichtgroen  = tellen('lichtgroen');
+    const n_geel        = tellen('geel');
+    const n_oranje      = tellen('oranje');
+    const n_rood        = tellen('rood');
+    const n_grijs       = o.totaal - n_donkergroen - n_lichtgroen - n_geel - n_oranje - n_rood;
 
-    const pct_beh  = Math.round((beheerst / o.totaal) * 100);
-    const pct_goed = Math.round(((beheerst + goedBezig) / o.totaal) * 100);
-    const pct_fout = Math.round(((beheerst + goedBezig + fout) / o.totaal) * 100);
+    // Balkbreedte: gesegmenteerd van links (donkergroen) naar rechts, grijs = rest
+    const p = v => Math.round((v / o.totaal) * 100);
+    const cum = (a, b, c, d, e) => p(a + b + c + d + e);
+    const balkSegmenten = [
+      { klasse: 'vg-balk-rood',        breedte: cum(n_donkergroen, n_lichtgroen, n_geel, n_oranje, n_rood) },
+      { klasse: 'vg-balk-oranje',       breedte: cum(n_donkergroen, n_lichtgroen, n_geel, n_oranje, 0) },
+      { klasse: 'vg-balk-geel',         breedte: cum(n_donkergroen, n_lichtgroen, n_geel, 0, 0) },
+      { klasse: 'vg-balk-lichtgroen',   breedte: cum(n_donkergroen, n_lichtgroen, 0, 0, 0) },
+      { klasse: 'vg-balk-donkergroen',  breedte: p(n_donkergroen) },
+    ].map(s => `<div class="vg-balk-vul ${s.klasse}" style="width:${s.breedte}%"></div>`).join('');
+
+    // Chips — alleen tonen als > 0
+    const chips = [
+      [n_donkergroen, 'donkergroen', '✓'],
+      [n_lichtgroen,  'lichtgroen',  '◎'],
+      [n_geel,        'geel',        '~'],
+      [n_oranje,      'oranje',      '!'],
+      [n_rood,        'rood',        '✗'],
+      [n_grijs,       'grijs',       '?'],
+    ].filter(([n]) => n > 0)
+     .map(([n, k, icoon]) => `<span class="vg-chip vg-chip-${k}">${icoon} ${n}</span>`)
+     .join('');
 
     // Zoek pool-items via ALLE_POOLS
     const poolItems = ALLE_POOLS.flatMap(p => p.pool.filter(it => it.id.startsWith(o.prefix)));
@@ -1349,30 +1386,25 @@ function toonVoortgang() {
     summary.innerHTML = `
       <div class="vg-onderdeel-kop">
         <span>${o.label}</span>
-        <span class="vg-cijfer">${beheerst} / ${o.totaal}</span>
+        <span class="vg-cijfer">${n_donkergroen} / ${o.totaal}</span>
       </div>
-      <div class="vg-balk-wrap">
-        <div class="vg-balk-vul vg-balk-fout"     style="width:${pct_fout}%"></div>
-        <div class="vg-balk-vul vg-balk-goedbezig" style="width:${pct_goed}%"></div>
-        <div class="vg-balk-vul vg-balk-beheerst"  style="width:${pct_beh}%"></div>
-      </div>
-      <div class="vg-sub-rij">
-        <span class="vg-chip vg-chip-beheerst">✓ ${beheerst}</span>
-        ${goedBezig > 0 ? `<span class="vg-chip vg-chip-goedbezig">~ ${goedBezig}</span>` : ''}
-        ${fout      > 0 ? `<span class="vg-chip vg-chip-fout">✗ ${fout}</span>`      : ''}
-        ${nogniet   > 0 ? `<span class="vg-chip vg-chip-nieuw">? ${nogniet}</span>`   : ''}
-        <span class="vg-onderdeel-pijl">▸</span>
-      </div>`;
+      <div class="vg-balk-wrap">${balkSegmenten}</div>
+      <div class="vg-sub-rij">${chips}<span class="vg-onderdeel-pijl">▸</span></div>`;
     el.appendChild(summary);
 
     if (poolItems.length > 0) {
       const inhoud = document.createElement('div');
       inhoud.className = 'vg-items-inhoud';
 
-      const nognietItems  = poolItems.filter(it => { const s = beh[it.id]?.status; return !s || s === 'nieuw'; });
-      const foutItems     = poolItems.filter(it => beh[it.id]?.status === 'oefenen' && (beh[it.id]?.rij ?? 0) === 0);
-      const goedBezigItems= poolItems.filter(it => beh[it.id]?.status === 'oefenen' && (beh[it.id]?.rij ?? 0)  > 0);
-      const beheerstItems = poolItems.filter(it => beh[it.id]?.status === 'beheerst');
+      const staat = it => itemStaat(it.id);
+      const groepenItems = {
+        rood:        poolItems.filter(it => staat(it) === 'rood'),
+        oranje:      poolItems.filter(it => staat(it) === 'oranje'),
+        geel:        poolItems.filter(it => staat(it) === 'geel'),
+        lichtgroen:  poolItems.filter(it => staat(it) === 'lichtgroen'),
+        donkergroen: poolItems.filter(it => staat(it) === 'donkergroen'),
+        grijs:       poolItems.filter(it => staat(it) === 'grijs'),
+      };
 
       const sorter = (a, b) => itemPrioriteit(b).score - itemPrioriteit(a).score;
 
@@ -1402,10 +1434,12 @@ function toonVoortgang() {
       }
 
       inhoud.innerHTML =
-        sectie(nognietItems,   '🔴 Nog niet gezien',          12, 'vg-sectie-rood') +
-        sectie(foutItems,      '🟠 Fout gemaakt — herhalen',  12, 'vg-sectie-oranje') +
-        sectie(goedBezigItems, '🟡 Goed bezig — bijna beheerst', 12, 'vg-sectie-geelgroen') +
-        sectie(beheerstItems,  '🟢 Beheerst',                  8, 'vg-sectie-groen');
+        sectie(groepenItems.grijs,       'Nog niet gezien',               12, 'vg-sectie-grijs') +
+        sectie(groepenItems.rood,        'Fout gemaakt — herhalen',       12, 'vg-sectie-rood') +
+        sectie(groepenItems.oranje,      'Laatste goed, eerder fout',     12, 'vg-sectie-oranje') +
+        sectie(groepenItems.geel,        '2–3 goed, eerder fout',         12, 'vg-sectie-geel') +
+        sectie(groepenItems.lichtgroen,  'Goed bezig — nooit fout',       12, 'vg-sectie-lichtgroen') +
+        sectie(groepenItems.donkergroen, 'Beheerst',                       8, 'vg-sectie-donkergroen');
 
       el.appendChild(inhoud);
     }

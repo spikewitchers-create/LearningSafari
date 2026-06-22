@@ -1049,9 +1049,11 @@ input[type="text"]:focus {
   transition: width 0.4s ease;
 }
 
-.vg-balk-beheerst  { background: #22c55e; position: absolute; top: 0; left: 0; }
-.vg-balk-goedbezig { background: #a3e635; position: absolute; top: 0; left: 0; }
-.vg-balk-fout      { background: #fb923c; position: absolute; top: 0; left: 0; }
+.vg-balk-donkergroen { background: #16a34a; position: absolute; top: 0; left: 0; }
+.vg-balk-lichtgroen  { background: #86efac; position: absolute; top: 0; left: 0; }
+.vg-balk-geel        { background: #fde047; position: absolute; top: 0; left: 0; }
+.vg-balk-oranje      { background: #fb923c; position: absolute; top: 0; left: 0; }
+.vg-balk-rood        { background: #f87171; position: absolute; top: 0; left: 0; }
 .vg-balk-wrap { position: relative; }
 
 /* Sub-rij met chips en pijl */
@@ -1068,10 +1070,12 @@ input[type="text"]:focus {
   padding: 0.1rem 0.45rem;
   border-radius: 99px;
 }
-.vg-chip-beheerst  { background: #dcfce7; color: #16a34a; }
-.vg-chip-goedbezig { background: #ecfccb; color: #3f6212; }
-.vg-chip-fout      { background: #ffedd5; color: #9a3412; }
-.vg-chip-nieuw     { background: #fee2e2; color: #b91c1c; }
+.vg-chip-donkergroen { background: #dcfce7; color: #15803d; }
+.vg-chip-lichtgroen  { background: #bbf7d0; color: #166534; }
+.vg-chip-geel        { background: #fef9c3; color: #a16207; }
+.vg-chip-oranje      { background: #ffedd5; color: #9a3412; }
+.vg-chip-rood        { background: #fee2e2; color: #b91c1c; }
+.vg-chip-grijs       { background: #f3f4f6; color: #6b7280; }
 .vg-onderdeel-pijl { margin-left: auto; font-size: 0.75rem; color: var(--tekst-zacht); transition: transform 0.2s; }
 
 /* Uitklapbare onderdeel-rij */
@@ -1101,10 +1105,12 @@ input[type="text"]:focus {
   border-radius: 6px;
 }
 /* Sectie-titels krijgen passende achtergrond per groep */
-.vg-sectie-rood      { background: #fee2e2; color: #b91c1c; }
-.vg-sectie-oranje    { background: #ffedd5; color: #9a3412; }
-.vg-sectie-geelgroen { background: #ecfccb; color: #3f6212; }
-.vg-sectie-groen     { background: #dcfce7; color: #16a34a; }
+.vg-sectie-grijs       { background: #f3f4f6; color: #6b7280; }
+.vg-sectie-rood        { background: #fee2e2; color: #b91c1c; }
+.vg-sectie-oranje      { background: #ffedd5; color: #9a3412; }
+.vg-sectie-geel        { background: #fef9c3; color: #a16207; }
+.vg-sectie-lichtgroen  { background: #bbf7d0; color: #166534; }
+.vg-sectie-donkergroen { background: #dcfce7; color: #15803d; }
 .vg-items-aantal { font-weight: normal; }
 .vg-item-rij {
   display: flex;
@@ -1131,18 +1137,21 @@ input[type="text"]:focus {
 }
 .vg-toon-meer-knop:hover { background: var(--achtergrond-zacht); color: var(--tekst); }
 
-/* Prioriteit-kleuren */
-.prio-urgent { background: #fef2f2; }
-.prio-hoog   { background: #fffbeb; }
-.prio-fout   { background: #fff7ed; }
-.prio-midden { background: #f0fdf4; }
-.prio-laag   { background: var(--achtergrond); opacity: 0.8; }
+/* Prioriteit-achtergronden per staat (rij-achtergrond) */
+.prio-rood        { background: #fef2f2; }
+.prio-oranje      { background: #fff7ed; }
+.prio-geel        { background: #fefce8; }
+.prio-lichtgroen  { background: #f0fdf4; }
+.prio-donkergroen { background: var(--achtergrond); opacity: 0.8; }
+.prio-grijs       { background: var(--achtergrond); }
 
-.prio-chip-urgent { background: #fecaca; color: #b91c1c; }
-.prio-chip-hoog   { background: #fde68a; color: #92400e; }
-.prio-chip-fout   { background: #fed7aa; color: #9a3412; }
-.prio-chip-midden { background: #bbf7d0; color: #166534; }
-.prio-chip-laag   { background: #e5e7eb; color: #6b7280; }
+/* Prioriteit-chips per staat */
+.prio-chip-rood        { background: #fecaca; color: #b91c1c; }
+.prio-chip-oranje      { background: #fed7aa; color: #9a3412; }
+.prio-chip-geel        { background: #fde68a; color: #a16207; }
+.prio-chip-lichtgroen  { background: #bbf7d0; color: #166534; }
+.prio-chip-donkergroen { background: #dcfce7; color: #15803d; }
+.prio-chip-grijs       { background: #f3f4f6; color: #6b7280; }
 
 .vg-sectie-titel {
   font-size: 0.88rem;
