@@ -4,34 +4,56 @@ const SESSIE_GROOTTE = 10;
 const DREMPEL_BEHEERST = 3;
 const RECENT_GROOTTE = 3; // vermijd herhaling binnen laatste N vragen
 
-const GEWICHT = { nieuw: 3, oefenen: 4, beheerst: 1 };
-
-function gewichtVan(id, beheersing) {
-  const b = beheersing[id];
-  if (!b) return GEWICHT.nieuw;
-  return GEWICHT[b.status] ?? GEWICHT.nieuw;
+// Bepaal 1 van 6 visuele/weegstaten op basis van beheersing-entry.
+// Gespiegeld met itemStaat() in app.js — wijzigingen hier ook daar doorvoeren.
+export function staatVan(b) {
+  if (!b || b.status === 'nieuw') return 'grijs';
+  if (b.status === 'beheerst')    return 'donkergroen';
+  const rij     = b.rij     ?? 0;
+  const fout    = b.fout    ?? 0;
+  const metHint = b.metHint ?? 0;
+  if (fout === 0 && metHint === 0) return 'lichtgroen'; // zelfstandig, nooit fout
+  if (fout === 0 && metHint  > 0)  return 'geel';       // nooit fout maar leunde op hints
+  if (rij === 0)                   return 'rood';        // laatste antwoord fout
+  if (rij === 1)                   return 'oranje';      // 1 goed na een fout
+  return                                  'geel';        // 2+ goed maar eerder fout
 }
 
-// Deadline-boost: status-aware zodat ongeziene items vóór de deadline altijd
-// een kans krijgen — ook als er veel "oefenen"-items zijn.
-function deadlineBoost(item, status) {
+// Basisgewicht per staat: hoe hoger, hoe vaker het item terugkomt
+const GEWICHT = {
+  grijs:       3,  // nog niet gezien — zeker aan bod laten komen
+  rood:        6,  // laatste fout — direct herhalen
+  oranje:      5,  // 1 goed na fout — consolideren
+  geel:        4,  // hint-afhankelijk of bijna hersteld
+  lichtgroen:  3,  // goed bezig, zelfstandig — maar nog niet beheerst
+  donkergroen: 1,  // beheerst — laag gewicht, af en toe herhalen
+};
+
+// Deadline-boost per staat: ongeziene en risicovolle items zwaarder vlak voor toets
+function deadlineBoost(item, staat) {
   if (!item.toetsDatum) return 1;
   const dagenOver = (new Date(item.toetsDatum).getTime() - Date.now()) / 86400000;
-  if (dagenOver < 0) return status === 'beheerst' ? 0 : 1;
-  if (status === 'nieuw') {
-    if (dagenOver <= 1)  return 20; // dag voor toets: ongezien = topprioriteit
+  if (dagenOver < 0) return staat === 'donkergroen' ? 0 : 1; // na toets: beheerst weglaten
+  if (staat === 'grijs') {
+    // Ongezien vlak voor toets: absolute topprioriteit
+    if (dagenOver <= 1)  return 20;
     if (dagenOver <= 3)  return 12;
     if (dagenOver <= 7)  return 7;
     if (dagenOver <= 14) return 3;
     return 1;
   }
-  if (status === 'oefenen') {
+  if (staat === 'rood' || staat === 'oranje') {
     if (dagenOver <= 3)  return 6;
     if (dagenOver <= 7)  return 4;
     if (dagenOver <= 14) return 2;
     return 1;
   }
-  // beheerst: kleine boost vlak voor toets, anders laag houden
+  if (staat === 'geel' || staat === 'lichtgroen') {
+    if (dagenOver <= 3)  return 4;
+    if (dagenOver <= 7)  return 2;
+    return 1;
+  }
+  // donkergroen: kleine opfrissing vlak voor toets
   if (dagenOver <= 3)  return 3;
   if (dagenOver <= 7)  return 2;
   return 1;
@@ -43,11 +65,10 @@ export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   if (items.length === 0) return [];
 
   const gewogen = items.flatMap(item => {
-    const status = beheersing[item.id]?.status ?? 'nieuw';
-    const basis = GEWICHT[status] ?? GEWICHT.nieuw;
-    const boost = deadlineBoost(item, status);
-    // Na deadline: beheerste items weglaten
-    if (boost === 0) return [];
+    const staat = staatVan(beheersing[item.id]);
+    const basis = GEWICHT[staat];
+    const boost = deadlineBoost(item, staat);
+    if (boost === 0) return []; // na deadline: beheerste items weglaten
     const w = Math.round(basis * boost);
     return Array(w).fill(item);
   });

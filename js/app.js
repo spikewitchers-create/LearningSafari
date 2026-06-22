@@ -1,6 +1,6 @@
 import { laadData, slaOp, schrijfOefenlog } from './storage.js';
 import { spreekUit, ttsWerkt } from './tts.js';
-import { kiesOpgaven, verwerkAntwoord } from './session.js';
+import { kiesOpgaven, verwerkAntwoord, staatVan } from './session.js';
 import { genereerItems as tafelsItems } from './onderdelen/tafels.js';
 import { genereerItems as deelsomItems } from './onderdelen/deelsommen.js';
 import { genereerItems as verhaalItems } from './onderdelen/tafels-verhaal.js';
@@ -1306,20 +1306,8 @@ function toonVoortgang() {
 
   const nu = Date.now();
 
-  // Bepaal 1 van 6 visuele staten op basis van rij + fouthistorie
-  function itemStaat(id) {
-    const b = beh[id];
-    if (!b || b.status === 'nieuw') return 'grijs';
-    if (b.status === 'beheerst')    return 'donkergroen';
-    const rij     = b.rij     ?? 0;
-    const fout    = b.fout    ?? 0;
-    const metHint = b.metHint ?? 0;
-    if (fout === 0 && metHint === 0) return 'lichtgroen'; // zelfstandig, nooit fout
-    if (fout === 0 && metHint  > 0)  return 'geel';       // nooit fout, maar leunde op hints
-    if (rij === 0)                   return 'rood';        // laatste antwoord fout
-    if (rij === 1)                   return 'oranje';      // 1 goed na een fout
-    return                                  'geel';        // 2+ goed maar eerder fout
-  }
+  // Wrapper: gebruik gedeelde staatVan() uit session.js
+  function itemStaat(id) { return staatVan(beh[id]); }
 
   // Prioriteitsscore + chip-klasse voor sorteren en labels
   function itemPrioriteit(item) {
