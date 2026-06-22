@@ -1304,24 +1304,95 @@ function toonVoortgang() {
     ]},
   ];
 
+  const nu = Date.now();
+
+  function itemPrioriteit(item) {
+    const status = beh[item.id]?.status ?? 'nieuw';
+    const toets  = item.toetsDatum ? new Date(item.toetsDatum).getTime() : null;
+    const dagen  = toets ? (toets - nu) / 86400000 : 999;
+    if (status === 'beheerst') return { score: 1, chip: 'laag',    label: 'Beheerst' };
+    if (status === 'oefenen') {
+      if (dagen <= 3)  return { score: 5, chip: 'urgent', label: 'Deadline!' };
+      if (dagen <= 7)  return { score: 4, chip: 'hoog',   label: 'Deadline nadert' };
+      return               { score: 3, chip: 'midden',  label: 'In oefening' };
+    }
+    // nieuw
+    if (dagen <= 3)  return { score: 8, chip: 'urgent', label: 'Deadline — ongezien!' };
+    if (dagen <= 7)  return { score: 7, chip: 'urgent', label: 'Deadline nadert' };
+    if (dagen <= 14) return { score: 6, chip: 'hoog',   label: 'Nog niet gezien' };
+    return               { score: 4, chip: 'hoog',   label: 'Nog niet gezien' };
+  }
+
   function maakOnderdeelRij(o) {
-    const match = ([id]) => id.startsWith(o.prefix);
-    const beheerst = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
-    const oefenen  = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen').length;
-    const gezien = beheerst + oefenen + Object.entries(beh).filter(e => match(e) && e[1].status === 'nieuw').length;
-    const pct = Math.round((beheerst / o.totaal) * 100);
-    const div = document.createElement('div');
-    div.className = 'vg-onderdeel';
-    div.innerHTML = `
+    const match     = ([id]) => id.startsWith(o.prefix);
+    const beheerst  = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
+    const oefenen   = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen').length;
+    const pct       = Math.round((beheerst / o.totaal) * 100);
+    const oefen_pct = Math.round(((beheerst + oefenen) / o.totaal) * 100);
+    const nogniet   = o.totaal - beheerst - oefenen;
+
+    // Zoek pool-items via ALLE_POOLS
+    const poolItems = ALLE_POOLS.flatMap(p => p.pool.filter(it => it.id.startsWith(o.prefix)));
+
+    const el = document.createElement('details');
+    el.className = 'vg-onderdeel-details';
+
+    const summary = document.createElement('summary');
+    summary.className = 'vg-onderdeel';
+    summary.innerHTML = `
       <div class="vg-onderdeel-kop">
         <span>${o.label}</span>
         <span class="vg-cijfer">${beheerst} / ${o.totaal}</span>
       </div>
       <div class="vg-balk-wrap">
+        <div class="vg-balk-vul vg-balk-oefenen" style="width:${oefen_pct}%"></div>
         <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
       </div>
-      <p class="vg-sub">${beheerst} beheerst · ${oefenen} in oefening · ${o.totaal - beheerst - oefenen} nog niet gezien</p>`;
-    return div;
+      <div class="vg-sub-rij">
+        <span class="vg-chip vg-chip-beheerst">✓ ${beheerst}</span>
+        <span class="vg-chip vg-chip-oefenen">~ ${oefenen}</span>
+        <span class="vg-chip vg-chip-nieuw">? ${nogniet}</span>
+        <span class="vg-onderdeel-pijl">▸</span>
+      </div>`;
+    el.appendChild(summary);
+
+    if (poolItems.length > 0) {
+      const inhoud = document.createElement('div');
+      inhoud.className = 'vg-items-inhoud';
+
+      const nognietItems  = poolItems.filter(it => { const s = beh[it.id]?.status; return !s || s === 'nieuw'; });
+      const oefenenItems  = poolItems.filter(it => beh[it.id]?.status === 'oefenen');
+      const beheerstItems = poolItems.filter(it => beh[it.id]?.status === 'beheerst');
+
+      const sorter = (a, b) => itemPrioriteit(b).score - itemPrioriteit(a).score;
+
+      function sectie(items, titel, maxToon = 12) {
+        if (items.length === 0) return '';
+        const gesorteerd = [...items].sort(sorter);
+        const rijen = gesorteerd.slice(0, maxToon).map(it => {
+          const p = itemPrioriteit(it);
+          return `<div class="vg-item-rij prio-${p.chip}">
+            <span class="vg-item-chip prio-chip-${p.chip}">${p.label}</span>
+            <span class="vg-item-vraag">${it.vraag}</span>
+          </div>`;
+        }).join('');
+        const meer = items.length > maxToon
+          ? `<p class="vg-item-meer">+ ${items.length - maxToon} meer</p>` : '';
+        return `<div class="vg-items-sectie">
+          <p class="vg-items-sectie-titel">${titel} <span class="vg-items-aantal">(${items.length})</span></p>
+          ${rijen}${meer}
+        </div>`;
+      }
+
+      inhoud.innerHTML =
+        sectie(nognietItems,  '🔴 Nog niet gezien') +
+        sectie(oefenenItems,  '🟡 In oefening') +
+        sectie(beheerstItems, '🟢 Beheerst', 8);
+
+      el.appendChild(inhoud);
+    }
+
+    return el;
   }
 
   const vgOnderdelen = document.getElementById('vg-onderdelen');
