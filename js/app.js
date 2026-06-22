@@ -1328,12 +1328,15 @@ function toonVoortgang() {
   }
 
   function maakOnderdeelRij(o) {
-    const match     = ([id]) => id.startsWith(o.prefix);
-    const beheerst  = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
-    const oefenen   = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen').length;
-    const pct       = Math.round((beheerst / o.totaal) * 100);
-    const oefen_pct = Math.round(((beheerst + oefenen) / o.totaal) * 100);
-    const nogniet   = o.totaal - beheerst - oefenen;
+    const match      = ([id]) => id.startsWith(o.prefix);
+    const beheerst   = Object.entries(beh).filter(e => match(e) && e[1].status === 'beheerst').length;
+    const fout       = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen' && (e[1].rij ?? 0) === 0).length;
+    const goedBezig  = Object.entries(beh).filter(e => match(e) && e[1].status === 'oefenen' && (e[1].rij ?? 0)  > 0).length;
+    const nogniet    = o.totaal - beheerst - fout - goedBezig;
+
+    const pct_beh  = Math.round((beheerst / o.totaal) * 100);
+    const pct_goed = Math.round(((beheerst + goedBezig) / o.totaal) * 100);
+    const pct_fout = Math.round(((beheerst + goedBezig + fout) / o.totaal) * 100);
 
     // Zoek pool-items via ALLE_POOLS
     const poolItems = ALLE_POOLS.flatMap(p => p.pool.filter(it => it.id.startsWith(o.prefix)));
@@ -1349,13 +1352,15 @@ function toonVoortgang() {
         <span class="vg-cijfer">${beheerst} / ${o.totaal}</span>
       </div>
       <div class="vg-balk-wrap">
-        <div class="vg-balk-vul vg-balk-oefenen" style="width:${oefen_pct}%"></div>
-        <div class="vg-balk-vul vg-balk-beheerst" style="width:${pct}%"></div>
+        <div class="vg-balk-vul vg-balk-fout"     style="width:${pct_fout}%"></div>
+        <div class="vg-balk-vul vg-balk-goedbezig" style="width:${pct_goed}%"></div>
+        <div class="vg-balk-vul vg-balk-beheerst"  style="width:${pct_beh}%"></div>
       </div>
       <div class="vg-sub-rij">
         <span class="vg-chip vg-chip-beheerst">✓ ${beheerst}</span>
-        <span class="vg-chip vg-chip-oefenen">~ ${oefenen}</span>
-        <span class="vg-chip vg-chip-nieuw">? ${nogniet}</span>
+        ${goedBezig > 0 ? `<span class="vg-chip vg-chip-goedbezig">~ ${goedBezig}</span>` : ''}
+        ${fout      > 0 ? `<span class="vg-chip vg-chip-fout">✗ ${fout}</span>`      : ''}
+        ${nogniet   > 0 ? `<span class="vg-chip vg-chip-nieuw">? ${nogniet}</span>`   : ''}
         <span class="vg-onderdeel-pijl">▸</span>
       </div>`;
     el.appendChild(summary);
@@ -1380,7 +1385,7 @@ function toonVoortgang() {
         </div>`;
       }
 
-      function sectie(items, titel, maxToon = 12) {
+      function sectie(items, titel, maxToon = 12, titelKlasse = '') {
         if (items.length === 0) return '';
         const gesorteerd = [...items].sort(sorter);
         const zichtbaar = gesorteerd.slice(0, maxToon);
@@ -1391,16 +1396,16 @@ function toonVoortgang() {
                Toon alle ${items.length} ▾
              </button>` : '';
         return `<div class="vg-items-sectie">
-          <p class="vg-items-sectie-titel">${titel} <span class="vg-items-aantal">(${items.length})</span></p>
+          <p class="vg-items-sectie-titel ${titelKlasse}">${titel} <span class="vg-items-aantal">(${items.length})</span></p>
           ${zichtbaar.map(maakRij).join('')}${meerHTML}
         </div>`;
       }
 
       inhoud.innerHTML =
-        sectie(nognietItems,   '🔴 Nog niet gezien') +
-        sectie(foutItems,      '🟠 Fout gemaakt — herhalen') +
-        sectie(goedBezigItems, '🟡 Goed bezig — bijna beheerst') +
-        sectie(beheerstItems,  '🟢 Beheerst', 8);
+        sectie(nognietItems,   '🔴 Nog niet gezien',          12, 'vg-sectie-rood') +
+        sectie(foutItems,      '🟠 Fout gemaakt — herhalen',  12, 'vg-sectie-oranje') +
+        sectie(goedBezigItems, '🟡 Goed bezig — bijna beheerst', 12, 'vg-sectie-geelgroen') +
+        sectie(beheerstItems,  '🟢 Beheerst',                  8, 'vg-sectie-groen');
 
       el.appendChild(inhoud);
     }

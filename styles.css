@@ -1049,8 +1049,9 @@ input[type="text"]:focus {
   transition: width 0.4s ease;
 }
 
-.vg-balk-beheerst { background: var(--goed); position: absolute; top: 0; left: 0; }
-.vg-balk-oefenen  { background: #fbbf24; position: absolute; top: 0; left: 0; }
+.vg-balk-beheerst  { background: #22c55e; position: absolute; top: 0; left: 0; }
+.vg-balk-goedbezig { background: #a3e635; position: absolute; top: 0; left: 0; }
+.vg-balk-fout      { background: #fb923c; position: absolute; top: 0; left: 0; }
 .vg-balk-wrap { position: relative; }
 
 /* Sub-rij met chips en pijl */
@@ -1067,9 +1068,10 @@ input[type="text"]:focus {
   padding: 0.1rem 0.45rem;
   border-radius: 99px;
 }
-.vg-chip-beheerst { background: #dcfce7; color: #16a34a; }
-.vg-chip-oefenen  { background: #fef9c3; color: #a16207; }
-.vg-chip-nieuw    { background: #fee2e2; color: #b91c1c; }
+.vg-chip-beheerst  { background: #dcfce7; color: #16a34a; }
+.vg-chip-goedbezig { background: #ecfccb; color: #3f6212; }
+.vg-chip-fout      { background: #ffedd5; color: #9a3412; }
+.vg-chip-nieuw     { background: #fee2e2; color: #b91c1c; }
 .vg-onderdeel-pijl { margin-left: auto; font-size: 0.75rem; color: var(--tekst-zacht); transition: transform 0.2s; }
 
 /* Uitklapbare onderdeel-rij */
@@ -1090,12 +1092,19 @@ input[type="text"]:focus {
 .vg-items-sectie { display: flex; flex-direction: column; gap: 0.2rem; }
 .vg-items-sectie-titel {
   font-size: 0.72rem;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--tekst-zacht);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.2rem;
+  margin: 0.4rem 0 0.2rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
 }
+/* Sectie-titels krijgen passende achtergrond per groep */
+.vg-sectie-rood      { background: #fee2e2; color: #b91c1c; }
+.vg-sectie-oranje    { background: #ffedd5; color: #9a3412; }
+.vg-sectie-geelgroen { background: #ecfccb; color: #3f6212; }
+.vg-sectie-groen     { background: #dcfce7; color: #16a34a; }
 .vg-items-aantal { font-weight: normal; }
 .vg-item-rij {
   display: flex;
