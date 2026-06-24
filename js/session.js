@@ -60,23 +60,47 @@ function deadlineBoost(item, staat) {
 }
 
 // Kiest `aantal` items gewogen op beheersing.
-// Vermijdt herhaling van de laatste RECENT_GROOTTE items.
+// Garandeert spreiding: alle unieke items komen minstens 1× voor als de pool
+// klein genoeg is. Daarna wordt aangevuld met gewogen willekeurige selectie.
 export function kiesOpgaven(items, beheersing, aantal = SESSIE_GROOTTE) {
   if (items.length === 0) return [];
 
-  const gewogen = items.flatMap(item => {
+  // Bouw gewogen pool — beheerste items na deadline krijgen gewicht 1 (onderhoud)
+  const itemGewicht = item => {
     const staat = staatVan(beheersing[item.id]);
     const basis = GEWICHT[staat];
     const boost = deadlineBoost(item, staat);
-    if (boost === 0) return []; // na deadline: beheerste items weglaten
-    const w = Math.round(basis * boost);
-    return Array(w).fill(item);
-  });
+    return Math.max(1, Math.round(basis * boost)); // minimaal 1, nooit weggooien
+  };
+
+  const uniekeItems = items.filter(it => itemGewicht(it) > 0);
+  if (uniekeItems.length === 0) return [];
+
+  // Fase 1: shuffle alle unieke items zodat elk minstens 1× aan bod komt
+  // (als er minder unieke items dan sessieslots zijn)
+  const shuffle = arr => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
 
   const gekozen = [];
-  const recent = new Set();
 
-  for (let i = 0; i < aantal; i++) {
+  if (uniekeItems.length <= aantal) {
+    // Alle items passen in de sessie: shuffle ze als basisvolgorde
+    gekozen.push(...shuffle(uniekeItems));
+  }
+
+  // Fase 2: vul aan tot `aantal` met gewogen willekeurige selectie
+  const gewogen = uniekeItems.flatMap(item =>
+    Array(itemGewicht(item)).fill(item)
+  );
+  const recent = new Set(gekozen.slice(-RECENT_GROOTTE).map(it => it.id));
+
+  while (gekozen.length < aantal) {
     const kandidaten = gewogen.filter(it => !recent.has(it.id));
     const pool = kandidaten.length > 0 ? kandidaten : gewogen;
     const opgave = pool[Math.floor(Math.random() * pool.length)];
