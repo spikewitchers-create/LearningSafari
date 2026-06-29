@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hemodynamica Simulator – ΔP = F × R</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1923;
+      color: #e8edf2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Header ── */
+    .sim-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .sim-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e84393 0%, #f97316 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sim-header p {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: #8fa3b8;
+    }
+
+    /* ── Formula Banner ── */
+    .formula-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #162030;
+      border: 1px solid #1e3248;
+      border-radius: 16px;
+      padding: 18px 32px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .formula-term {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .formula-symbol {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      transition: color 0.3s, transform 0.3s;
+    }
+    .formula-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8fa3b8;
+    }
+    .formula-op {
+      font-size: 2rem;
+      font-weight: 300;
+      color: #4a6680;
+      line-height: 1;
+    }
+    .sym-dp  { color: #60c9f8; }
+    .sym-f   { color: #34d399; }
+    .sym-r   { color: #f97316; }
+
+    /* ── Main Layout ── */
+    .sim-body {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      width: 100%;
+      max-width: 960px;
+    }
+    @media (max-width: 720px) {
+      .sim-body { grid-template-columns: 1fr; }
+    }
+
+    /* ── Vessel Canvas ── */
+    .vessel-panel {
+      background: #162030;
+      border: 1px solid #1e3248;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .vessel-panel h2 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8fa3b8;
+    }
+    #vesselCanvas {
+      width: 100%;
+      border-radius: 12px;
+      background: #0d1821;
+      display: block;
+    }
+
+    /* ── Gauges row ── */
+    .gauge-row {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+    .gauge {
+      flex: 1;
+      background: #0d1821;
+      border-radius: 12px;
+      padding: 14px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .gauge-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8fa3b8;
+    }
+    .gauge-arc-wrap {
+      position: relative;
+      width: 80px;
+      height: 45px;
+      overflow: hidden;
+    }
+    .gauge-arc-bg, .gauge-arc-fill {
+      position: absolute;
+      top: 0; left: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 8px solid transparent;
+    }
+    .gauge-arc-bg  { border-color: #1e3248 #1e3248 transparent transparent; transform: rotate(-45deg); }
+    .gauge-arc-fill { border-color: var(--gauge-color) var(--gauge-color) transparent transparent;
+                      transform: rotate(calc(-45deg + var(--gauge-angle, 0deg)));
+                      transition: transform 0.4s cubic-bezier(.4,0,.2,1); }
+    .gauge-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gauge-color);
+    }
+    .gauge-unit {
+      font-size: 0.65rem;
+      color: #4a6680;
+    }
+    .gauge-dp  { --gauge-color: #60c9f8; }
+    .gauge-f   { --gauge-color: #34d399; }
+    .gauge-r   { --gauge-color: #f97316; }
+
+    /* ── Controls Panel ── */
+    .controls-panel {
+      background: #162030;
+      border: 1px solid #1e3248;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .controls-panel h2 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8fa3b8;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .slider-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    .slider-val {
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .slider-desc {
+      font-size: 0.72rem;
+      color: #8fa3b8;
+      margin-bottom: 2px;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    input[type=range]:hover { opacity: 0.9; }
+    input[type=range].range-f {
+      background: linear-gradient(to right, #34d399 var(--pct, 50%), #1e3248 var(--pct, 50%));
+    }
+    input[type=range].range-r {
+      background: linear-gradient(to right, #f97316 var(--pct, 50%), #1e3248 var(--pct, 50%));
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #e8edf2;
+      border: 3px solid var(--thumb-color, #60c9f8);
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+      transition: transform 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:active { transform: scale(1.25); }
+    input[type=range].range-f::-webkit-slider-thumb { --thumb-color: #34d399; }
+    input[type=range].range-r::-webkit-slider-thumb { --thumb-color: #f97316; }
+
+    /* ── Presets ── */
+    .preset-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .preset-row h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8fa3b8;
+    }
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .preset-btn {
+      background: #0d1821;
+      border: 1px solid #1e3248;
+      border-radius: 10px;
+      color: #e8edf2;
+      font-size: 0.75rem;
+      padding: 8px 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s, border-color 0.2s;
+      line-height: 1.4;
+    }
+    .preset-btn:hover { background: #1e3248; border-color: #2d4a66; }
+    .preset-btn strong { display: block; font-size: 0.8rem; margin-bottom: 2px; }
+    .preset-btn.active { border-color: #60c9f8; background: #0d2235; }
+
+    /* ── Insight Box ── */
+    .insight-box {
+      background: #0d1821;
+      border-left: 3px solid #60c9f8;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #b8cfe0;
+      min-height: 60px;
+      transition: border-color 0.4s;
+    }
+
+    /* ── Mode Toggle ── */
+    .mode-toggle {
+      display: flex;
+      gap: 8px;
+    }
+    .mode-btn {
+      flex: 1;
+      background: #0d1821;
+      border: 1px solid #1e3248;
+      border-radius: 8px;
+      color: #8fa3b8;
+      font-size: 0.75rem;
+      padding: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: #1e3248;
+      color: #e8edf2;
+      border-color: #2d4a66;
+    }
+
+    /* ── Quiz overlay ── */
+    .quiz-section {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quiz-section.visible { display: flex; }
+    .quiz-q {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e8edf2;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: 6px; }
+    .quiz-opt {
+      background: #0d1821;
+      border: 1px solid #1e3248;
+      border-radius: 8px;
+      color: #e8edf2;
+      font-size: 0.78rem;
+      padding: 9px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .quiz-opt:hover { background: #1e3248; }
+    .quiz-opt.correct { border-color: #34d399; background: #0a2a1e; color: #34d399; }
+    .quiz-opt.wrong   { border-color: #ef4444; background: #2a0a0a; color: #ef4444; }
+    .quiz-feedback {
+      font-size: 0.78rem;
+      line-height: 1.5;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: none;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok  { background: #0a2a1e; color: #34d399; border: 1px solid #34d399; }
+    .quiz-feedback.nok { background: #2a0a0a; color: #ef4444; border: 1px solid #ef4444; }
+    .quiz-next {
+      align-self: flex-end;
+      background: #1e3248;
+      border: 1px solid #2d4a66;
+      border-radius: 8px;
+      color: #e8edf2;
+      font-size: 0.78rem;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: none;
+      transition: background 0.2s;
+    }
+    .quiz-next.show { display: block; }
+    .quiz-next:hover { background: #2d4a66; }
+
+    /* ── Legend ── */
+    .legend {
+      font-size: 0.7rem;
+      color: #4a6680;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="sim-header">
+  <h1>Hemodynamica Simulator</h1>
+  <p>Ontdek hoe druk, flow en weerstand samenhangen in de bloedsomloop</p>
+</header>
+
+<!-- Formula Banner -->
+<div class="formula-banner">
+  <div class="formula-term">
+    <span class="formula-symbol sym-dp" id="fs-dp">ΔP</span>
+    <span class="formula-label">Drukverval (mmHg)</span>
+  </div>
+  <span class="formula-op">=</span>
+  <div class="formula-term">
+    <span class="formula-symbol sym-f" id="fs-f">F</span>
+    <span class="formula-label">Flow (L/min)</span>
+  </div>
+  <span class="formula-op">×</span>
+  <div class="formula-term">
+    <span class="formula-symbol sym-r" id="fs-r">R</span>
+    <span class="formula-label">Weerstand (PRE)</span>
+  </div>
+</div>
+
+<!-- Main body -->
+<div class="sim-body">
+
+  <!-- Left: vessel + gauges -->
+  <div class="vessel-panel">
+    <h2>Bloedvat visualisatie</h2>
+    <canvas id="vesselCanvas" height="200"></canvas>
+    <div class="gauge-row">
+      <div class="gauge gauge-dp">
+        <span class="gauge-title">ΔP</span>
+        <div class="gauge-arc-wrap">
+          <div class="gauge-arc-bg"></div>
+          <div class="gauge-arc-fill" id="arc-dp"></div>
+        </div>
+        <span class="gauge-value" id="gv-dp">—</span>
+        <span class="gauge-unit">mmHg</span>
+      </div>
+      <div class="gauge gauge-f">
+        <span class="gauge-title">Flow (F)</span>
+        <div class="gauge-arc-wrap">
+          <div class="gauge-arc-bg"></div>
+          <div class="gauge-arc-fill" id="arc-f"></div>
+        </div>
+        <span class="gauge-value" id="gv-f">—</span>
+        <span class="gauge-unit">L/min</span>
+      </div>
+      <div class="gauge gauge-r">
+        <span class="gauge-title">Weerstand (R)</span>
+        <div class="gauge-arc-wrap">
+          <div class="gauge-arc-bg"></div>
+          <div class="gauge-arc-fill" id="arc-r"></div>
+        </div>
+        <span class="gauge-value" id="gv-r">—</span>
+        <span class="gauge-unit">PRE</span>
+      </div>
+    </div>
+    <p class="legend">PRE = Peripheral Resistance Unit = mmHg·min/L</p>
+  </div>
+
+  <!-- Right: controls -->
+  <div class="controls-panel">
+    <div>
+      <h2 style="margin-bottom:12px">Modus</h2>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-explore" onclick="setMode('explore')">Verkennen</button>
+        <button class="mode-btn" id="btn-quiz" onclick="setMode('quiz')">Quiz</button>
+      </div>
+    </div>
+
+    <!-- Explore mode -->
+    <div id="explore-section">
+      <!-- Flow slider -->
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-name" style="color:#34d399">Flow (F)</span>
+          <span class="slider-val" style="color:#34d399" id="val-f">5.0 L/min</span>
+        </div>
+        <p class="slider-desc">Hartminuutvolume — normaal ≈ 5 L/min</p>
+        <input type="range" class="range-f" id="slider-f" min="1" max="20" step="0.5" value="5">
+      </div>
+
+      <!-- Resistance slider -->
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="slider-name" style="color:#f97316">Weerstand (R)</span>
+          <span class="slider-val" style="color:#f97316" id="val-r">16 PRE</span>
+        </div>
+        <p class="slider-desc">Totale perifere weerstand — normaal ≈ 16 PRE</p>
+        <input type="range" class="range-r" id="slider-r" min="2" max="60" step="1" value="16">
+      </div>
+
+      <!-- Presets -->
+      <div class="preset-row">
+        <h3>Klinische scenario's</h3>
+        <div class="preset-buttons">
+          <button class="preset-btn active" id="preset-normal" onclick="applyPreset('normal')">
+            <strong>Normaal</strong>Rust, gezond volwassene
+          </button>
+          <button class="preset-btn" id="preset-exercise" onclick="applyPreset('exercise')">
+            <strong>Inspanning</strong>Maximale aerobe belasting
+          </button>
+          <button class="preset-btn" id="preset-sepsis" onclick="applyPreset('sepsis')">
+            <strong>Septische shock</strong>Vasodilatatie & hoge flow
+          </button>
+          <button class="preset-btn" id="preset-htn" onclick="applyPreset('htn')">
+            <strong>Hypertensie</strong>Verhoogde weerstand
+          </button>
+        </div>
+      </div>
+
+      <!-- Insight -->
+      <div class="insight-box" id="insight-box">
+        Versleep de schuifregelaars om te zien hoe drukverval verandert.
+      </div>
+    </div>
+
+    <!-- Quiz mode -->
+    <div class="quiz-section" id="quiz-section">
+      <div class="quiz-q" id="quiz-q"></div>
+      <div class="quiz-options" id="quiz-opts"></div>
+      <div class="quiz-feedback" id="quiz-fb"></div>
+      <button class="quiz-next" id="quiz-next" onclick="nextQuestion()">Volgende vraag →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Constants & State ── */
+const PRESETS = {
+  normal:   { f: 5,  r: 16, label: 'Normaal' },
+  exercise: { f: 20, r: 4,  label: 'Inspanning' },
+  sepsis:   { f: 14, r: 6,  label: 'Septische shock' },
+  htn:      { f: 5,  r: 32, label: 'Hypertensie' },
+};
+
+const INSIGHTS = {
+  normal:   'Bij rust pompt het hart ~5 L/min tegen een normale perifere weerstand. Het resulterende drukverval (~80 mmHg) reflecteert de gemiddelde arteriële druk.',
+  exercise: 'Bij inspanning verhoogt het hartdebiet sterk (tot 20 L/min) terwijl vaatdilatatie in spieren de weerstand verlaagt. Hierdoor blijft ΔP relatief beperkt.',
+  sepsis:   'Sepsis veroorzaakt massale vasodilatatie (↓R). Ondanks verhoogd hartdebiet daalt ΔP drastisch → hypotensie. Behandeling: vocht + vasopressoren.',
+  htn:      'Bij hypertensie is de arteriële weerstand chronisch verhoogd. Bij gelijke flow stijgt ΔP → overbelasting van hart en vaatwand.',
+  default:  '',
+};
+
+let state = { f: 5, r: 16, mode: 'explore', activePreset: 'normal' };
+let animFrame = null;
+let particles = [];
+let quizIndex = 0;
+let quizAnswered = false;
+
+/* ── Canvas Setup ── */
+const canvas = document.getElementById('vesselCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+/* ── Particle system ── */
+function spawnParticle() {
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  const diameter = vesselDiameter(); // px
+  const cx = H / 2;
+  const speed = (state.f / 20) * 3.5 + 0.4; // px/frame
+  const y = cx + (Math.random() - 0.5) * (diameter - 6);
+  particles.push({
+    x: 0,
+    y,
+    r: Math.random() * 2 + 1.5,
+    speed,
+    alpha: Math.random() * 0.5 + 0.5,
+  });
+}
+
+function vesselDiameter() {
+  // Vessel width shrinks with higher resistance (vasoconstriction)
+  const H = canvas.offsetHeight;
+  const minD = H * 0.18;
+  const maxD = H * 0.65;
+  const t = 1 - (state.r - 2) / 58; // 0→min, 1→max
+  return minD + t * (maxD - minD);
+}
+
+function drawVessel() {
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  const cx = H / 2;
+  const d = vesselDiameter();
+  const top = cx - d / 2;
+  const bot = cx + d / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Vessel wall gradient
+  const wallGrad = ctx.createLinearGradient(0, top - 8, 0, bot + 8);
+  wallGrad.addColorStop(0,   'rgba(255,120,80,0.15)');
+  wallGrad.addColorStop(0.5, 'rgba(220,60,60,0.35)');
+  wallGrad.addColorStop(1,   'rgba(255,120,80,0.15)');
+  ctx.beginPath();
+  ctx.roundRect(0, top - 8, W, d + 16, 8);
+  ctx.fillStyle = wallGrad;
+  ctx.fill();
+
+  // Inner lumen
+  const lumenGrad = ctx.createLinearGradient(0, top, 0, bot);
+  lumenGrad.addColorStop(0,   '#3a0a0a');
+  lumenGrad.addColorStop(0.5, '#1a0505');
+  lumenGrad.addColorStop(1,   '#3a0a0a');
+  ctx.beginPath();
+  ctx.roundRect(0, top, W, d, 4);
+  ctx.fillStyle = lumenGrad;
+  ctx.fill();
+
+  // Pressure gradient overlay (left=high, right=low)
+  const pressGrad = ctx.createLinearGradient(0, 0, W, 0);
+  const alpha = Math.min(state.f * state.r / 160, 1) * 0.18;
+  pressGrad.addColorStop(0,   `rgba(96,201,248,${alpha * 1.5})`);
+  pressGrad.addColorStop(0.5, `rgba(96,201,248,${alpha * 0.5})`);
+  pressGrad.addColorStop(1,   `rgba(96,201,248,0)`);
+  ctx.beginPath();
+  ctx.roundRect(0, top, W, d, 4);
+  ctx.fillStyle = pressGrad;
+  ctx.fill();
+}
+
+function drawParticles() {
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  const cx = H / 2;
+  const d = vesselDiameter();
+
+  for (let p of particles) {
+    // Laminar flow profile: faster in centre
+    const dy = Math.abs(p.y - cx);
+    const profile = 1 - Math.pow(dy / (d / 2), 2);
+    p.x += p.speed * profile * 1.4;
+
+    const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2);
+    grad.addColorStop(0,   `rgba(210,60,60,${p.alpha})`);
+    grad.addColorStop(0.5, `rgba(160,20,20,${p.alpha * 0.7})`);
+    grad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // Remove off-screen particles
+  particles = particles.filter(p => p.x < W + 10);
+}
+
+function drawLabels() {
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  ctx.font = `${Math.round(11 * devicePixelRatio / devicePixelRatio)}px 'Segoe UI', sans-serif`;
+  ctx.fillStyle = 'rgba(96,201,248,0.9)';
+  ctx.fillText('Hoge druk (P₁)', 8, 16);
+  ctx.fillStyle = 'rgba(96,201,248,0.5)';
+  ctx.textAlign = 'right';
+  ctx.fillText('Lage druk (P₂)', W - 8, 16);
+  ctx.textAlign = 'left';
+
+  // Arrow indicating flow direction
+  const cy = H / 2;
+  ctx.strokeStyle = 'rgba(52,211,153,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(W * 0.35, cy);
+  ctx.lineTo(W * 0.65, cy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(52,211,153,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(W * 0.65, cy);
+  ctx.lineTo(W * 0.65 - 8, cy - 5);
+  ctx.lineTo(W * 0.65 - 8, cy + 5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+let frameCount = 0;
+function animate() {
+  animFrame = requestAnimationFrame(animate);
+  frameCount++;
+
+  // Spawn particles based on flow rate
+  const spawnRate = Math.max(1, Math.round(6 / (state.f / 5)));
+  if (frameCount % spawnRate === 0) spawnParticle();
+
+  drawVessel();
+  drawParticles();
+  drawLabels();
+}
+
+/* ── Gauge helpers ── */
+function setGauge(id, value, max) {
+  const deg = Math.min(value / max, 1) * 180;
+  document.getElementById(id).style.setProperty('--gauge-angle', deg + 'deg');
+}
+
+/* ── Update UI ── */
+function updateUI() {
+  const { f, r } = state;
+  const dp = +(f * r).toFixed(0);
+
+  // Values
+  document.getElementById('gv-dp').textContent = dp;
+  document.getElementById('gv-f').textContent  = f % 1 === 0 ? f : f.toFixed(1);
+  document.getElementById('gv-r').textContent  = r;
+
+  // Gauges
+  setGauge('arc-dp', dp, 400);
+  setGauge('arc-f',  f,  20);
+  setGauge('arc-r',  r,  60);
+
+  // Formula highlight
+  const dpEl = document.getElementById('fs-dp');
+  dpEl.style.transform = `scale(${1 + Math.min(dp / 400, 0.6) * 0.3})`;
+
+  // Sliders fill
+  const slF = document.getElementById('slider-f');
+  const slR = document.getElementById('slider-r');
+  const pctF = ((f - 1) / 19 * 100).toFixed(1);
+  const pctR = ((r - 2) / 58 * 100).toFixed(1);
+  slF.style.setProperty('--pct', pctF + '%');
+  slR.style.setProperty('--pct', pctR + '%');
+  document.getElementById('val-f').textContent = (f % 1 === 0 ? f : f.toFixed(1)) + ' L/min';
+  document.getElementById('val-r').textContent = r + ' PRE';
+
+  // Insight
+  const presetKey = Object.keys(PRESETS).find(k => PRESETS[k].f === f && PRESETS[k].r === r);
+  const box = document.getElementById('insight-box');
+  if (presetKey && INSIGHTS[presetKey]) {
+    box.textContent = INSIGHTS[presetKey];
+    box.style.borderColor = '#60c9f8';
+  } else {
+    let msg = '';
+    if (dp > 200)      msg = `⚠️ ΔP = ${dp} mmHg — ernstige hypertensie. Hoge weerstand of hoog debiet belasten hart en vaten.`;
+    else if (dp < 40)  msg = `⚠️ ΔP = ${dp} mmHg — gevaarlijk lage druk (shock?). Controleer flow en weerstand.`;
+    else               msg = `ΔP = ${dp} mmHg — bereken zelf: ${f % 1 === 0 ? f : f.toFixed(1)} L/min × ${r} PRE = ${dp} mmHg.`;
+    box.textContent = msg;
+    box.style.borderColor = dp > 200 || dp < 40 ? '#f97316' : '#60c9f8';
+  }
+}
+
+/* ── Sliders ── */
+document.getElementById('slider-f').addEventListener('input', e => {
+  state.f = parseFloat(e.target.value);
+  clearActivePreset();
+  updateUI();
+});
+document.getElementById('slider-r').addEventListener('input', e => {
+  state.r = parseInt(e.target.value);
+  clearActivePreset();
+  updateUI();
+});
+
+function clearActivePreset() {
+  state.activePreset = null;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+}
+
+/* ── Presets ── */
+function applyPreset(key) {
+  const p = PRESETS[key];
+  state.f = p.f;
+  state.r = p.r;
+  state.activePreset = key;
+  document.getElementById('slider-f').value = p.f;
+  document.getElementById('slider-r').value = p.r;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('preset-' + key).classList.add('active');
+  updateUI();
+}
+
+/* ── Mode toggle ── */
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('btn-explore').classList.toggle('active', m === 'explore');
+  document.getElementById('btn-quiz').classList.toggle('active', m === 'quiz');
+  document.getElementById('explore-section').style.display = m === 'explore' ? '' : 'none';
+  document.getElementById('quiz-section').classList.toggle('visible', m === 'quiz');
+  if (m === 'quiz') { quizIndex = 0; loadQuestion(); }
+}
+
+/* ── Quiz ── */
+const QUESTIONS = [
+  {
+    q: 'Een patiënt heeft een hartdebiet van 5 L/min en een totale perifere weerstand van 20 PRE. Wat is het drukverval?',
+    opts: ['60 mmHg', '100 mmHg', '120 mmHg', '25 mmHg'],
+    correct: 1,
+    fb: 'ΔP = F × R = 5 × 20 = 100 mmHg. Dit is de gemiddelde arteriële druk minus veneuze druk.',
+  },
+  {
+    q: 'Bij septische shock daalt de perifere weerstand sterk. Welk effect heeft dit op ΔP als het hartdebiet gelijk blijft?',
+    opts: ['ΔP stijgt', 'ΔP daalt', 'ΔP blijft gelijk', 'Afhankelijk van hartfrequentie'],
+    correct: 1,
+    fb: 'Lagere R bij gelijke F → ΔP = F × R daalt. Dit verklaart de hypotensie bij sepsis.',
+  },
+  {
+    q: 'Een arts wil de bloeddruk normaliseren bij een patiënt met ΔP = 50 mmHg en F = 5 L/min. De R = 10 PRE. Welke maatregel verhoogt ΔP het meest?',
+    opts: ['F verhogen naar 8 L/min', 'R verhogen naar 16 PRE', 'Beide maatregelen tegelijk', 'De formule ΔP = F × R is hier niet van toepassing'],
+    correct: 2,
+    fb: 'F=8, R=10 → ΔP=80 | F=5, R=16 → ΔP=80 | F=8, R=16 → ΔP=128. Beide verhogen ΔP, maar gecombineerd het meest.',
+  },
+  {
+    q: 'Wat beschrijft de variabele R (weerstand) klinisch het best?',
+    opts: ['Hartfrequentie × slagvolume', 'Viscositeit × buislengte / straal⁴ (Wet van Poiseuille)', 'Arteriële compliantie', 'Veneuze terugvloed'],
+    correct: 1,
+    fb: 'Volgens de wet van Poiseuille: R = 8ηL / πr⁴. De straal heeft de grootste invloed (tot de 4e macht). Kleine vaatvernauwing → enorme weerstandstoename.',
+  },
+  {
+    q: 'Bij intensieve inspanning kan het hartdebiet stijgen naar 20 L/min. De weerstand daalt naar 4 PRE. Wat is ΔP?',
+    opts: ['80 mmHg', '24 mmHg', '400 mmHg', '50 mmHg'],
+    correct: 0,
+    fb: 'ΔP = 20 × 4 = 80 mmHg. Ondanks de enorme toename in flow blijft ΔP normaal door evenredige weerstandsdaling (vasodilatatie in spieren).',
+  },
+];
+
+function loadQuestion() {
+  quizAnswered = false;
+  const q = QUESTIONS[quizIndex % QUESTIONS.length];
+  document.getElementById('quiz-q').textContent = `Vraag ${quizIndex + 1}: ${q.q}`;
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = `${String.fromCharCode(65 + i)}. ${o}`;
+    btn.onclick = () => answerQuestion(i, q.correct, q.fb);
+    opts.appendChild(btn);
+  });
+  const fb = document.getElementById('quiz-fb');
+  fb.className = 'quiz-feedback';
+  fb.textContent = '';
+  document.getElementById('quiz-next').classList.remove('show');
+}
+
+function answerQuestion(chosen, correct, fb) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach((b, i) => {
+    if (i === correct) b.classList.add('correct');
+    else if (i === chosen && i !== correct) b.classList.add('wrong');
+    b.style.pointerEvents = 'none';
+  });
+  const fbEl = document.getElementById('quiz-fb');
+  fbEl.textContent = (chosen === correct ? '✓ Correct! ' : '✗ Niet correct. ') + fb;
+  fbEl.className = 'quiz-feedback show ' + (chosen === correct ? 'ok' : 'nok');
+  document.getElementById('quiz-next').classList.add('show');
+}
+
+function nextQuestion() {
+  quizIndex++;
+  loadQuestion();
+}
+
+/* ── Init ── */
+applyPreset('normal');
+animate();
+</script>
+</body>
+</html>
