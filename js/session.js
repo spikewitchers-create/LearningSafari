@@ -135,9 +135,9 @@ export function verwerkAntwoord(id, gegeven, opgave, beheersing, hintsGebruikt =
 
   const b = beheersing[id] ?? { goed: 0, fout: 0, rij: 0, status: 'nieuw', laatstGeoefend: null,
     metHint: 0, gezien: 0, fouteAntwoorden: [] };
-  b.metHint         ??= 0;
-  b.gezien          ??= 0;
-  b.fouteAntwoorden ??= [];
+  if (b.metHint         == null) b.metHint         = 0;
+  if (b.gezien          == null) b.gezien           = 0;
+  if (b.fouteAntwoorden == null) b.fouteAntwoorden  = [];
   b.laatstGeoefend = vandaag;
 
   let nieuwBeheerst = 0;
